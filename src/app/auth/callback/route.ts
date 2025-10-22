@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { hasActiveSubscription } from '@/utils/paddle/check-subscription-status';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -10,24 +9,31 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
-      // If next param is provided, use it
+    if (error) {
+      console.error('[Auth Callback] exchangeCodeForSession error:', error);
+      return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+    }
+
+    if (data.session) {
+      console.log('[Auth Callback] Session created successfully for user:', data.user?.email);
+
+      // If next param provided, use it
       if (next) {
         const redirectUrl = new URL(next, origin);
         redirectUrl.searchParams.set('ext_auth', 'true');
         return NextResponse.redirect(redirectUrl.toString());
       }
 
-      // Handle routing based on context
-      let destination: string;
+      // Import the subscription check function here to avoid circular dependencies
+      const { hasActiveSubscription } = await import('@/utils/paddle/check-subscription-status');
 
+      // Route based on context
+      let destination: string;
       if (context === 'signup') {
-        // Signup flow: Always go to onboarding
         destination = '/onboarding';
       } else {
-        // Login flow: Check subscription status
         const hasSubscription = await hasActiveSubscription();
         destination = hasSubscription ? '/dashboard' : '/onboarding';
       }
@@ -38,6 +44,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // return the user to an error page with instructions
+  console.error('[Auth Callback] No code provided in callback URL');
   return NextResponse.redirect(`${origin}/auth/auth-code-error`);
 }
