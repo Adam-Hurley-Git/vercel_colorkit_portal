@@ -1,7 +1,10 @@
 import { PaymentMethodDetails as PaddlePaymentMethodDetails } from '@paddle/paddle-node-sdk';
 import { CreditCard } from 'lucide-react';
 
-const PaymentMethodLabels: Partial<Record<PaddlePaymentMethodDetails['type'], string>> = {
+// Extended payment method type to include newer payment methods not yet in SDK types
+type ExtendedPaymentType = PaddlePaymentMethodDetails['type'] | 'blik' | 'mb_way' | 'pix' | 'upi';
+
+const PaymentMethodLabels: Partial<Record<ExtendedPaymentType, string>> = {
   card: 'Card',
   alipay: 'Alipay',
   wire_transfer: 'Wire Transfer',
