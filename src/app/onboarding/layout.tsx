@@ -7,21 +7,25 @@ export default async function OnboardingLayout({ children }: { children: React.R
   const supabase = await createClient();
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
 
-  // Redirect to login if not authenticated
-  if (!user) {
+  // Only redirect to login if there's an error AND no user
+  // This prevents redirect loops after OAuth callback
+  if (!user && error) {
     redirect('/login');
   }
 
-  // Check if user already has a subscription
-  const hasSubscription = await hasActiveSubscription();
+  // If we have a user, check if they already have a subscription
+  if (user) {
+    const hasSubscription = await hasActiveSubscription();
 
-  // If user already has an active subscription, redirect to dashboard
-  if (hasSubscription) {
-    redirect('/dashboard');
+    // If user already has an active subscription, redirect to dashboard
+    if (hasSubscription) {
+      redirect('/dashboard');
+    }
   }
 
-  // User is authenticated but doesn't have a subscription - show onboarding
+  // User is authenticated (or being authenticated) and doesn't have a subscription - show onboarding
   return <>{children}</>;
 }
