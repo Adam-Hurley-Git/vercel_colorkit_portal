@@ -33,13 +33,14 @@ export async function login(data: FormData) {
 
 export async function signInWithGoogle() {
   const supabase = await createClient();
+
+  // Use environment variable for redirect URL, fallback to localhost for dev
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
   const { data } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      // For local testing
-      redirectTo: `http://localhost:3000/auth/callback`,
-      // NOTE: After Vercel deploy, update this to:
-      // redirectTo: `https://YOUR-VERCEL-APP.vercel.app/auth/callback`,
+      redirectTo: `${baseUrl}/auth/callback`,
     },
   });
   if (data.url) {
