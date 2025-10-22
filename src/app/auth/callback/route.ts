@@ -5,29 +5,35 @@ import { hasActiveSubscription } from '@/utils/paddle/check-subscription-status'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  // if "next" is in param, use it as the redirect URL
+  const context = searchParams.get('context'); // 'signup' or 'login'
   const next = searchParams.get('next');
 
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+
     if (!error) {
       // If next param is provided, use it
       if (next) {
-        // Add extension flag to URL
         const redirectUrl = new URL(next, origin);
         redirectUrl.searchParams.set('ext_auth', 'true');
         return NextResponse.redirect(redirectUrl.toString());
       }
 
-      // Otherwise, check subscription status to determine where to send user
-      const hasSubscription = await hasActiveSubscription();
-      const destination = hasSubscription ? '/dashboard' : '/onboarding';
+      // Handle routing based on context
+      let destination: string;
 
-      // Add extension flag to URL
+      if (context === 'signup') {
+        // Signup flow: Always go to onboarding
+        destination = '/onboarding';
+      } else {
+        // Login flow: Check subscription status
+        const hasSubscription = await hasActiveSubscription();
+        destination = hasSubscription ? '/dashboard' : '/onboarding';
+      }
+
       const redirectUrl = new URL(destination, origin);
       redirectUrl.searchParams.set('ext_auth', 'true');
-
       return NextResponse.redirect(redirectUrl.toString());
     }
   }

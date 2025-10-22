@@ -31,16 +31,19 @@ export async function login(data: FormData) {
   }
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(isSignup = false) {
   const supabase = await createClient();
 
   // Use environment variable for redirect URL, fallback to localhost for dev
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+  // Add context to redirect URL so callback knows if this is signup or login
+  const callbackUrl = `${baseUrl}/auth/callback?context=${isSignup ? 'signup' : 'login'}`;
+
   const { data } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${baseUrl}/auth/callback`,
+      redirectTo: callbackUrl,
     },
   });
   if (data.url) {

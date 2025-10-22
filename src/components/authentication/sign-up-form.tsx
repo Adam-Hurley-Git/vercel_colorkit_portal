@@ -23,7 +23,7 @@ export function SignupForm() {
   }
 
   function handleGoogleSignup() {
-    signInWithGoogle().catch((error) => {
+    signInWithGoogle(true).catch((error) => {
       console.error('Google signup error:', error);
       toast({ description: 'Something went wrong. Please try again', variant: 'destructive' });
     });
