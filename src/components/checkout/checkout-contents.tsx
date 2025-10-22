@@ -18,7 +18,8 @@ interface Props {
 }
 
 export function CheckoutContents({ userEmail }: Props) {
-  const { priceId } = useParams<PathParams>();
+  const params = useParams<PathParams>();
+  const priceId = params?.priceId ?? '';
   const [quantity, setQuantity] = useState<number>(1);
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [checkoutData, setCheckoutData] = useState<CheckoutEventsData | null>(null);
@@ -27,12 +28,12 @@ export function CheckoutContents({ userEmail }: Props) {
     setCheckoutData(event);
   };
 
-  const updateItems = useCallback(
-    throttle((paddle: Paddle, priceId: string, quantity: number) => {
+  const updateItems = useCallback((paddle: Paddle, priceId: string, quantity: number) => {
+    const throttledUpdate = throttle(() => {
       paddle.Checkout.updateItems([{ priceId, quantity }]);
-    }, 1000),
-    [],
-  );
+    }, 1000);
+    throttledUpdate();
+  }, []);
 
   useEffect(() => {
     if (!paddle?.Initialized && process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN && process.env.NEXT_PUBLIC_PADDLE_ENV) {
@@ -48,7 +49,7 @@ export function CheckoutContents({ userEmail }: Props) {
           settings: {
             variant: 'one-page',
             displayMode: 'inline',
-            theme: 'dark',
+            theme: 'light',
             allowLogout: !userEmail,
             frameTarget: 'paddle-checkout-frame',
             frameInitialHeight: 450,

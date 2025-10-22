@@ -1,5 +1,6 @@
-import { HomePage } from '@/components/home/home-page';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return <HomePage />;
+  // Redirect to signup as the landing page
+  redirect('/signup');
 }

@@ -37,13 +37,13 @@ export function SubscriptionHeader({ subscription }: Props) {
         <div className={'flex items-center gap-6 py-8 pb-6 flex-wrap md:flex-wrap'}>
           <div className={'flex gap-1 items-end'}>
             <span className={'text-4xl leading-9 font-medium'}>{formattedPrice}</span>
-            <span className={'text-secondary text-sm leading-[14px] font-medium'}>{frequency}</span>
+            <span className={'text-slate-600 text-sm leading-[14px] font-medium'}>{frequency}</span>
           </div>
           <div>
             <Status status={subscription.status} />
           </div>
         </div>
-        <div className={'text-secondary text-base leading-5 pb-8'}>Started on: {formattedStartedDate}</div>
+        <div className={'text-slate-600 text-base leading-5 pb-8'}>Started on: {formattedStartedDate}</div>
       </div>
       <div>
         {!(subscription.scheduledChange || subscription.status === 'canceled') && (

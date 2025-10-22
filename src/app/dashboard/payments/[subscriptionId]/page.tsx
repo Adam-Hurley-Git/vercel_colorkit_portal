@@ -7,7 +7,8 @@ import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 
 export default function SubscriptionsPaymentPage() {
-  const { subscriptionId } = useParams<{ subscriptionId: string }>();
+  const params = useParams<{ subscriptionId: string }>();
+  const subscriptionId = params?.subscriptionId ?? '';
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-8">

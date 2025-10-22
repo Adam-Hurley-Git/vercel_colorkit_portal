@@ -19,5 +19,6 @@ export async function signup(data: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  redirect('/');
+  // Redirect new users to onboarding flow
+  redirect('/onboarding');
 }

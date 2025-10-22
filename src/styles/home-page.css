@@ -37,7 +37,7 @@
 
 .featured-card-badge {
   position: relative;
-  background: linear-gradient(90deg, #fff800 0%, #fffecc 100%);
+  background: linear-gradient(90deg, #98b3fc 0%, #cbbef7 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -48,7 +48,7 @@
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 15%,
-    rgba(255, 248, 0, 0.6) 50%,
+    rgba(152, 179, 252, 0.6) 50%,
     rgba(255, 255, 255, 0) 85%
   );
   position: absolute;
@@ -88,7 +88,7 @@
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 15%,
-    rgba(255, 248, 0, 0.6) 50%,
+    rgba(152, 179, 252, 0.6) 50%,
     rgba(255, 255, 255, 0) 85%
   );
 }
@@ -105,7 +105,7 @@
   width: 296px;
   border-radius: 296px;
   opacity: 0.2;
-  background: #fddd35;
+  background: #cbbef7;
   filter: blur(32px);
 }
 
@@ -129,7 +129,7 @@
   left: 50%;
   margin-left: -44px;
   top: -2px;
-  background: #fff800;
+  background: #98b3fc;
   opacity: 0.5;
   filter: blur(12px);
 }
@@ -144,7 +144,7 @@
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 15%,
-    rgba(255, 248, 0, 0.6) 50%,
+    rgba(152, 179, 252, 0.6) 50%,
     rgba(255, 255, 255, 0) 85%
   );
 }
@@ -157,7 +157,7 @@
   height: 280px;
   border-radius: 280px;
   opacity: 0.1;
-  background: #fff800;
+  background: #cbbef7;
   filter: blur(48px);
 }
 
@@ -170,6 +170,6 @@
   height: 37px;
   border-radius: 384px;
   opacity: 0.3;
-  background: #fff800;
+  background: #cbbef7;
   filter: blur(32px);
 }

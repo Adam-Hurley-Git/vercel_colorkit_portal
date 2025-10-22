@@ -8,23 +8,29 @@ interface Props {
 
 export function QuantityField({ handleQuantityChange, quantity }: Props) {
   return (
-    <div className={'mt-3 bg-background gap-1 w-fit flex items-center rounded-sm border border-border p-[6px]'}>
+    <div className={'mt-3 bg-white gap-1 w-fit flex items-center rounded-sm border-2 border-slate-300 p-[6px]'}>
       <Button
         disabled={quantity === 1}
         variant={'secondary'}
         className={
-          'h-[32px] bg-[#182222] disabled:bg-transparent text-muted-foreground border-border w-[32px] p-0 rounded-[4px]'
+          'h-[32px] bg-white disabled:bg-slate-100 disabled:text-slate-400 text-slate-700 hover:bg-slate-50 border-2 border-slate-300 w-[32px] p-0 rounded-[4px]'
         }
         onClick={() => handleQuantityChange(quantity - 1)}
       >
         <Minus />
       </Button>
-      <span className={'text-center leading-[24px] bg-[#182222] rounded-[4px] w-[56px] px-2 py-1 text-xs'}>
+      <span
+        className={
+          'text-center leading-[24px] bg-white text-slate-900 rounded-[4px] w-[56px] px-2 py-1 text-xs font-semibold border-2 border-slate-300'
+        }
+      >
         {quantity}
       </span>
       <Button
         variant={'secondary'}
-        className={'h-[32px] bg-[#182222] text-muted-foreground border-border w-[32px] p-0 rounded-[4px]'}
+        className={
+          'h-[32px] bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-300 w-[32px] p-0 rounded-[4px]'
+        }
         onClick={() => handleQuantityChange(quantity + 1)}
       >
         <Plus />

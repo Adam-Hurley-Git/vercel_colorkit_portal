@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
+import { hasActiveSubscription } from '@/utils/paddle/check-subscription-status';
 
 interface FormData {
   email: string;
@@ -17,15 +18,28 @@ export async function login(data: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  redirect('/');
+
+  // Check if user has an active subscription
+  const hasSubscription = await hasActiveSubscription();
+
+  // If user has active subscription, go to dashboard
+  // Otherwise, send them through onboarding
+  if (hasSubscription) {
+    redirect('/dashboard');
+  } else {
+    redirect('/onboarding');
+  }
 }
 
-export async function signInWithGithub() {
+export async function signInWithGoogle() {
   const supabase = await createClient();
   const { data } = await supabase.auth.signInWithOAuth({
-    provider: 'github',
+    provider: 'google',
     options: {
-      redirectTo: `https://paddle-billing.vercel.app/auth/callback`,
+      // For local testing
+      redirectTo: `http://localhost:3000/auth/callback`,
+      // NOTE: After Vercel deploy, update this to:
+      // redirectTo: `https://YOUR-VERCEL-APP.vercel.app/auth/callback`,
     },
   });
   if (data.url) {
@@ -45,5 +59,7 @@ export async function loginAnonymously() {
   }
 
   revalidatePath('/', 'layout');
-  redirect('/');
+
+  // Anonymous users are always new, send to onboarding
+  redirect('/onboarding');
 }

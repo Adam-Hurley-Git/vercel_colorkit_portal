@@ -1,7 +1,7 @@
 import { PaymentMethodDetails as PaddlePaymentMethodDetails } from '@paddle/paddle-node-sdk';
 import { CreditCard } from 'lucide-react';
 
-const PaymentMethodLabels: Record<PaddlePaymentMethodDetails['type'], string> = {
+const PaymentMethodLabels: Partial<Record<PaddlePaymentMethodDetails['type'], string>> = {
   card: 'Card',
   alipay: 'Alipay',
   wire_transfer: 'Wire Transfer',
@@ -13,6 +13,10 @@ const PaymentMethodLabels: Record<PaddlePaymentMethodDetails['type'], string> = 
   korea_local: 'Korean Local Payment',
   offline: 'Offline',
   unknown: 'Unknown',
+  blik: 'Blik',
+  mb_way: 'MB Way',
+  pix: 'Pix',
+  upi: 'UPI',
 };
 
 interface Props {
@@ -25,10 +29,14 @@ export function PaymentMethodDetails({ type, card }: Props) {
     return (
       <>
         <CreditCard size={18} />
-        <span className={'text-base text-secondary leading-4'}>**** {card?.last4}</span>
+        <span className={'text-base text-slate-600 leading-4'}>**** {card?.last4}</span>
       </>
     );
   } else {
-    return type ? <span className={'text-base text-secondary leading-4'}>{PaymentMethodLabels[type]}</span> : '-';
+    return type ? (
+      <span className={'text-base text-slate-600 leading-4'}>{PaymentMethodLabels[type] || type}</span>
+    ) : (
+      '-'
+    );
   }
 }

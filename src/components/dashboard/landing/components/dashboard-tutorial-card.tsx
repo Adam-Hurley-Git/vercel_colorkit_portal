@@ -9,13 +9,13 @@ export function DashboardTutorialCard() {
         <CardTitle className="flex justify-between items-center text-xl mb-2 font-medium">Tutorials</CardTitle>
       </CardHeader>
       <CardContent className={'p-0 flex flex-col gap-6'}>
-        <div className="text-base leading-6 text-secondary">
+        <div className="text-base leading-6 text-slate-600">
           Learn how to get the most out of AeroEdit tools and discover your inner artist.
         </div>
         <div>
           <Button size={'sm'} variant={'outline'} className={'flex gap-2 text-sm rounded-sm border-border'}>
             Tutorials
-            <ArrowUpRight size={16} className={'text-[#797C7C]'} />
+            <ArrowUpRight size={16} className={'text-slate-700'} />
           </Button>
         </div>
       </CardContent>

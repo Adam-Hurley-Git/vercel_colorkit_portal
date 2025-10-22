@@ -22,7 +22,7 @@ export function SubscriptionLineItems({ subscription }: Props) {
             <div className={'col-span-2 w-full text-base leading-4 font-semibold'}>Tax</div>
             <div className={'col-span-2 w-full text-base leading-4 font-semibold text-right'}>
               <span>Amount</span>
-              <span className={'text-secondary text-sm leading-[14px] font-normal'}>(exc. tax)</span>
+              <span className={'text-slate-600 text-sm leading-[14px] font-normal'}>(exc. tax)</span>
             </div>
           </div>
 
@@ -38,18 +38,18 @@ export function SubscriptionLineItems({ subscription }: Props) {
                     </div>
                     <div className={'flex flex-col gap-3 px-4'}>
                       <div className={'text-base leading-6 font-semibold'}>{lineItem.product.name}</div>
-                      <div className={'text-base leading-6 text-secondary'}>{lineItem.product.description}</div>
+                      <div className={'text-base leading-6 text-slate-600'}>{lineItem.product.description}</div>
                     </div>
                   </div>
                 </div>
                 <div className={'flex gap-6 w-full col-span-6 items-center border-border border-b py-6'}>
-                  <div className={'col-span-2 w-full text-base leading-4 font-semibold text-secondary'}>
+                  <div className={'col-span-2 w-full text-base leading-4 font-semibold text-slate-600'}>
                     {lineItem.quantity}
                   </div>
-                  <div className={'col-span-2 w-full text-base leading-4 font-semibold text-secondary'}>
+                  <div className={'col-span-2 w-full text-base leading-4 font-semibold text-slate-600'}>
                     {parseFloat(lineItem.taxRate) * 100}%
                   </div>
-                  <div className={'col-span-2 text-right w-full text-base leading-4 font-semibold text-secondary'}>
+                  <div className={'col-span-2 text-right w-full text-base leading-4 font-semibold text-slate-600'}>
                     {parseMoney(lineItem.totals.subtotal, subscription?.currencyCode)}
                   </div>
                 </div>
@@ -59,19 +59,19 @@ export function SubscriptionLineItems({ subscription }: Props) {
           <div className={'col-span-6'}></div>
           <div className={'flex flex-col w-full col-span-6 pt-6'}>
             <div className={'flex justify-between py-4 pt-0 border-border border-b'}>
-              <div className={'col-span-3 w-full text-base leading-4 text-secondary'}>Amount</div>
-              <div className={'col-span-3 w-full text-base leading-4 text-right text-secondary'}>
+              <div className={'col-span-3 w-full text-base leading-4 text-slate-600'}>Amount</div>
+              <div className={'col-span-3 w-full text-base leading-4 text-right text-slate-600'}>
                 {parseMoney(subscription?.recurringTransactionDetails?.totals.subtotal, subscription?.currencyCode)}
               </div>
             </div>
             <div className={'flex justify-between py-4 border-border border-b'}>
-              <div className={'col-span-3 w-full text-base leading-4 text-secondary'}>Tax</div>
-              <div className={'col-span-3 w-full text-base leading-4 text-right text-secondary'}>
+              <div className={'col-span-3 w-full text-base leading-4 text-slate-600'}>Tax</div>
+              <div className={'col-span-3 w-full text-base leading-4 text-right text-slate-600'}>
                 {parseMoney(subscription?.recurringTransactionDetails?.totals.tax, subscription?.currencyCode)}
               </div>
             </div>
             <div className={'flex justify-between py-4 border-border border-b'}>
-              <div className={'col-span-3 w-full text-base leading-4 text-secondary'}>Total (Inc. tax)</div>
+              <div className={'col-span-3 w-full text-base leading-4 text-slate-600'}>Total (Inc. tax)</div>
               <div className={'col-span-3 w-full text-base leading-4 font-semibold text-right'}>
                 {parseMoney(subscription?.recurringTransactionDetails?.totals.total, subscription?.currencyCode)}
               </div>

@@ -4,26 +4,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const cards = [
   {
     title: 'Storage used',
-    icon: <Bolt className={'text-[#4B4F4F]'} size={18} />,
+    icon: <Bolt className={'text-slate-700'} size={18} />,
     value: '1.2 GB',
     change: '10 GB remaining',
   },
   {
     title: 'Active workspaces',
-    icon: <Shapes className={'text-[#4B4F4F]'} size={18} />,
+    icon: <Shapes className={'text-slate-700'} size={18} />,
     value: '4',
     change: '6 available workspaces',
   },
   {
     title: 'Assets exported',
     // eslint-disable-next-line jsx-a11y/alt-text
-    icon: <Image className={'text-[#4B4F4F]'} size={18} />,
+    icon: <Image className={'text-slate-700'} size={18} />,
     value: '286',
     change: '+16% from last month',
   },
   {
     title: 'Collaborators',
-    icon: <Timer className={'text-[#4B4F4F]'} size={18} />,
+    icon: <Timer className={'text-slate-700'} size={18} />,
     value: '10',
     change: '+27% from last month',
   },
@@ -40,7 +40,7 @@ export function DashboardUsageCardGroup() {
             <CardDescription className={'text-[32px] leading-[32px] text-primary'}>{card.value}</CardDescription>
           </CardHeader>
           <CardContent className={'p-0'}>
-            <div className="text-sm leading-[14px] pt-2 text-secondary">{card.change}</div>
+            <div className="text-sm leading-[14px] pt-2 text-slate-600">{card.change}</div>
           </CardContent>
         </Card>
       ))}

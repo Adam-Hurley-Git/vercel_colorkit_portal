@@ -23,8 +23,12 @@ export class ProcessWebhook {
   }
 
   private async updateSubscriptionData(eventData: SubscriptionCreatedEvent | SubscriptionUpdatedEvent) {
+    console.log('[Webhook] Processing subscription event:', eventData.eventType);
+    console.log('[Webhook] Subscription ID:', eventData.data.id);
+    console.log('[Webhook] Customer ID:', eventData.data.customerId);
+
     const supabase = await createClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('subscriptions')
       .upsert({
         subscription_id: eventData.data.id,
@@ -36,12 +40,21 @@ export class ProcessWebhook {
       })
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[Webhook] ❌ Failed to save subscription:', error);
+      throw error;
+    }
+
+    console.log('[Webhook] ✅ Subscription saved successfully:', data);
   }
 
   private async updateCustomerData(eventData: CustomerCreatedEvent | CustomerUpdatedEvent) {
+    console.log('[Webhook] Processing customer event:', eventData.eventType);
+    console.log('[Webhook] Customer ID:', eventData.data.id);
+    console.log('[Webhook] Email:', eventData.data.email);
+
     const supabase = await createClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('customers')
       .upsert({
         customer_id: eventData.data.id,
@@ -49,6 +62,11 @@ export class ProcessWebhook {
       })
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[Webhook] ❌ Failed to save customer:', error);
+      throw error;
+    }
+
+    console.log('[Webhook] ✅ Customer saved successfully:', data);
   }
 }

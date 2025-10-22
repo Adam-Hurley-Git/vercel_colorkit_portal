@@ -26,12 +26,12 @@ export function SubscriptionPastPaymentsCard({ subscriptionId, transactions }: P
           const formattedPrice = parseMoney(transaction.details?.totals?.total, transaction.currencyCode);
           return (
             <div key={transaction.id} className={'flex flex-col gap-4 border-border border-b py-6'}>
-              <div className={'text-secondary text-base leading-4'}>
+              <div className={'text-slate-600 text-base leading-4'}>
                 {dayjs(transaction.billedAt ?? transaction.createdAt).format('MMM DD, YYYY')}
               </div>
               <div className={'flex-wrap flex items-center gap-5'}>
                 <span className={'font-semibold text-base leading-4'}>{getPaymentReason(transaction.origin)}</span>
-                <span className={'text-base leading-6 text-secondary'}>
+                <span className={'text-base leading-6 text-slate-600'}>
                   {transaction.details?.lineItems[0].product?.name}
                 </span>
               </div>

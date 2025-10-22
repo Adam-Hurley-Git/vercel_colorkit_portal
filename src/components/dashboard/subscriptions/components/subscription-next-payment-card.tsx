@@ -21,7 +21,7 @@ export function SubscriptionNextPaymentCard({ subscription, transactions }: Prop
           <span className={'text-xl leading-5 font-medium text-primary'}>
             {parseMoney(subscription?.nextTransaction?.details.totals.total, subscription?.currencyCode)}
           </span>
-          <span className={'text-base text-secondary leading-4'}>due</span>
+          <span className={'text-base text-slate-600 leading-4'}>due</span>
           <span className={'ext-base leading-4 font-semibold text-primary'}>
             {dayjs(subscription?.nextBilledAt).format('MMM DD, YYYY')}
           </span>

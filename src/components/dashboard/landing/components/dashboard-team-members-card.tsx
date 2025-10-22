@@ -39,7 +39,7 @@ export function DashboardTeamMembersCard() {
         <CardTitle className="flex justify-between gap-2 items-center pb-6 border-border border-b">
           <div className={'flex flex-col gap-2'}>
             <span className={'text-xl font-medium'}>Team members</span>
-            <span className={'text-base leading-4 text-secondary'}>Invite your team members to collaborate</span>
+            <span className={'text-base leading-4 text-slate-600'}>Invite your team members to collaborate</span>
           </div>
           <Button asChild={true} size={'sm'} variant={'outline'} className={'text-sm rounded-sm border-border'}>
             <Link href={'/dashboard/subscriptions'}>
@@ -57,7 +57,7 @@ export function DashboardTeamMembersCard() {
               </div>
               <div className={'flex flex-col gap-2'}>
                 <span className={'text-base leading-4 font-medium'}>{teamMember.name}</span>
-                <span className={'text-base leading-4 text-secondary'}>{teamMember.email}</span>
+                <span className={'text-base leading-4 text-slate-600'}>{teamMember.email}</span>
               </div>
             </div>
           </div>

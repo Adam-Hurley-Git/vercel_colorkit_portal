@@ -14,7 +14,8 @@
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
     "lint-staged": "lint-staged",
-    "test": "pnpm lint && pnpm prettier:check"
+    "test": "pnpm lint && pnpm prettier:check",
+    "verify-build": "next build && echo Build verification successful!"
   },
   "git": {
     "pre-commit": "lint-staged"

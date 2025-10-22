@@ -17,7 +17,7 @@ export function NoSubscriptionView() {
             </CardTitle>
           </CardHeader>
           <CardContent className={'p-0'}>
-            <div className="text-base leading-6 text-secondary">
+            <div className="text-base leading-6 text-slate-600">
               Sign up for a subscription to see your subscriptions here.
             </div>
           </CardContent>
