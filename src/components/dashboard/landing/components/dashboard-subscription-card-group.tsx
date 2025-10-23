@@ -4,9 +4,17 @@ import Link from 'next/link';
 import { SubscriptionCards } from '@/components/dashboard/subscriptions/components/subscription-cards';
 import { getSubscriptions } from '@/utils/paddle/get-subscriptions';
 import { ErrorContent } from '@/components/dashboard/layout/error-content';
+import { DashboardNoSubscriptionCard } from '@/components/dashboard/landing/components/dashboard-no-subscription-card';
 
 export async function DashboardSubscriptionCardGroup() {
   const subscriptions = await getSubscriptions();
+
+  // If no subscriptions, show CTA to start trial
+  if (!subscriptions?.data || subscriptions.data.length === 0) {
+    return <DashboardNoSubscriptionCard />;
+  }
+
+  // Show existing subscriptions
   return (
     <Card className={'bg-background/50 backdrop-blur-[24px] border-border p-6'}>
       <CardHeader className="p-0 space-y-0">
