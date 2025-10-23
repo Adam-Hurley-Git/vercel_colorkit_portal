@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { fcm_token, user_id } = body;
+    const { fcm_token } = body;
 
     if (!fcm_token) {
       console.log('❌ Missing fcm_token in request body');
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     // Store FCM token in database
     // Use upsert to update if token already exists
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('fcm_tokens')
       .upsert(
         {

@@ -61,13 +61,10 @@ export class ProcessWebhook {
 
     console.log('[Webhook] ✅ Subscription saved successfully:', data);
 
-    // Send FCM push notification if subscription was cancelled
+    // Send FCM push notification if subscription was cancelled/paused
     // This provides instant blocking (< 1 minute) without requiring user to visit dashboard
-    if (
-      eventData.data.status === 'canceled' ||
-      eventData.data.status === 'cancelled' ||
-      eventData.data.status === 'paused'
-    ) {
+    // Note: Paddle uses 'canceled' (one 'l'), not 'cancelled'
+    if (eventData.data.status === 'canceled' || eventData.data.status === 'paused') {
       console.log('[Webhook] 🔔 Subscription cancelled/paused - sending FCM push notification');
       try {
         const { sendFCMPushToCustomer } = await import('@/utils/fcm/send-push');
