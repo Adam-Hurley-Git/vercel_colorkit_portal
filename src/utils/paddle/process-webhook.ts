@@ -34,6 +34,7 @@ export class ProcessWebhook {
     console.log('[Webhook] Processing subscription event:', eventData.eventType);
     console.log('[Webhook] Subscription ID:', eventData.data.id);
     console.log('[Webhook] Customer ID:', eventData.data.customerId);
+    console.log('[Webhook] Subscription Status:', eventData.data.status);
 
     const supabase = await createClient();
 
@@ -59,6 +60,48 @@ export class ProcessWebhook {
     }
 
     console.log('[Webhook] ✅ Subscription saved successfully:', data);
+
+    // Check if subscription was cancelled - notify extension to clear cache
+    if (eventData.data.status === 'canceled') {
+      console.log('[Webhook] 🚫 Subscription cancelled - will notify extension on next user visit');
+      // Note: We can't directly notify the extension from server-side
+      // The extension will be notified when user next visits the dashboard
+      // via the dashboard page checking subscription status and sending message
+      await this.notifyExtensionOfCancellation(eventData.data.customerId);
+    }
+  }
+
+  /**
+   * Notify extension about subscription cancellation
+   * Since we can't send messages directly from server to extension,
+   * we'll store a pending notification that gets sent when user visits dashboard
+   */
+  private async notifyExtensionOfCancellation(customerId: string) {
+    try {
+      const supabase = await createClient();
+
+      // Store pending notification for this customer
+      const { error } = await supabase.from('extension_notifications').upsert(
+        {
+          customer_id: customerId,
+          notification_type: 'SUBSCRIPTION_CANCELLED',
+          created_at: new Date().toISOString(),
+          delivered: false,
+        },
+        {
+          onConflict: 'customer_id',
+        },
+      );
+
+      if (error) {
+        console.error('[Webhook] ❌ Failed to store cancellation notification:', error);
+      } else {
+        console.log('[Webhook] ✅ Cancellation notification queued for customer:', customerId);
+      }
+    } catch (error) {
+      console.error('[Webhook] ❌ Error storing notification:', error);
+      // Don't throw - this is non-critical
+    }
   }
 
   private async updateCustomerData(eventData: CustomerCreatedEvent | CustomerUpdatedEvent) {

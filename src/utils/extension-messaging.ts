@@ -129,3 +129,25 @@ export async function preparePaymentSuccessMessage(): Promise<Record<string, unk
     return null;
   }
 }
+
+/**
+ * Prepares a subscription cancelled message for the Chrome extension
+ * Notifies extension that subscription was cancelled and cache should be cleared
+ *
+ * @param customerId - Paddle customer ID (used to identify the user)
+ * @returns Message object for ExtensionNotifier or null if user session not found
+ */
+export async function prepareSubscriptionCancelledMessage(customerId: string): Promise<Record<string, unknown> | null> {
+  try {
+    console.log('[extension-messaging] Preparing cancellation message for customer:', customerId);
+
+    return {
+      type: 'SUBSCRIPTION_CANCELLED',
+      customerId: customerId,
+      timestamp: Date.now(),
+    };
+  } catch (error) {
+    console.error('[extension-messaging] Failed to prepare cancellation message:', error);
+    return null;
+  }
+}
