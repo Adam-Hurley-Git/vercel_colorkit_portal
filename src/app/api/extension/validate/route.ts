@@ -17,32 +17,67 @@ export async function GET(request: NextRequest) {
   console.log('User-Agent:', request.headers.get('user-agent'));
 
   try {
-    // Check authentication via Supabase cookies
-    const supabase = await createClient();
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    // Check for Bearer token in Authorization header (for extension)
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
 
-    if (authError || !user) {
-      console.log('❌ User not authenticated:', authError?.message);
-      return NextResponse.json(
-        {
-          isActive: false,
-          reason: 'not_authenticated',
-          message: 'Please sign in to continue',
-        },
-        {
-          status: 401,
-          headers: {
-            'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
-            'Access-Control-Allow-Credentials': 'true',
+    let user = null;
+    let supabase = await createClient();
+
+    if (token) {
+      // Extension is using Bearer token authentication
+      console.log('🔑 Bearer token authentication detected');
+      const { data, error } = await supabase.auth.getUser(token);
+
+      if (error || !data.user) {
+        console.log('❌ Invalid or expired token:', error?.message);
+        return NextResponse.json(
+          {
+            isActive: false,
+            reason: 'invalid_token',
+            message: 'Session expired. Please sign in again.',
           },
-        },
-      );
-    }
+          {
+            status: 401,
+            headers: {
+              'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+              'Access-Control-Allow-Credentials': 'true',
+            },
+          },
+        );
+      }
 
-    console.log('✅ User authenticated:', user.email);
+      user = data.user;
+      console.log('✅ User authenticated via Bearer token:', user.email);
+    } else {
+      // Web app is using cookie authentication
+      console.log('🍪 Cookie authentication detected');
+      const {
+        data: { user: cookieUser },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !cookieUser) {
+        console.log('❌ User not authenticated:', authError?.message);
+        return NextResponse.json(
+          {
+            isActive: false,
+            reason: 'not_authenticated',
+            message: 'Please sign in to continue',
+          },
+          {
+            status: 401,
+            headers: {
+              'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+              'Access-Control-Allow-Credentials': 'true',
+            },
+          },
+        );
+      }
+
+      user = cookieUser;
+      console.log('✅ User authenticated via cookies:', user.email);
+    }
 
     // Try to get customer ID from database
     let customerId = await getCustomerId();
