@@ -61,8 +61,26 @@ export class ProcessWebhook {
 
     console.log('[Webhook] ✅ Subscription saved successfully:', data);
 
-    // Note: Extension cache invalidation happens automatically
-    // When user visits dashboard, it checks subscription status and sends cancellation message if needed
+    // Send FCM push notification if subscription was cancelled
+    // This provides instant blocking (< 1 minute) without requiring user to visit dashboard
+    if (
+      eventData.data.status === 'canceled' ||
+      eventData.data.status === 'cancelled' ||
+      eventData.data.status === 'paused'
+    ) {
+      console.log('[Webhook] 🔔 Subscription cancelled/paused - sending FCM push notification');
+      try {
+        const { sendFCMPushToCustomer } = await import('@/utils/fcm/send-push');
+        const result = await sendFCMPushToCustomer(eventData.data.customerId, {
+          type: 'SUBSCRIPTION_CANCELLED',
+          timestamp: Date.now(),
+        });
+        console.log(`[Webhook] ✅ FCM push sent: ${result.sent} successful, ${result.failed} failed`);
+      } catch (fcmError) {
+        // Don't fail webhook if FCM push fails - daily validation will catch it
+        console.error('[Webhook] ⚠️ Failed to send FCM push (will fallback to daily check):', fcmError);
+      }
+    }
   }
 
   private async updateCustomerData(eventData: CustomerCreatedEvent | CustomerUpdatedEvent) {
