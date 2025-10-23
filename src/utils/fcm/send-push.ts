@@ -40,13 +40,11 @@ async function getAccessToken(): Promise<string> {
     throw new Error('Missing Firebase credentials (FIREBASE_PRIVATE_KEY or FIREBASE_CLIENT_EMAIL)');
   }
 
-  const jwtClient = new google.auth.JWT(
-    clientEmail,
-    undefined,
-    privateKey,
-    ['https://www.googleapis.com/auth/firebase.messaging'],
-    undefined,
-  );
+  const jwtClient = new google.auth.JWT({
+    email: clientEmail,
+    key: privateKey,
+    scopes: ['https://www.googleapis.com/auth/firebase.messaging'],
+  });
 
   const tokens = await jwtClient.authorize();
   if (!tokens.access_token) {
