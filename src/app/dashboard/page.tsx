@@ -8,16 +8,13 @@ interface DashboardPageProps {
 }
 
 export default async function LandingPage({ searchParams }: DashboardPageProps) {
-  // Check if this is a redirect from auth callback with extension auth flag
-  const params = await searchParams;
-  const isExtensionAuth = params.ext_auth === 'true';
-
-  // Prepare message for extension if this is an auth redirect
-  const extensionMessage = isExtensionAuth ? await prepareAuthSuccessMessage() : null;
+  // Always prepare auth message for extension when user visits dashboard
+  // This ensures extension gets session tokens even if they didn't come from auth callback
+  const extensionMessage = await prepareAuthSuccessMessage();
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-8">
-      {/* Send auth success to extension if this is auth redirect */}
+      {/* Send auth success to extension whenever user is logged in */}
       {extensionMessage && <ExtensionNotifier message={extensionMessage} />}
 
       <DashboardPageHeader pageTitle={'Dashboard'} />
