@@ -37,7 +37,7 @@ Daily validation at 4 AM (backup)
 
 ### 2. Get FCM Credentials
 
-#### Get FCM Sender ID
+#### Get FCM Sender ID (for Extension)
 
 1. In Firebase Console, click ⚙️ Settings → Project settings
 2. Go to "Cloud Messaging" tab
@@ -47,18 +47,34 @@ Daily validation at 4 AM (backup)
    FCM_SENDER_ID: '123456789012', // Replace with your Sender ID
    ```
 
-#### Get FCM Server Key
+#### Get Service Account Key (for Server)
 
-1. Still in Cloud Messaging settings
-2. Under "Cloud Messaging API (Legacy)", click the three dots menu
-3. Click "Manage API in Google Cloud Console"
-4. Enable "Firebase Cloud Messaging API" if not already enabled
-5. Go back to Firebase Console → Cloud Messaging tab
-6. Copy the **Server key** (starts with `AAAA...`)
-7. Add to Vercel environment variables:
-   ```
-   FIREBASE_SERVER_KEY=AAAA...your_server_key_here
-   ```
+The modern FCM HTTP v1 API uses Service Account authentication instead of legacy server keys.
+
+1. In Firebase Console, click ⚙️ Settings → Project settings
+2. Go to **"Service Accounts"** tab
+3. Click **"Generate new private key"** button
+4. Click **"Generate key"** to download JSON file
+5. **Keep this file secure!** It contains your private key
+
+The downloaded JSON file looks like:
+
+```json
+{
+  "type": "service_account",
+  "project_id": "your-project-id",
+  "private_key_id": "abc123...",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com",
+  "client_id": "123456789",
+  ...
+}
+```
+
+6. Extract these three values for Vercel environment variables:
+   - `FIREBASE_PROJECT_ID` = `"project_id"` value
+   - `FIREBASE_CLIENT_EMAIL` = `"client_email"` value
+   - `FIREBASE_PRIVATE_KEY` = `"private_key"` value (keep the `\n` characters)
 
 ### 3. Update Extension Configuration
 
@@ -77,10 +93,21 @@ export const CONFIG = {
 
 ### 4. Deploy to Vercel
 
-1. Add environment variable in Vercel dashboard:
-   - Variable name: `FIREBASE_SERVER_KEY`
-   - Value: Your Server Key from step 2
+1. Add environment variables in Vercel dashboard (Settings → Environment Variables):
+
+   **FIREBASE_PROJECT_ID**
+   - Value: `your-project-id` (from service account JSON)
    - Environment: Production (and Preview if needed)
+
+   **FIREBASE_CLIENT_EMAIL**
+   - Value: `firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com` (from JSON)
+   - Environment: Production (and Preview if needed)
+
+   **FIREBASE_PRIVATE_KEY**
+   - Value: Copy the entire `private_key` value from JSON, including quotes and `\n` characters
+   - Example: `"-----BEGIN PRIVATE KEY-----\nMIIE...YOUR_KEY_HERE...\n-----END PRIVATE KEY-----\n"`
+   - Environment: Production (and Preview if needed)
+   - **Important**: In Vercel, paste the value WITH the surrounding quotes
 
 2. Redeploy your application:
    ```bash

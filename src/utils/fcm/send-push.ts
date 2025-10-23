@@ -2,13 +2,21 @@
  * Firebase Cloud Messaging (FCM) Push Notification Utility
  * Sends instant notifications to Chrome extension when subscription changes
  *
+ * Uses FCM HTTP v1 API (modern, recommended approach)
+ *
  * Setup Required:
  * 1. Create Firebase project: https://console.firebase.google.com/
- * 2. Get Server Key: Firebase Console → Project Settings → Cloud Messaging → Server key
- * 3. Add to environment: FIREBASE_SERVER_KEY=your_server_key_here
+ * 2. Go to Project Settings → Service Accounts
+ * 3. Click "Generate new private key" and download JSON file
+ * 4. Add to environment variables (see .env.local.example):
+ *    FIREBASE_PROJECT_ID=your-project-id
+ *    FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+ *    FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
  *
  * Cost: FREE and UNLIMITED (Firebase Cloud Messaging is completely free)
  */
+
+import { google } from 'googleapis';
 
 interface FCMPushData {
   type: 'SUBSCRIPTION_CANCELLED' | 'SUBSCRIPTION_UPDATED';
@@ -22,62 +30,99 @@ interface FCMResponse {
 }
 
 /**
- * Send FCM push notification to a specific token
+ * Get OAuth2 access token for FCM v1 API
+ */
+async function getAccessToken(): Promise<string> {
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+
+  if (!privateKey || !clientEmail) {
+    throw new Error('Missing Firebase credentials (FIREBASE_PRIVATE_KEY or FIREBASE_CLIENT_EMAIL)');
+  }
+
+  const jwtClient = new google.auth.JWT(
+    clientEmail,
+    undefined,
+    privateKey,
+    ['https://www.googleapis.com/auth/firebase.messaging'],
+    undefined,
+  );
+
+  const tokens = await jwtClient.authorize();
+  if (!tokens.access_token) {
+    throw new Error('Failed to obtain access token');
+  }
+
+  return tokens.access_token;
+}
+
+/**
+ * Send FCM push notification to a specific token using FCM v1 API
  */
 export async function sendFCMPush(fcmToken: string, data: FCMPushData): Promise<FCMResponse> {
-  const serverKey = process.env.FIREBASE_SERVER_KEY;
+  const projectId = process.env.FIREBASE_PROJECT_ID;
 
-  if (!serverKey) {
-    console.error('❌ FIREBASE_SERVER_KEY not configured');
+  if (!projectId) {
+    console.error('❌ FIREBASE_PROJECT_ID not configured');
     return {
       success: false,
-      error: 'FCM not configured - missing FIREBASE_SERVER_KEY',
+      error: 'FCM not configured - missing FIREBASE_PROJECT_ID',
     };
   }
 
   console.log('📤 Sending FCM push notification:', data.type);
 
   try {
-    const response = await fetch('https://fcm.googleapis.com/fcm/send', {
+    // Get OAuth2 access token
+    const accessToken = await getAccessToken();
+
+    // Send using FCM v1 API
+    const response = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `key=${serverKey}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
-        to: fcmToken,
-        data: {
-          type: data.type,
-          timestamp: data.timestamp || Date.now(),
+        message: {
+          token: fcmToken,
+          data: {
+            type: data.type,
+            timestamp: String(data.timestamp || Date.now()),
+          },
+          // Android config for priority (Chrome extensions use Android push)
+          android: {
+            priority: 'high',
+          },
         },
-        // Priority high to ensure delivery even when extension is inactive
-        priority: 'high',
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ FCM push failed:', response.status, errorText);
+
+      // Parse error for better handling
+      let errorMessage = `FCM API returned ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.error?.message || errorMessage;
+      } catch {
+        // Keep default error message
+      }
+
       return {
         success: false,
-        error: `FCM API returned ${response.status}: ${errorText}`,
+        error: errorMessage,
       };
     }
 
     const result = await response.json();
+    console.log('✅ FCM push sent successfully:', result.name);
 
-    if (result.failure > 0) {
-      console.error('❌ FCM push failed:', result.results[0].error);
-      return {
-        success: false,
-        error: result.results[0].error,
-      };
-    }
-
-    console.log('✅ FCM push sent successfully:', result.results[0].message_id);
     return {
       success: true,
-      messageId: result.results[0].message_id,
+      messageId: result.name,
     };
   } catch (error) {
     console.error('❌ FCM push error:', error);
