@@ -1,6 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { ExtensionNotifier } from '@/components/extension/ExtensionNotifier';
+import { preparePaymentSuccessMessage } from '@/utils/extension-messaging';
 
 export default async function SuccessPage() {
   const supabase = await createClient();
@@ -11,8 +13,14 @@ export default async function SuccessPage() {
     redirect('/signup');
   }
 
+  // Prepare payment success message for extension
+  const extensionMessage = await preparePaymentSuccessMessage();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      {/* Notify extension of payment success */}
+      {extensionMessage && <ExtensionNotifier message={extensionMessage} />}
+
       {/* Progress Bar - Complete! */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 z-50">
         <div
