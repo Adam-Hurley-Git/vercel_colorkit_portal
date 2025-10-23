@@ -6,6 +6,7 @@ import { Subscription } from '@paddle/paddle-node-sdk';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { parseMoney } from '@/utils/paddle/parse-money';
+import { Button } from '@/components/ui/button';
 
 interface Props {
   subscriptions: Subscription[];
@@ -26,6 +27,11 @@ export function SubscriptionCards({ subscriptions, className }: Props) {
             subscription.billingCycle.frequency === 1
               ? `/${subscription.billingCycle.interval}`
               : `every ${subscription.billingCycle.frequency} ${subscription.billingCycle.interval}s`;
+
+          // Check if subscription is NOT active (canceled or paused)
+          // Active states: 'active', 'trialing', 'past_due'
+          const isInactive = subscription.status === 'canceled' || subscription.status === 'paused';
+
           return (
             <Card key={subscription.id} className={'bg-background/50 backdrop-blur-[24px] border-border p-6'}>
               <CardHeader className="p-0 space-y-0">
@@ -51,15 +57,47 @@ export function SubscriptionCards({ subscriptions, className }: Props) {
                   <span className={'text-xl leading-7 font-medium'}>{subscriptionItem.product.name}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className={'p-0 flex justify-between gap-3 flex-wrap xl:flex-nowrap'}>
-                <div className={'flex flex-col gap-3'}>
-                  <div className="text-base leading-6 text-slate-600">{subscriptionItem.product.description}</div>
-                  <div className="text-base leading-[16px] text-slate-900 font-semibold">
-                    {formattedPrice}
-                    {frequency}
+              <CardContent className={'p-0 flex flex-col gap-4'}>
+                <div className={'flex justify-between gap-3 flex-wrap xl:flex-nowrap'}>
+                  <div className={'flex flex-col gap-3'}>
+                    <div className="text-base leading-6 text-slate-600">{subscriptionItem.product.description}</div>
+                    <div className="text-base leading-[16px] text-slate-900 font-semibold">
+                      {formattedPrice}
+                      {frequency}
+                    </div>
                   </div>
+                  <Status status={subscription.status} />
                 </div>
-                <Status status={subscription.status} />
+
+                {/* Show reinstate button for inactive subscriptions */}
+                {isInactive && (
+                  <div className="pt-3 border-t border-slate-200">
+                    <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                      <p className="text-sm text-slate-700 mb-2">
+                        Your subscription is no longer active. Resubscribe to continue using ColorKit.
+                      </p>
+                    </div>
+                    <Button
+                      asChild={true}
+                      className={
+                        'w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+                      }
+                      size={'sm'}
+                    >
+                      <Link href={'/checkout/pri_01k81t07rfhatra9vs6zf8831c'}>
+                        Start New Subscription
+                        <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                          />
+                        </svg>
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
