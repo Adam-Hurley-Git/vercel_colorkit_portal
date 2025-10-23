@@ -2,8 +2,6 @@ import { DashboardPageHeader } from '@/components/dashboard/layout/dashboard-pag
 import { DashboardLandingPage } from '@/components/dashboard/landing/dashboard-landing-page';
 import { ExtensionNotifier } from '@/components/extension/ExtensionNotifier';
 import { prepareAuthSuccessMessage } from '@/utils/extension-messaging';
-import { createClient } from '@/utils/supabase/server';
-import { getCustomerId } from '@/utils/paddle/get-customer-id';
 
 interface DashboardPageProps {
   searchParams: Promise<{ ext_auth?: string }>;
@@ -14,43 +12,20 @@ export default async function LandingPage({ searchParams }: DashboardPageProps) 
   // This ensures extension gets session tokens even if they didn't come from auth callback
   const extensionMessage = await prepareAuthSuccessMessage();
 
-  // Check for pending cancellation notifications
+  // Check if subscription is cancelled and send cache invalidation message
   let cancellationMessage: Record<string, unknown> | null = null;
-  try {
-    const customerId = await getCustomerId();
-    if (customerId) {
-      const supabase = await createClient();
+  if (extensionMessage && extensionMessage.subscriptionStatus) {
+    const subStatus = extensionMessage.subscriptionStatus as { hasSubscription: boolean; status?: string };
 
-      // Check if there's a pending cancellation notification
-      const { data: notification } = await supabase
-        .from('extension_notifications')
-        .select('*')
-        .eq('customer_id', customerId)
-        .eq('delivered', false)
-        .eq('notification_type', 'SUBSCRIPTION_CANCELLED')
-        .single();
+    // If user has no active subscription, send cancellation message to clear extension cache
+    if (!subStatus.hasSubscription || subStatus.status === 'canceled' || subStatus.status === 'cancelled') {
+      console.log('[Dashboard] User has cancelled/inactive subscription - sending cache clear message to extension');
 
-      if (notification) {
-        console.log('[Dashboard] Found pending cancellation notification for customer:', customerId);
-
-        cancellationMessage = {
-          type: 'SUBSCRIPTION_CANCELLED',
-          customerId: customerId,
-          timestamp: Date.now(),
-        };
-
-        // Mark as delivered
-        await supabase
-          .from('extension_notifications')
-          .update({ delivered: true, delivered_at: new Date().toISOString() })
-          .eq('customer_id', customerId);
-
-        console.log('[Dashboard] Cancellation notification marked as delivered');
-      }
+      cancellationMessage = {
+        type: 'SUBSCRIPTION_CANCELLED',
+        timestamp: Date.now(),
+      };
     }
-  } catch (error) {
-    console.error('[Dashboard] Error checking for cancellation notifications:', error);
-    // Don't throw - this is non-critical
   }
 
   return (
@@ -58,7 +33,7 @@ export default async function LandingPage({ searchParams }: DashboardPageProps) 
       {/* Send auth success to extension whenever user is logged in */}
       {extensionMessage && <ExtensionNotifier message={extensionMessage} />}
 
-      {/* Send cancellation notification if pending */}
+      {/* Send cancellation message to clear cache if subscription is inactive */}
       {cancellationMessage && <ExtensionNotifier message={cancellationMessage} />}
 
       <DashboardPageHeader pageTitle={'Dashboard'} />
