@@ -29,22 +29,35 @@ export function ExtensionNotifier({ message }: ExtensionNotifierProps) {
     }
 
     // Check if chrome.runtime is available (only in Chrome/Edge browsers)
-    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+    // Using window check to avoid TypeScript errors in build
+    if (
+      typeof window === 'undefined' ||
+      !(window as typeof window & { chrome?: { runtime?: unknown } }).chrome ||
+      !(window as typeof window & { chrome: { runtime?: { sendMessage?: unknown } } }).chrome.runtime ||
+      !(window as typeof window & { chrome: { runtime: { sendMessage: unknown } } }).chrome.runtime.sendMessage
+    ) {
       console.log('[ExtensionNotifier] chrome.runtime not available - user may be using non-Chrome browser');
       return;
     }
+
+    // TypeScript-safe access to chrome API
+    const chromeApi = (
+      window as typeof window & {
+        chrome: { runtime: { sendMessage: CallableFunction; lastError?: { message: string } } };
+      }
+    ).chrome;
 
     console.log('[ExtensionNotifier] Sending message to extension:', message.type);
     console.log('[ExtensionNotifier] Extension ID:', extensionId);
 
     try {
-      chrome.runtime.sendMessage(extensionId, message, (response) => {
+      chromeApi.runtime.sendMessage(extensionId, message, (response: unknown) => {
         // Check for errors
-        if (chrome.runtime.lastError) {
+        if (chromeApi.runtime.lastError) {
           // This is normal if extension isn't installed - don't treat as error
           console.log(
             '[ExtensionNotifier] Extension not installed or not responding:',
-            chrome.runtime.lastError.message,
+            chromeApi.runtime.lastError.message,
           );
         } else {
           console.log('[ExtensionNotifier] ✅ Extension response:', response);
