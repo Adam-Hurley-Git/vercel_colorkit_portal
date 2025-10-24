@@ -61,21 +61,39 @@ export class ProcessWebhook {
 
     console.log('[Webhook] ✅ Subscription saved successfully:', data);
 
-    // Send Web Push notification if subscription was cancelled/paused
-    // This provides instant blocking (< 1 minute) without requiring user to visit dashboard
+    // Send Web Push notification on ANY subscription status change
+    // This provides instant lock/unlock (< 1 minute) without requiring user to visit dashboard
     // Note: Paddle uses 'canceled' (one 'l'), not 'cancelled'
-    if (eventData.data.status === 'canceled' || eventData.data.status === 'paused') {
-      console.log('[Webhook] 🔔 Subscription cancelled/paused - sending Web Push notification');
+    const status = eventData.data.status;
+    const customerId = eventData.data.customerId;
+
+    // Send push on both active/inactive transitions
+    // NOTE: past_due maintains full access (grace period while Paddle retries payment)
+    if (['active', 'trialing', 'past_due'].includes(status)) {
+      // UNLOCK: subscription has active access
+      console.log('[Webhook] 🔓 Subscription active/trialing/past_due - sending unlock push');
       try {
         const { sendWebPushToCustomer } = await import('@/utils/fcm/send-push');
-        const result = await sendWebPushToCustomer(eventData.data.customerId, {
+        const result = await sendWebPushToCustomer(customerId, {
+          type: 'SUBSCRIPTION_UPDATED',
+          timestamp: Date.now(),
+        });
+        console.log(`[Webhook] ✅ Unlock push sent: ${result.sent} successful, ${result.failed} failed`);
+      } catch (pushError) {
+        console.error('[Webhook] ⚠️ Failed to send unlock push (will fallback to daily check):', pushError);
+      }
+    } else if (['canceled', 'paused'].includes(status)) {
+      // LOCK: subscription is truly inactive
+      console.log('[Webhook] 🔒 Subscription cancelled/paused - sending lock push');
+      try {
+        const { sendWebPushToCustomer } = await import('@/utils/fcm/send-push');
+        const result = await sendWebPushToCustomer(customerId, {
           type: 'SUBSCRIPTION_CANCELLED',
           timestamp: Date.now(),
         });
-        console.log(`[Webhook] ✅ Web Push sent: ${result.sent} successful, ${result.failed} failed`);
+        console.log(`[Webhook] ✅ Lock push sent: ${result.sent} successful, ${result.failed} failed`);
       } catch (pushError) {
-        // Don't fail webhook if push fails - daily validation will catch it
-        console.error('[Webhook] ⚠️ Failed to send Web Push (will fallback to daily check):', pushError);
+        console.error('[Webhook] ⚠️ Failed to send lock push (will fallback to daily check):', pushError);
       }
     }
   }

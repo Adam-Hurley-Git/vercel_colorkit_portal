@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
-import { getCustomerId } from '@/utils/paddle/get-customer-id';
+import { createClientFromBearer } from '@/utils/supabase/from-bearer';
+import { getCustomerIdFromSupabase } from '@/utils/paddle/get-customer-id-bearer';
 
 /**
  * Extension Push Subscription Registration API
@@ -11,8 +11,8 @@ export async function POST(request: NextRequest) {
   console.log('📱 Push subscription registration request received');
 
   try {
-    // Check authentication via Supabase cookies
-    const supabase = await createClient();
+    // Check authentication via Bearer token (extension doesn't have cookies)
+    const supabase = createClientFromBearer(request.headers.get('authorization'));
     const {
       data: { user },
       error: authError,
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Get customer_id if available (for future webhook notifications)
     let customerId: string | null = null;
     try {
-      customerId = await getCustomerId();
+      customerId = await getCustomerIdFromSupabase(supabase);
       console.log('💳 Customer ID:', customerId || 'Not found');
     } catch (error) {
       console.log('⚠️ Could not get customer ID (user may not have purchased yet)');

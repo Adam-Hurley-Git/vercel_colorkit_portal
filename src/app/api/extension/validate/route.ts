@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClientFromBearer } from '@/utils/supabase/from-bearer';
 
 /**
  * OPTIMIZED Extension Subscription Validation API
@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
   console.log('🔍 Extension validation request (optimized)');
 
   try {
-    // Check authentication via Supabase cookies
-    const supabase = await createClient();
+    // Check authentication via Bearer token (extension doesn't have cookies)
+    const supabase = createClientFromBearer(request.headers.get('authorization'));
     const {
       data: { user },
       error: authError,

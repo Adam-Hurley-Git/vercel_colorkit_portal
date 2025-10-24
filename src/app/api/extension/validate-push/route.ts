@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClientFromBearer } from '@/utils/supabase/from-bearer';
 
 /**
  * Extension Push Subscription Validation API
@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
   console.log('🔍 Push subscription validation request received');
 
   try {
-    // Check authentication via Supabase cookies
-    const supabase = await createClient();
+    // Check authentication via Bearer token (extension doesn't have cookies)
+    const supabase = createClientFromBearer(request.headers.get('authorization'));
     const {
       data: { user },
       error: authError,
