@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClientFromBearer } from '@/utils/supabase/from-bearer';
 import { getCustomerIdFromSupabase } from '@/utils/paddle/get-customer-id-bearer';
+import { getVapidPublicKeyHash } from '@/utils/fcm/send-push';
 
 /**
  * Extension Push Subscription Registration API
@@ -72,6 +73,10 @@ export async function POST(request: NextRequest) {
       console.log('   Error:', error);
     }
 
+    // Compute VAPID public key hash to track which key this subscription was created with
+    const vapidPubHash = getVapidPublicKeyHash();
+    console.log('🔑 VAPID_PUBLIC_KEY hash:', vapidPubHash);
+
     // Store push subscription in database
     // Use upsert to update if subscription already exists
     const { data: insertedData, error } = await supabase
@@ -82,6 +87,7 @@ export async function POST(request: NextRequest) {
           customer_id: customerId,
           subscription: subscription,
           endpoint: subscription.endpoint,
+          vapid_pub_hash: vapidPubHash, // Store key hash for validation
           updated_at: new Date().toISOString(),
         },
         {

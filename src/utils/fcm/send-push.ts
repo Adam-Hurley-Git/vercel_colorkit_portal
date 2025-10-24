@@ -15,6 +15,19 @@
  */
 
 import webpush from 'web-push';
+import crypto from 'crypto';
+
+/**
+ * Compute SHA256 hash of VAPID public key
+ * Used to detect when subscriptions were created with a different key
+ */
+export function getVapidPublicKeyHash(): string {
+  const publicKey = process.env.VAPID_PUBLIC_KEY?.trim();
+  if (!publicKey) {
+    return '';
+  }
+  return crypto.createHash('sha256').update(publicKey).digest('hex').substring(0, 16);
+}
 
 interface PushData {
   type: 'SUBSCRIPTION_CANCELLED' | 'SUBSCRIPTION_UPDATED';
@@ -38,9 +51,10 @@ interface PushSubscription {
  * Initialize web-push with VAPID keys
  */
 function initializeWebPush() {
-  const publicKey = process.env.VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject = process.env.VAPID_SUBJECT || 'mailto:support@calendarextension.com';
+  // Trim whitespace from keys (copy-paste issues)
+  const publicKey = process.env.VAPID_PUBLIC_KEY?.trim();
+  const privateKey = process.env.VAPID_PRIVATE_KEY?.trim();
+  const subject = (process.env.VAPID_SUBJECT || 'mailto:support@calendarextension.com').trim();
 
   if (!publicKey || !privateKey) {
     throw new Error('Missing VAPID keys (VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY)');
@@ -53,8 +67,13 @@ function initializeWebPush() {
     throw new Error(`Vapid subject is not a valid URL. ${subject} → Must start with mailto:, http://, or https://`);
   }
 
-  console.log('🔐 Initializing web-push with VAPID details');
+  // CRITICAL: Log key prefix for debugging key mismatches
+  console.log('🔐 Initializing web-push with VAPID details:');
   console.log('   Subject:', subject);
+  console.log('   VAPID_PUBLIC_KEY (srv) =', publicKey.slice(0, 12) + '...');
+  console.log('   Environment:', process.env.VERCEL_ENV || 'local');
+  console.log('   Deployment URL:', process.env.VERCEL_URL || 'N/A');
+
   webpush.setVapidDetails(subject, publicKey, privateKey);
 }
 
@@ -89,6 +108,19 @@ export async function sendWebPush(subscription: PushSubscription, data: PushData
     if (error && typeof error === 'object' && 'statusCode' in error) {
       const statusCode = (error as { statusCode: number }).statusCode;
       console.error('   HTTP Status Code:', statusCode);
+
+      // 403 Forbidden - VAPID credentials don't match (KEY MISMATCH!)
+      if (statusCode === 403) {
+        console.error('   ⚠️ VAPID CREDENTIALS MISMATCH!');
+        console.error('   This means the server VAPID keys do NOT match the subscription');
+        console.error('   - Extension may have been built with different VAPID_PUBLIC_KEY');
+        console.error('   - Or subscription was created under a different Firebase project');
+        console.error('   → This subscription must be DELETED and re-registered');
+        return {
+          success: false,
+          error: 'subscription_expired', // Treat as expired so it gets deleted
+        };
+      }
 
       // 410 Gone means subscription is expired/invalid
       // 404 Not Found means push endpoint no longer exists
@@ -134,7 +166,7 @@ export async function sendWebPushToCustomer(
 
   const { data: subscriptions, error } = await supabase
     .from('push_subscriptions')
-    .select('subscription, endpoint, customer_id, user_id')
+    .select('subscription, endpoint, customer_id, user_id, vapid_pub_hash')
     .eq('customer_id', customerId);
 
   if (error) {
@@ -144,6 +176,10 @@ export async function sendWebPushToCustomer(
   }
 
   console.log(`🔍 Query result: Found ${subscriptions?.length || 0} subscription(s) for customer ${customerId}`);
+
+  // Get current VAPID public key hash
+  const currentVapidHash = getVapidPublicKeyHash();
+  console.log(`🔑 Current VAPID_PUBLIC_KEY hash: ${currentVapidHash}`);
 
   if (!subscriptions || subscriptions.length === 0) {
     console.log('ℹ️ No push subscriptions found for customer');
@@ -167,9 +203,32 @@ export async function sendWebPushToCustomer(
   let sent = 0;
   let failed = 0;
   let expired = 0;
+  let keyMismatch = 0;
 
   for (const subRecord of subscriptions) {
     console.log(`📤 Sending to endpoint: ${subRecord.endpoint.substring(0, 50)}...`);
+
+    // Validate VAPID key hash matches (prevent 403 errors from key mismatches)
+    if (subRecord.vapid_pub_hash && subRecord.vapid_pub_hash !== currentVapidHash) {
+      keyMismatch++;
+      console.error(`   ⚠️ KEY MISMATCH! Subscription created with different VAPID key`);
+      console.error(`      Subscription hash: ${subRecord.vapid_pub_hash}`);
+      console.error(`      Current hash:      ${currentVapidHash}`);
+      console.error(`   → Deleting stale subscription (will need to be re-registered)`);
+
+      const { error: deleteError } = await supabase
+        .from('push_subscriptions')
+        .delete()
+        .eq('endpoint', subRecord.endpoint);
+
+      if (deleteError) {
+        console.error('   ⚠️ Failed to delete mismatched subscription:', deleteError);
+      } else {
+        console.log('   ✅ Mismatched subscription deleted');
+      }
+      continue; // Skip sending to this subscription
+    }
+
     const result = await sendWebPush(subRecord.subscription as PushSubscription, data);
 
     if (result.success) {
@@ -206,8 +265,15 @@ export async function sendWebPushToCustomer(
     }
   }
 
-  console.log(
-    `✅ Web Push complete: ${sent} sent, ${failed} failed${expired > 0 ? `, ${expired} expired and removed` : ''}`,
-  );
+  const summary = [
+    `${sent} sent`,
+    `${failed} failed`,
+    expired > 0 && `${expired} expired`,
+    keyMismatch > 0 && `${keyMismatch} key-mismatch`,
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  console.log(`✅ Web Push complete: ${summary}`);
   return { sent, failed };
 }
