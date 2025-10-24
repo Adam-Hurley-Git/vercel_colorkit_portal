@@ -13,11 +13,18 @@ export function SignupForm() {
   const { toast } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
   function handleSignup() {
     signup({ email, password }).then((data) => {
       if (data?.error) {
         toast({ description: 'Something went wrong. Please try again', variant: 'destructive' });
+      } else if (data?.needsConfirmation) {
+        setNeedsConfirmation(true);
+        toast({
+          description: data.message || 'Please check your email to confirm your account',
+          variant: 'default',
+        });
       }
     });
   }
@@ -33,6 +40,13 @@ export function SignupForm() {
     <form action={'#'} className={'px-6 md:px-16 pb-6 py-8 gap-6 flex flex-col items-center justify-center'}>
       <Image src={'/assets/icons/logo/aeroedit-icon.svg'} alt={'AeroEdit'} width={80} height={80} />
       <div className={'text-[30px] leading-[36px] font-medium tracking-[-0.6px] text-center'}>Create an account</div>
+      {needsConfirmation && (
+        <div className="w-full p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800 text-center font-medium">
+            Check your email to confirm your account and continue to onboarding!
+          </p>
+        </div>
+      )}
       <Button
         onClick={() => handleGoogleSignup()}
         type={'button'}
