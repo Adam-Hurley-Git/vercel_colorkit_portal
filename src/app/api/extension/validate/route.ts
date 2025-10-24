@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-import { getCustomerId } from '@/utils/paddle/get-customer-id';
-import { getPaddleInstance } from '@/utils/paddle/get-paddle-instance';
 
 /**
- * Extension Subscription Validation API
- * Checks if the current user has an active subscription
- * Used by Chrome extension to validate access
+ * OPTIMIZED Extension Subscription Validation API
  *
- * Includes fallback logic to query Paddle API if customer not in database
+ * Key changes from original:
+ * 1. Uses database as source of truth (updated via webhooks)
+ * 2. NO Paddle API calls (saves time and rate limits)
+ * 3. Relies on FCM push + webhooks to keep data fresh
+ *
+ * Why this works:
+ * - Webhooks update subscriptions table in real-time
+ * - FCM sends push when subscription changes
+ * - Extension gets instant notification via FCM
+ * - This endpoint just reads from database (fast!)
+ *
+ * Fallback: If somehow data is stale (shouldn't happen with FCM),
+ * daily validation at 4 AM will force refresh.
  */
 export async function GET(request: NextRequest) {
-  console.log('🔍 Extension validation request received');
-  console.log('Origin:', request.headers.get('origin'));
-  console.log('Referer:', request.headers.get('referer'));
-  console.log('User-Agent:', request.headers.get('user-agent'));
+  console.log('🔍 Extension validation request (optimized)');
 
   try {
     // Check authentication via Supabase cookies
@@ -25,7 +30,7 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      console.log('❌ User not authenticated:', authError?.message);
+      console.log('❌ User not authenticated');
       return NextResponse.json(
         {
           isActive: false,
@@ -44,51 +49,44 @@ export async function GET(request: NextRequest) {
 
     console.log('✅ User authenticated:', user.email);
 
-    // Try to get customer ID from database
-    let customerId = await getCustomerId();
+    // Get customer from database (linked via email)
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .select('customer_id')
+      .eq('email', user.email)
+      .single();
 
-    // FALLBACK: If no customer ID in database, try Paddle API by email
-    if (!customerId) {
-      console.log('⚠️ No customer ID in database, trying Paddle API fallback...');
-      customerId = await getCustomerIdFromPaddleByEmail(user.email!);
-
-      if (customerId) {
-        console.log('✅ Found customer via Paddle API:', customerId);
-        // Save to database for next time
-        await saveCustomerToDatabase(customerId, user.email!);
-      } else {
-        console.log('❌ No customer found in Paddle for email:', user.email);
-        return NextResponse.json(
-          {
-            isActive: false,
-            reason: 'no_customer',
-            message: 'No subscription found. Start your free trial!',
+    if (customerError || !customer) {
+      console.log('❌ No customer record found in database');
+      return NextResponse.json(
+        {
+          isActive: false,
+          reason: 'no_customer',
+          message: 'No subscription found. Start your free trial!',
+        },
+        {
+          headers: {
+            'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+            'Access-Control-Allow-Credentials': 'true',
           },
-          {
-            headers: {
-              'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
-              'Access-Control-Allow-Credentials': 'true',
-            },
-          },
-        );
-      }
+        },
+      );
     }
 
-    console.log('💳 Customer ID:', customerId);
+    console.log('💳 Customer ID:', customer.customer_id);
 
-    // Check Paddle for active subscription
-    const paddle = getPaddleInstance();
-    const subscriptionCollection = paddle.subscriptions.list({
-      customerId: [customerId],
-      perPage: 5,
-    });
+    // Get subscription from database (updated via webhooks)
+    // NO PADDLE API CALL - much faster!
+    const { data: subscription, error: subError } = await supabase
+      .from('subscriptions')
+      .select('subscription_id, subscription_status, scheduled_change')
+      .eq('customer_id', customer.customer_id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    const subscriptions = await subscriptionCollection.next();
-
-    console.log('📊 Found subscriptions:', subscriptions.length);
-
-    if (subscriptions.length === 0) {
-      console.log('ℹ️ No subscriptions found for customer');
+    if (subError || !subscription) {
+      console.log('ℹ️ No subscription found in database');
       return NextResponse.json(
         {
           isActive: false,
@@ -104,28 +102,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Find active subscription (including trial and past_due for grace period)
-    const activeSubscription = subscriptions.find(
-      (sub) => sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due',
-    );
+    console.log('📊 Subscription status:', subscription.subscription_status);
 
-    if (activeSubscription) {
-      console.log('✅ Active subscription found:', activeSubscription.id, activeSubscription.status);
-      console.log('   Subscription details:', {
-        id: activeSubscription.id,
-        status: activeSubscription.status,
-        currentPeriodEnd: activeSubscription.currentBillingPeriod?.endsAt,
-      });
+    // Check if subscription is active (including trial and past_due for grace period)
+    const activeStatuses = ['active', 'trialing', 'past_due'];
+    const isActive = activeStatuses.includes(subscription.subscription_status);
+
+    if (isActive) {
+      console.log('✅ Subscription is active');
 
       return NextResponse.json(
         {
           isActive: true,
-          status: activeSubscription.status,
-          subscriptionId: activeSubscription.id,
-          customerId: customerId,
-          trialEnding:
-            activeSubscription.status === 'trialing' ? activeSubscription.currentBillingPeriod?.endsAt : null,
-          message: activeSubscription.status === 'trialing' ? 'Free trial active' : 'Subscription active',
+          status: subscription.subscription_status,
+          subscriptionId: subscription.subscription_id,
+          customerId: customer.customer_id,
+          message: subscription.subscription_status === 'trialing' ? 'Free trial active' : 'Subscription active',
+          dataSource: 'database', // Indicates we used database, not Paddle API
         },
         {
           headers: {
@@ -136,17 +129,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // No active subscription found
-    console.log('❌ No active subscription found');
-    console.log(
-      '   Found subscriptions with statuses:',
-      subscriptions.map((s) => s.status),
-    );
+    // Subscription is not active
+    console.log('❌ Subscription not active:', subscription.subscription_status);
     return NextResponse.json(
       {
         isActive: false,
-        reason: 'no_active_subscription',
-        message: 'Subscription expired. Renew to continue using ColorKit.',
+        reason: 'subscription_inactive',
+        status: subscription.subscription_status,
+        message:
+          subscription.subscription_status === 'canceled'
+            ? 'Subscription cancelled. Renew to continue.'
+            : 'Subscription inactive. Please update your payment method.',
       },
       {
         headers: {
@@ -157,7 +150,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error('❌ Extension validation error:', error);
-    console.error('   Error stack:', error instanceof Error ? error.stack : 'N/A');
     return NextResponse.json(
       {
         isActive: false,
@@ -173,48 +165,6 @@ export async function GET(request: NextRequest) {
         },
       },
     );
-  }
-}
-
-/**
- * Fallback: Find customer in Paddle by email
- */
-async function getCustomerIdFromPaddleByEmail(email: string): Promise<string> {
-  try {
-    console.log('[extension/validate] Searching Paddle for customer with email:', email);
-    const paddle = getPaddleInstance();
-    const customerCollection = paddle.customers.list({ email: [email], perPage: 1 });
-    const customers = await customerCollection.next();
-
-    if (customers.length > 0) {
-      return customers[0].id;
-    }
-
-    return '';
-  } catch (error) {
-    console.error('[extension/validate] Error searching Paddle:', error);
-    return '';
-  }
-}
-
-/**
- * Save customer to database (helper function)
- */
-async function saveCustomerToDatabase(customerId: string, email: string) {
-  try {
-    const supabase = await createClient();
-    const { error } = await supabase.from('customers').upsert({
-      customer_id: customerId,
-      email: email,
-    });
-
-    if (error) {
-      console.error('[extension/validate] Failed to save customer to database:', error);
-    } else {
-      console.log('[extension/validate] Customer saved to database for future lookups');
-    }
-  } catch (error) {
-    console.error('[extension/validate] Error saving customer:', error);
   }
 }
 

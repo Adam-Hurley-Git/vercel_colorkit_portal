@@ -61,21 +61,21 @@ export class ProcessWebhook {
 
     console.log('[Webhook] ✅ Subscription saved successfully:', data);
 
-    // Send FCM push notification if subscription was cancelled/paused
+    // Send Web Push notification if subscription was cancelled/paused
     // This provides instant blocking (< 1 minute) without requiring user to visit dashboard
     // Note: Paddle uses 'canceled' (one 'l'), not 'cancelled'
     if (eventData.data.status === 'canceled' || eventData.data.status === 'paused') {
-      console.log('[Webhook] 🔔 Subscription cancelled/paused - sending FCM push notification');
+      console.log('[Webhook] 🔔 Subscription cancelled/paused - sending Web Push notification');
       try {
-        const { sendFCMPushToCustomer } = await import('@/utils/fcm/send-push');
-        const result = await sendFCMPushToCustomer(eventData.data.customerId, {
+        const { sendWebPushToCustomer } = await import('@/utils/fcm/send-push');
+        const result = await sendWebPushToCustomer(eventData.data.customerId, {
           type: 'SUBSCRIPTION_CANCELLED',
           timestamp: Date.now(),
         });
-        console.log(`[Webhook] ✅ FCM push sent: ${result.sent} successful, ${result.failed} failed`);
-      } catch (fcmError) {
-        // Don't fail webhook if FCM push fails - daily validation will catch it
-        console.error('[Webhook] ⚠️ Failed to send FCM push (will fallback to daily check):', fcmError);
+        console.log(`[Webhook] ✅ Web Push sent: ${result.sent} successful, ${result.failed} failed`);
+      } catch (pushError) {
+        // Don't fail webhook if push fails - daily validation will catch it
+        console.error('[Webhook] ⚠️ Failed to send Web Push (will fallback to daily check):', pushError);
       }
     }
   }
