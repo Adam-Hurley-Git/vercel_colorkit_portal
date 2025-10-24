@@ -3,6 +3,7 @@ import {
   CustomerUpdatedEvent,
   EventEntity,
   EventName,
+  SubscriptionCanceledEvent,
   SubscriptionCreatedEvent,
   SubscriptionUpdatedEvent,
   TransactionCompletedEvent,
@@ -16,6 +17,7 @@ export class ProcessWebhook {
     switch (eventData.eventType) {
       case EventName.SubscriptionCreated:
       case EventName.SubscriptionUpdated:
+      case EventName.SubscriptionCanceled:
         await this.updateSubscriptionData(eventData);
         break;
       case EventName.CustomerCreated:
@@ -30,7 +32,9 @@ export class ProcessWebhook {
     }
   }
 
-  private async updateSubscriptionData(eventData: SubscriptionCreatedEvent | SubscriptionUpdatedEvent) {
+  private async updateSubscriptionData(
+    eventData: SubscriptionCreatedEvent | SubscriptionUpdatedEvent | SubscriptionCanceledEvent,
+  ) {
     console.log('[Webhook] Processing subscription event:', eventData.eventType);
     console.log('[Webhook] Subscription ID:', eventData.data.id);
     console.log('[Webhook] Customer ID:', eventData.data.customerId);

@@ -46,6 +46,15 @@ function initializeWebPush() {
     throw new Error('Missing VAPID keys (VAPID_PUBLIC_KEY or VAPID_PRIVATE_KEY)');
   }
 
+  // Validate VAPID subject is a valid URL
+  if (!subject.startsWith('mailto:') && !subject.startsWith('http://') && !subject.startsWith('https://')) {
+    console.error('❌ VAPID_SUBJECT must be a valid URL (e.g., mailto:email@domain.com)');
+    console.error('   Current value:', subject);
+    throw new Error(`Vapid subject is not a valid URL. ${subject} → Must start with mailto:, http://, or https://`);
+  }
+
+  console.log('🔐 Initializing web-push with VAPID details');
+  console.log('   Subject:', subject);
   webpush.setVapidDetails(subject, publicKey, privateKey);
 }
 
@@ -79,12 +88,24 @@ export async function sendWebPush(subscription: PushSubscription, data: PushData
     // Handle specific errors
     if (error && typeof error === 'object' && 'statusCode' in error) {
       const statusCode = (error as { statusCode: number }).statusCode;
+      console.error('   HTTP Status Code:', statusCode);
 
       // 410 Gone means subscription is expired/invalid
+      // 404 Not Found means push endpoint no longer exists
       if (statusCode === 410 || statusCode === 404) {
+        console.log('🗑️  Subscription is expired/invalid (will be removed from database)');
         return {
           success: false,
-          error: 'Subscription expired or invalid',
+          error: 'subscription_expired',
+        };
+      }
+
+      // 429 Too Many Requests - rate limited
+      if (statusCode === 429) {
+        console.error('   Rate limited by push service');
+        return {
+          success: false,
+          error: 'rate_limited',
         };
       }
     }
@@ -145,26 +166,48 @@ export async function sendWebPushToCustomer(
   // Send to all subscriptions
   let sent = 0;
   let failed = 0;
+  let expired = 0;
 
   for (const subRecord of subscriptions) {
+    console.log(`📤 Sending to endpoint: ${subRecord.endpoint.substring(0, 50)}...`);
     const result = await sendWebPush(subRecord.subscription as PushSubscription, data);
+
     if (result.success) {
       sent++;
+      console.log('   ✅ Sent successfully');
       // Update last_used_at timestamp
-      await supabase
+      const { error: updateError } = await supabase
         .from('push_subscriptions')
         .update({ last_used_at: new Date().toISOString() })
         .eq('endpoint', subRecord.endpoint);
+
+      if (updateError) {
+        console.error('   ⚠️ Failed to update last_used_at:', updateError);
+      }
     } else {
       failed++;
-      // If subscription is expired/invalid, remove it from database
-      if (result.error?.includes('expired') || result.error?.includes('invalid')) {
-        console.log('🗑️ Removing invalid push subscription:', subRecord.endpoint);
-        await supabase.from('push_subscriptions').delete().eq('endpoint', subRecord.endpoint);
+      console.log(`   ❌ Failed: ${result.error}`);
+
+      // If subscription is expired/invalid (410 Gone or 404 Not Found), remove it from database
+      if (result.error === 'subscription_expired') {
+        expired++;
+        console.log(`   🗑️  Removing expired subscription from database`);
+        const { error: deleteError } = await supabase
+          .from('push_subscriptions')
+          .delete()
+          .eq('endpoint', subRecord.endpoint);
+
+        if (deleteError) {
+          console.error('   ⚠️ Failed to delete expired subscription:', deleteError);
+        } else {
+          console.log('   ✅ Expired subscription removed');
+        }
       }
     }
   }
 
-  console.log(`✅ Web Push complete: ${sent} sent, ${failed} failed`);
+  console.log(
+    `✅ Web Push complete: ${sent} sent, ${failed} failed${expired > 0 ? `, ${expired} expired and removed` : ''}`,
+  );
   return { sent, failed };
 }
