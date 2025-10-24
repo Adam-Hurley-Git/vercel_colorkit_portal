@@ -61,6 +61,11 @@ export class ProcessWebhook {
 
     console.log('[Webhook] ✅ Subscription saved successfully:', data);
 
+    // IMPORTANT: Update push subscriptions with customer_id
+    // When extension first registers, customer may not exist yet (customer_id is null)
+    // After payment completes, we need to link push subscription to customer_id
+    await this.updatePushSubscriptionsWithCustomerId(eventData.data.customerId);
+
     // Send Web Push notification on ANY subscription status change
     // This provides instant lock/unlock (< 1 minute) without requiring user to visit dashboard
     // Note: Paddle uses 'canceled' (one 'l'), not 'cancelled'
@@ -189,6 +194,80 @@ export class ProcessWebhook {
       console.error('[Webhook] ❌ Failed to fetch customer from Paddle API:', error);
       // Don't throw here - allow the subscription to be saved even if customer fetch fails
       console.warn('[Webhook] ⚠️ Continuing without customer record...');
+    }
+  }
+
+  /**
+   * Updates push subscriptions with customer_id after payment
+   * Fixes issue where extension registers push before customer exists
+   *
+   * Flow:
+   * 1. Extension registers → push subscription saved with customer_id=null
+   * 2. User purchases → customer created
+   * 3. This function links push subscription to customer_id by matching user_id
+   * 4. Future webhooks can now send notifications
+   */
+  private async updatePushSubscriptionsWithCustomerId(customerId: string) {
+    console.log('[Webhook] 🔗 Linking push subscriptions to customer:', customerId);
+
+    const supabase = await createClient();
+
+    // Get customer email
+    const { data: customer } = await supabase.from('customers').select('email').eq('customer_id', customerId).single();
+
+    if (!customer?.email) {
+      console.log('[Webhook] ⚠️ Could not find customer email, skipping push subscription update');
+      return;
+    }
+
+    // Get all push subscriptions that don't have a customer_id
+    const { data: nullSubs, error: queryError } = await supabase
+      .from('push_subscriptions')
+      .select('user_id, endpoint')
+      .is('customer_id', null);
+
+    if (queryError) {
+      console.error('[Webhook] ❌ Failed to query push subscriptions:', queryError);
+      return;
+    }
+
+    if (!nullSubs || nullSubs.length === 0) {
+      console.log('[Webhook] ℹ️ No push subscriptions without customer_id');
+      return;
+    }
+
+    console.log(`[Webhook] 🔍 Found ${nullSubs.length} push subscription(s) without customer_id`);
+
+    // For each subscription, check if user email matches customer email
+    let updated = 0;
+    for (const sub of nullSubs) {
+      try {
+        // Get user email using admin API (bypasses RLS)
+        const { data: userData } = await supabase.auth.admin.getUserById(sub.user_id);
+
+        if (userData?.user?.email === customer.email) {
+          // Match found! Update this subscription with customer_id
+          const { error: updateError } = await supabase
+            .from('push_subscriptions')
+            .update({ customer_id: customerId })
+            .eq('endpoint', sub.endpoint);
+
+          if (!updateError) {
+            updated++;
+            console.log(`[Webhook] ✅ Linked push subscription to customer: ${sub.endpoint.substring(0, 50)}...`);
+          } else {
+            console.error('[Webhook] ❌ Failed to update subscription:', updateError);
+          }
+        }
+      } catch (error) {
+        console.error('[Webhook] ⚠️ Error checking user:', error);
+      }
+    }
+
+    if (updated > 0) {
+      console.log(`[Webhook] ✅ Successfully linked ${updated} push subscription(s) to customer`);
+    } else {
+      console.log('[Webhook] ℹ️ No matching push subscriptions found for this customer email');
     }
   }
 }
