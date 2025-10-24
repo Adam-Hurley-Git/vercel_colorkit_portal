@@ -76,35 +76,66 @@ export class ProcessWebhook {
     const status = eventData.data.status;
     const customerId = eventData.data.customerId;
 
+    console.log('[Webhook] 📤 PUSH NOTIFICATION FLOW STARTING');
+    console.log(`[Webhook] Customer ID: ${customerId}`);
+    console.log(`[Webhook] Subscription Status: ${status}`);
+    console.log(`[Webhook] Event Type: ${eventData.eventType}`);
+
     // Send push on both active/inactive transitions
     // NOTE: past_due maintains full access (grace period while Paddle retries payment)
     if (['active', 'trialing', 'past_due'].includes(status)) {
       // UNLOCK: subscription has active access
       console.log('[Webhook] 🔓 Subscription active/trialing/past_due - sending unlock push');
+      console.log('[Webhook] Push notification type: SUBSCRIPTION_UPDATED');
+
       try {
         const { sendWebPushToCustomer } = await import('@/utils/fcm/send-push');
         const result = await sendWebPushToCustomer(customerId, {
           type: 'SUBSCRIPTION_UPDATED',
           timestamp: Date.now(),
         });
-        console.log(`[Webhook] ✅ Unlock push sent: ${result.sent} successful, ${result.failed} failed`);
+        console.log(`[Webhook] ✅ Unlock push completed: ${result.sent} successful, ${result.failed} failed`);
+
+        if (result.sent === 0 && result.failed === 0) {
+          console.error('[Webhook] ⚠️ WARNING: No push subscriptions found for customer!');
+          console.error('[Webhook] Possible causes:');
+          console.error('[Webhook]   1. Extension not installed or not registered');
+          console.error('[Webhook]   2. Push subscription not linked to customer_id yet');
+          console.error('[Webhook]   3. User logged in with different email than Paddle customer');
+        }
       } catch (pushError) {
-        console.error('[Webhook] ⚠️ Failed to send unlock push (will fallback to daily check):', pushError);
+        console.error('[Webhook] ❌ Failed to send unlock push (will fallback to daily check):', pushError);
+        console.error('[Webhook] Error details:', pushError);
       }
     } else if (['canceled', 'paused'].includes(status)) {
       // LOCK: subscription is truly inactive
       console.log('[Webhook] 🔒 Subscription cancelled/paused - sending lock push');
+      console.log('[Webhook] Push notification type: SUBSCRIPTION_CANCELLED');
+
       try {
         const { sendWebPushToCustomer } = await import('@/utils/fcm/send-push');
         const result = await sendWebPushToCustomer(customerId, {
           type: 'SUBSCRIPTION_CANCELLED',
           timestamp: Date.now(),
         });
-        console.log(`[Webhook] ✅ Lock push sent: ${result.sent} successful, ${result.failed} failed`);
+        console.log(`[Webhook] ✅ Lock push completed: ${result.sent} successful, ${result.failed} failed`);
+
+        if (result.sent === 0 && result.failed === 0) {
+          console.error('[Webhook] ⚠️ WARNING: No push subscriptions found for customer!');
+          console.error('[Webhook] Possible causes:');
+          console.error('[Webhook]   1. Extension not installed or not registered');
+          console.error('[Webhook]   2. Push subscription not linked to customer_id yet');
+          console.error('[Webhook]   3. User logged in with different email than Paddle customer');
+        }
       } catch (pushError) {
-        console.error('[Webhook] ⚠️ Failed to send lock push (will fallback to daily check):', pushError);
+        console.error('[Webhook] ❌ Failed to send lock push (will fallback to daily check):', pushError);
+        console.error('[Webhook] Error details:', pushError);
       }
+    } else {
+      console.log(`[Webhook] ℹ️ Status "${status}" does not trigger push notification`);
     }
+
+    console.log('[Webhook] 📤 PUSH NOTIFICATION FLOW COMPLETE');
   }
 
   private async updateCustomerData(eventData: CustomerCreatedEvent | CustomerUpdatedEvent) {
@@ -212,17 +243,25 @@ export class ProcessWebhook {
    * 4. Future webhooks can now send notifications
    */
   private async updatePushSubscriptionsWithCustomerId(customerId: string) {
-    console.log('[Webhook] 🔗 Linking push subscriptions to customer:', customerId);
+    console.log('[Webhook] 🔗 CUSTOMER ID LINKING FLOW STARTING');
+    console.log(`[Webhook] Customer ID: ${customerId}`);
 
     const supabase = await createClient();
 
     // Get customer email
-    const { data: customer } = await supabase.from('customers').select('email').eq('customer_id', customerId).single();
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .select('email')
+      .eq('customer_id', customerId)
+      .single();
 
-    if (!customer?.email) {
-      console.log('[Webhook] ⚠️ Could not find customer email, skipping push subscription update');
+    if (customerError || !customer?.email) {
+      console.error('[Webhook] ❌ Could not find customer email:', customerError?.message);
+      console.error('[Webhook] This will prevent push subscription linking!');
       return;
     }
+
+    console.log(`[Webhook] Customer email: ${customer.email}`);
 
     // Get all push subscriptions that don't have a customer_id
     const { data: nullSubs, error: queryError } = await supabase
@@ -232,25 +271,43 @@ export class ProcessWebhook {
 
     if (queryError) {
       console.error('[Webhook] ❌ Failed to query push subscriptions:', queryError);
+      console.error('[Webhook] Error details:', JSON.stringify(queryError, null, 2));
       return;
     }
 
     if (!nullSubs || nullSubs.length === 0) {
-      console.log('[Webhook] ℹ️ No push subscriptions without customer_id');
+      console.log('[Webhook] ℹ️ No push subscriptions without customer_id found');
+      console.log('[Webhook] This is normal if:');
+      console.log('[Webhook]   1. All subscriptions already linked');
+      console.log('[Webhook]   2. Extension not installed yet');
+      console.log('[Webhook]   3. User purchased before installing extension');
       return;
     }
 
     console.log(`[Webhook] 🔍 Found ${nullSubs.length} push subscription(s) without customer_id`);
+    console.log('[Webhook] Attempting to match by email...');
 
     // For each subscription, check if user email matches customer email
     let updated = 0;
+    let checked = 0;
     for (const sub of nullSubs) {
+      checked++;
       try {
         // Get user email using admin API (bypasses RLS)
-        const { data: userData } = await supabase.auth.admin.getUserById(sub.user_id);
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(sub.user_id);
 
-        if (userData?.user?.email === customer.email) {
+        if (userError) {
+          console.error(`[Webhook] ⚠️ Could not get user data for ${sub.user_id}:`, userError.message);
+          continue;
+        }
+
+        const userEmail = userData?.user?.email;
+        console.log(`[Webhook] Checking subscription ${checked}/${nullSubs.length}: user email = ${userEmail}`);
+
+        if (userEmail === customer.email) {
           // Match found! Update this subscription with customer_id
+          console.log(`[Webhook] ✅ EMAIL MATCH FOUND! Linking subscription...`);
+
           const { error: updateError } = await supabase
             .from('push_subscriptions')
             .update({ customer_id: customerId })
@@ -258,10 +315,13 @@ export class ProcessWebhook {
 
           if (!updateError) {
             updated++;
-            console.log(`[Webhook] ✅ Linked push subscription to customer: ${sub.endpoint.substring(0, 50)}...`);
+            console.log(`[Webhook] ✅ Successfully linked: ${sub.endpoint.substring(0, 50)}...`);
           } else {
-            console.error('[Webhook] ❌ Failed to update subscription:', updateError);
+            console.error('[Webhook] ❌ Failed to update subscription:', updateError.message);
+            console.error('[Webhook] Error details:', JSON.stringify(updateError, null, 2));
           }
+        } else {
+          console.log(`[Webhook] ⏭️ Email mismatch (customer: ${customer.email}, user: ${userEmail})`);
         }
       } catch (error) {
         console.error('[Webhook] ⚠️ Error checking user:', error);
@@ -269,9 +329,17 @@ export class ProcessWebhook {
     }
 
     if (updated > 0) {
-      console.log(`[Webhook] ✅ Successfully linked ${updated} push subscription(s) to customer`);
+      console.log(`[Webhook] ✅ Successfully linked ${updated}/${nullSubs.length} push subscription(s) to customer`);
     } else {
-      console.log('[Webhook] ℹ️ No matching push subscriptions found for this customer email');
+      console.error(`[Webhook] ⚠️ WARNING: No matching push subscriptions found!`);
+      console.error('[Webhook] Checked:', checked, 'subscriptions');
+      console.error('[Webhook] Customer email:', customer.email);
+      console.error('[Webhook] Possible causes:');
+      console.error('[Webhook]   1. User logged into extension with different email than Paddle');
+      console.error('[Webhook]   2. Extension was installed on different browser/device');
+      console.error('[Webhook]   3. Push subscription registration failed silently');
     }
+
+    console.log('[Webhook] 🔗 CUSTOMER ID LINKING FLOW COMPLETE');
   }
 }
