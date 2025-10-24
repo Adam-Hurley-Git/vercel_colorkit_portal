@@ -107,21 +107,36 @@ export async function sendWebPushToCustomer(
   console.log('📤 Sending Web Push to all subscriptions for customer:', customerId);
 
   // Get all push subscriptions for this customer
-  const { createClient } = await import('@/utils/supabase/server');
+  // IMPORTANT: Use server-internal (Service Role) to bypass RLS and read all subscriptions
+  const { createClient } = await import('@/utils/supabase/server-internal');
   const supabase = await createClient();
 
   const { data: subscriptions, error } = await supabase
     .from('push_subscriptions')
-    .select('subscription, endpoint')
+    .select('subscription, endpoint, customer_id, user_id')
     .eq('customer_id', customerId);
 
   if (error) {
     console.error('❌ Failed to fetch push subscriptions:', error);
+    console.error('   Error details:', error);
     return { sent: 0, failed: 0 };
   }
 
+  console.log(`🔍 Query result: Found ${subscriptions?.length || 0} subscription(s) for customer ${customerId}`);
+
   if (!subscriptions || subscriptions.length === 0) {
     console.log('ℹ️ No push subscriptions found for customer');
+
+    // Debug: Check if there are ANY push subscriptions at all
+    const { data: allSubs } = await supabase.from('push_subscriptions').select('customer_id, endpoint').limit(10);
+    console.log('🔍 Debug: Total push subscriptions in database:', allSubs?.length || 0);
+    if (allSubs && allSubs.length > 0) {
+      console.log(
+        '🔍 Debug: Sample customer_ids in database:',
+        allSubs.map((s) => s.customer_id),
+      );
+    }
+
     return { sent: 0, failed: 0 };
   }
 

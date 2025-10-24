@@ -59,20 +59,22 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('💾 Storing push subscription for user:', user.id);
+    console.log('   User email:', user.email);
     console.log('   Endpoint:', subscription.endpoint);
 
     // Get customer_id if available (for future webhook notifications)
     let customerId: string | null = null;
     try {
       customerId = await getCustomerIdFromSupabase(supabase);
-      console.log('💳 Customer ID:', customerId || 'Not found');
+      console.log('💳 Customer ID for user:', customerId || 'Not found (will be linked later)');
     } catch (error) {
       console.log('⚠️ Could not get customer ID (user may not have purchased yet)');
+      console.log('   Error:', error);
     }
 
     // Store push subscription in database
     // Use upsert to update if subscription already exists
-    const { error } = await supabase
+    const { data: insertedData, error } = await supabase
       .from('push_subscriptions')
       .upsert(
         {
@@ -90,6 +92,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('❌ Failed to store push subscription:', error);
+      console.error('   Error details:', JSON.stringify(error, null, 2));
       return NextResponse.json(
         {
           success: false,
@@ -107,6 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('✅ Push subscription stored successfully');
+    console.log('   Data:', JSON.stringify(insertedData, null, 2));
 
     return NextResponse.json(
       {
