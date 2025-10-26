@@ -3,6 +3,61 @@ import { createClientFromBearer } from '@/utils/supabase/from-bearer';
 import { getCustomerIdFromSupabase } from '@/utils/paddle/get-customer-id-bearer';
 import { getVapidPublicKeyHash, sendWebPushToCustomer } from '@/utils/fcm/send-push';
 
+interface VapidDiagnostics {
+  publicKeyConfigured: boolean;
+  privateKeyConfigured: boolean;
+  subjectConfigured: boolean;
+  publicKeyHash: string;
+  publicKeyPreview: string;
+}
+
+interface SubscriptionItem {
+  id: string;
+  endpointPreview: string;
+  customerId: string | null;
+  vapidHashMatch: boolean;
+  vapidPubHash: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  lastUsedAt: string | null;
+}
+
+interface DiagnosticsData {
+  user: {
+    id: string;
+    email: string | undefined;
+  };
+  vapid: VapidDiagnostics;
+  timestamp: string;
+  customer?: {
+    customerId: string | null;
+    hasCustomer: boolean;
+    error?: string;
+  };
+  subscriptions?: {
+    error?: string;
+    count: number;
+    items?: SubscriptionItem[];
+  };
+  subscriptionsByCustomer?: {
+    count: number;
+    items?: Array<{
+      id: string;
+      endpointPreview: string;
+      userId: string;
+      customerId: string | null;
+    }>;
+  };
+  testPush?: {
+    sent: number;
+    failed: number;
+    success: boolean;
+    message?: string;
+    error?: string;
+  };
+  analysis?: string[];
+}
+
 /**
  * Debug Push Notification Endpoint
  *
@@ -38,7 +93,7 @@ export async function GET(request: NextRequest) {
     console.log('✅ User authenticated:', user.email);
 
     // Collect diagnostic information
-    const diagnostics: Record<string, unknown> = {
+    const diagnostics: DiagnosticsData = {
       user: {
         id: user.id,
         email: user.email,
@@ -170,9 +225,8 @@ export async function GET(request: NextRequest) {
       analysis.push('   → Check extension console for registration errors');
     }
 
-    if (diagnostics.subscriptions.count > 0) {
-      const items = diagnostics.subscriptions.items as Array<{ vapidHashMatch: boolean }> | undefined;
-      const mismatchCount = items?.filter((s) => !s.vapidHashMatch).length || 0;
+    if (diagnostics.subscriptions && diagnostics.subscriptions.count > 0) {
+      const mismatchCount = diagnostics.subscriptions.items?.filter((s) => !s.vapidHashMatch).length || 0;
       if (mismatchCount > 0) {
         analysis.push(`❌ CRITICAL: ${mismatchCount} subscription(s) have VAPID key mismatch`);
         analysis.push('   → Extension was built with different VAPID_PUBLIC_KEY than backend');
@@ -190,9 +244,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (
+      diagnostics.customer &&
       diagnostics.customer.hasCustomer &&
+      diagnostics.subscriptions &&
       diagnostics.subscriptions.count > 0 &&
-      (diagnostics.subscriptions.items as Array<{ customerId: string | null }> | undefined)?.some((s) => !s.customerId)
+      diagnostics.subscriptions.items?.some((s) => !s.customerId)
     ) {
       analysis.push('⚠️ Some subscriptions missing customer_id');
       analysis.push('   → These subscriptions were registered before purchase');
