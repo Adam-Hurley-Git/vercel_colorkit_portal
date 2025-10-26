@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { getCustomerId } from '@/utils/paddle/get-customer-id';
 import { getPaddleInstance } from '@/utils/paddle/get-paddle-instance';
 
-interface ExtensionAuthMessage {
+export interface ExtensionAuthMessage {
   type: 'AUTH_SUCCESS';
   session: {
     access_token: string;
@@ -18,16 +18,27 @@ interface ExtensionAuthMessage {
   };
 }
 
-interface ExtensionPaymentMessage {
+export interface ExtensionPaymentMessage {
   type: 'PAYMENT_SUCCESS';
   userId: string;
 }
+
+export interface ExtensionSubscriptionCancelledMessage {
+  type: 'SUBSCRIPTION_CANCELLED';
+  customerId?: string;
+  timestamp: number;
+}
+
+export type ExtensionMessage =
+  | ExtensionAuthMessage
+  | ExtensionPaymentMessage
+  | ExtensionSubscriptionCancelledMessage;
 
 /**
  * Prepares an authentication success message for the Chrome extension
  * Extracts Supabase session tokens and checks subscription status
  */
-export async function prepareAuthSuccessMessage(): Promise<Record<string, unknown> | null> {
+export async function prepareAuthSuccessMessage(): Promise<ExtensionAuthMessage | null> {
   try {
     const supabase = await createClient();
 
@@ -105,7 +116,7 @@ export async function prepareAuthSuccessMessage(): Promise<Record<string, unknow
  * Prepares a payment success message for the Chrome extension
  * Notifies extension that payment was completed and subscription should be refreshed
  */
-export async function preparePaymentSuccessMessage(): Promise<Record<string, unknown> | null> {
+export async function preparePaymentSuccessMessage(): Promise<ExtensionPaymentMessage | null> {
   try {
     const supabase = await createClient();
     const {
@@ -137,7 +148,9 @@ export async function preparePaymentSuccessMessage(): Promise<Record<string, unk
  * @param customerId - Paddle customer ID (used to identify the user)
  * @returns Message object for ExtensionNotifier or null if user session not found
  */
-export async function prepareSubscriptionCancelledMessage(customerId: string): Promise<Record<string, unknown> | null> {
+export async function prepareSubscriptionCancelledMessage(
+  customerId: string,
+): Promise<ExtensionSubscriptionCancelledMessage | null> {
   try {
     console.log('[extension-messaging] Preparing cancellation message for customer:', customerId);
 

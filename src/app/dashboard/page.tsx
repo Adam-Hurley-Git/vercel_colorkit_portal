@@ -2,28 +2,26 @@ import { DashboardPageHeader } from '@/components/dashboard/layout/dashboard-pag
 import { DashboardLandingPage } from '@/components/dashboard/landing/dashboard-landing-page';
 import { ExtensionNotifier } from '@/components/extension/ExtensionNotifier';
 import { prepareAuthSuccessMessage } from '@/utils/extension-messaging';
+import type { ExtensionSubscriptionCancelledMessage } from '@/utils/extension-messaging';
 
-interface DashboardPageProps {
-  searchParams: Promise<{ ext_auth?: string }>;
-}
-
-export default async function LandingPage({ searchParams }: DashboardPageProps) {
+export default async function LandingPage() {
   // Always prepare auth message for extension when user visits dashboard
   // This ensures extension gets session tokens even if they didn't come from auth callback
   const extensionMessage = await prepareAuthSuccessMessage();
 
   // Check if subscription is cancelled and send cache invalidation message
-  let cancellationMessage: Record<string, unknown> | null = null;
+  let cancellationMessage: ExtensionSubscriptionCancelledMessage | null = null;
   if (extensionMessage && extensionMessage.subscriptionStatus) {
-    const subStatus = extensionMessage.subscriptionStatus as { hasSubscription: boolean; status?: string };
+    const { hasSubscription, status } = extensionMessage.subscriptionStatus;
 
     // If user has no active subscription, send cancellation message to clear extension cache
-    if (!subStatus.hasSubscription || subStatus.status === 'canceled' || subStatus.status === 'cancelled') {
+    if (!hasSubscription || status === 'canceled' || status === 'cancelled') {
       console.log('[Dashboard] User has cancelled/inactive subscription - sending cache clear message to extension');
 
       cancellationMessage = {
         type: 'SUBSCRIPTION_CANCELLED',
         timestamp: Date.now(),
+        customerId: extensionMessage.session.user.id,
       };
     }
   }

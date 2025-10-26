@@ -3,6 +3,67 @@ import { createClientFromBearer } from '@/utils/supabase/from-bearer';
 import { getCustomerIdFromSupabase } from '@/utils/paddle/get-customer-id-bearer';
 import { getVapidPublicKeyHash, sendWebPushToCustomer } from '@/utils/fcm/send-push';
 
+interface SubscriptionDiagnostics {
+  id: string;
+  endpointPreview: string;
+  customerId: string | null;
+  vapidHashMatch: boolean;
+  vapidPubHash: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  lastUsedAt: string | null;
+}
+
+interface CustomerDiagnostics {
+  customerId: string | null;
+  hasCustomer: boolean;
+  error?: string;
+}
+
+interface SubscriptionSummary {
+  count: number;
+  items: SubscriptionDiagnostics[];
+  error?: string;
+}
+
+interface CustomerSubscriptionSummary {
+  count: number;
+  items: Array<{
+    id: string;
+    endpointPreview: string;
+    userId: string | null;
+    customerId: string | null;
+  }>;
+}
+
+interface TestPushDiagnostics {
+  sent: number;
+  failed: number;
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+interface DiagnosticsData {
+  user: {
+    id: string;
+    email: string | null;
+  };
+  vapid: {
+    publicKeyConfigured: boolean;
+    privateKeyConfigured: boolean;
+    subjectConfigured: boolean;
+    publicKeyHash: string | null;
+    publicKeyPreview: string;
+  };
+  timestamp: string;
+  customer: CustomerDiagnostics;
+  subscriptions: SubscriptionSummary;
+  subscriptionsByCustomer?: CustomerSubscriptionSummary;
+  testPush?: TestPushDiagnostics;
+  analysis?: string[];
+}
+
 /**
  * Debug Push Notification Endpoint
  *
@@ -38,7 +99,7 @@ export async function GET(request: NextRequest) {
     console.log('✅ User authenticated:', user.email);
 
     // Collect diagnostic information
-    const diagnostics: any = {
+    const diagnostics: DiagnosticsData = {
       user: {
         id: user.id,
         email: user.email,
@@ -49,10 +110,18 @@ export async function GET(request: NextRequest) {
         subjectConfigured: !!process.env.VAPID_SUBJECT,
         publicKeyHash: getVapidPublicKeyHash(),
         publicKeyPreview: process.env.VAPID_PUBLIC_KEY
-          ? process.env.VAPID_PUBLIC_KEY.substring(0, 20) + '...'
+          ? `${process.env.VAPID_PUBLIC_KEY.substring(0, 20)}...`
           : 'NOT SET',
       },
       timestamp: new Date().toISOString(),
+      customer: {
+        customerId: null,
+        hasCustomer: false,
+      },
+      subscriptions: {
+        count: 0,
+        items: [],
+      },
     };
 
     // Get customer_id
@@ -72,7 +141,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Get push subscriptions for this user
-    const { data: subscriptions, error: subsError } = await supabase
+    type SubscriptionRow = {
+      id: string;
+      endpoint: string;
+      customer_id: string | null;
+      vapid_pub_hash: string | null;
+      created_at: string | null;
+      updated_at: string | null;
+      last_used_at: string | null;
+    };
+
+    const { data: subscriptionRows, error: subsError } = await supabase
       .from('push_subscriptions')
       .select('id, endpoint, customer_id, vapid_pub_hash, created_at, updated_at, last_used_at')
       .eq('user_id', user.id);
@@ -81,39 +160,52 @@ export async function GET(request: NextRequest) {
       diagnostics.subscriptions = {
         error: subsError.message,
         count: 0,
+        items: [],
       };
     } else {
+      const subscriptions = (subscriptionRows ?? []) as SubscriptionRow[];
+      const mappedSubscriptions: SubscriptionDiagnostics[] = subscriptions.map((sub) => ({
+        id: sub.id,
+        endpointPreview: `${sub.endpoint.substring(0, 50)}...`,
+        customerId: sub.customer_id,
+        vapidHashMatch: sub.vapid_pub_hash === diagnostics.vapid.publicKeyHash,
+        vapidPubHash: sub.vapid_pub_hash,
+        createdAt: sub.created_at,
+        updatedAt: sub.updated_at,
+        lastUsedAt: sub.last_used_at,
+      }));
+
       diagnostics.subscriptions = {
-        count: subscriptions?.length || 0,
-        items: subscriptions?.map((sub) => ({
-          id: sub.id,
-          endpointPreview: sub.endpoint.substring(0, 50) + '...',
-          customerId: sub.customer_id,
-          vapidHashMatch: sub.vapid_pub_hash === diagnostics.vapid.publicKeyHash,
-          vapidPubHash: sub.vapid_pub_hash,
-          createdAt: sub.created_at,
-          updatedAt: sub.updated_at,
-          lastUsedAt: sub.last_used_at,
-        })),
+        count: mappedSubscriptions.length,
+        items: mappedSubscriptions,
       };
     }
 
     // If customer_id is available, get subscriptions by customer_id too
     if (customerId) {
+      type CustomerSubscriptionRow = {
+        id: string;
+        endpoint: string;
+        user_id: string | null;
+        customer_id: string | null;
+      };
+
       const { data: customerSubs, error: customerSubsError } = await supabase
         .from('push_subscriptions')
         .select('id, endpoint, user_id, customer_id')
         .eq('customer_id', customerId);
 
       if (!customerSubsError) {
+        const mappedCustomerSubs = ((customerSubs ?? []) as CustomerSubscriptionRow[]).map((sub) => ({
+          id: sub.id,
+          endpointPreview: `${sub.endpoint.substring(0, 50)}...`,
+          userId: sub.user_id,
+          customerId: sub.customer_id,
+        }));
+
         diagnostics.subscriptionsByCustomer = {
-          count: customerSubs?.length || 0,
-          items: customerSubs?.map((sub) => ({
-            id: sub.id,
-            endpointPreview: sub.endpoint.substring(0, 50) + '...',
-            userId: sub.user_id,
-            customerId: sub.customer_id,
-          })),
+          count: mappedCustomerSubs.length,
+          items: mappedCustomerSubs,
         };
       }
     }
@@ -126,7 +218,9 @@ export async function GET(request: NextRequest) {
 
       if (!customerId) {
         diagnostics.testPush = {
-          sent: false,
+          sent: 0,
+          failed: 0,
+          success: false,
           error: 'No customer_id available. User needs to make a purchase first.',
         };
       } else {
@@ -171,7 +265,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (diagnostics.subscriptions.count > 0) {
-      const mismatchCount = diagnostics.subscriptions.items?.filter((s: any) => !s.vapidHashMatch).length || 0;
+      const mismatchCount = diagnostics.subscriptions.items.filter((s) => !s.vapidHashMatch).length;
       if (mismatchCount > 0) {
         analysis.push(`❌ CRITICAL: ${mismatchCount} subscription(s) have VAPID key mismatch`);
         analysis.push('   → Extension was built with different VAPID_PUBLIC_KEY than backend');
@@ -191,7 +285,7 @@ export async function GET(request: NextRequest) {
     if (
       diagnostics.customer.hasCustomer &&
       diagnostics.subscriptions.count > 0 &&
-      diagnostics.subscriptions.items?.some((s: any) => !s.customerId)
+      diagnostics.subscriptions.items.some((s) => !s.customerId)
     ) {
       analysis.push('⚠️ Some subscriptions missing customer_id');
       analysis.push('   → These subscriptions were registered before purchase');
