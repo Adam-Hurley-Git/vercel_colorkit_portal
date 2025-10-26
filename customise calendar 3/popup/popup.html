@@ -1,0 +1,3150 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        width: 520px;
+        min-width: 520px;
+        max-width: 520px;
+        height: 650px;
+        min-height: 650px;
+        max-height: 650px;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        overflow-y: auto;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 28px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+        color: #1e293b;
+        margin: 0;
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.08),
+          0 1px 0 rgba(255, 255, 255, 0.8) inset;
+        border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+      .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+          radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.06) 0%, transparent 50%);
+        pointer-events: none;
+      }
+      .header-logo {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+      }
+      .header-logo img {
+        width: 36px;
+        height: 36px;
+      }
+      .header-text {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        position: relative;
+        z-index: 1;
+      }
+      .header h1 {
+        font-family: 'Nunito', sans-serif;
+        font-size: 24px;
+        margin: 3px 0 0 0;
+        color: #1e293b;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+      }
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .manage-account-btn {
+        font-family: 'Nunito', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        background: rgba(255, 255, 255, 0.6);
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .manage-account-btn:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(148, 163, 184, 0.4);
+        color: #475569;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .manage-account-btn svg {
+        opacity: 0.7;
+      }
+
+      .colour-kit-card {
+        font-family: 'Nunito', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: #4c1d95;
+        background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+        padding: 8px 14px;
+        border-radius: 16px;
+        box-shadow:
+          0 3px 12px rgba(76, 29, 149, 0.12),
+          0 1px 0 rgba(255, 255, 255, 0.9) inset;
+        text-transform: none;
+        letter-spacing: -0.1px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: 1.5px solid #e9d5ff;
+        transition: all 0.2s ease;
+      }
+      .colour-kit-card:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 5px 16px rgba(76, 29, 149, 0.18),
+          0 1px 0 rgba(255, 255, 255, 0.95) inset;
+        border-color: #c4b5fd;
+      }
+
+      .content-wrapper {
+        padding: 20px;
+        overflow: visible;
+      }
+      .section {
+        margin-bottom: 24px;
+        padding: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow:
+          0 4px 16px rgba(0, 0, 0, 0.1),
+          0 1px 0 rgba(255, 255, 255, 0.8) inset;
+        overflow: visible;
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        transition: all 0.2s ease;
+      }
+      .section:hover {
+        box-shadow:
+          0 6px 20px rgba(0, 0, 0, 0.12),
+          0 1px 0 rgba(255, 255, 255, 0.9) inset;
+        border-color: rgba(148, 163, 184, 0.2);
+      }
+
+      .section-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 16px 20px;
+        border-bottom: 1px solid transparent;
+        border-image: linear-gradient(90deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%) 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+
+      .section h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+      }
+
+      .section-content {
+        padding: 20px;
+        overflow: visible;
+      }
+
+      /* Feature-specific section styling */
+      .section.day-coloring .section-icon {
+        background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+      }
+
+      .section.task-coloring .section-icon {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+      }
+
+      .section.time-blocking .section-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      .section.reset-section .section-icon {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      }
+
+      .section.color-lab .section-icon {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      }
+
+      .section.reset-section .section-header {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        border-bottom: 1px solid #fecaca;
+      }
+      .toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        gap: 16px;
+      }
+      .toggle label {
+        font-size: 13px;
+        color: #333;
+        flex: 1;
+      }
+      .expand-collapse-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: rgba(26, 115, 232, 0.1);
+        transition:
+          transform 0.3s ease,
+          background-color 0.3s ease;
+      }
+      .expand-collapse-arrow span {
+        font-size: 16px;
+        color: #666;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
+      .expand-collapse-arrow.collapsed {
+        transform: rotate(-90deg);
+      }
+      .section-header:hover .expand-collapse-arrow {
+        background-color: rgba(26, 115, 232, 0.2);
+      }
+      .section-header:hover .expand-collapse-arrow span {
+        color: #1a73e8;
+      }
+      .switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: #ccc;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      .switch.active {
+        background: #1a73e8;
+      }
+      .switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        transition: left 0.3s;
+      }
+      .switch.active::after {
+        left: 22px;
+      }
+      .color-picker {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+        padding: 12px;
+        border: 1px solid #e8eaed;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .color-picker label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+        margin-bottom: 6px;
+      }
+      .color-picker input[type='color'] {
+        width: 100%;
+        height: 36px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        align-self: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .color-picker input[type='color']:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .color-picker input[type='color']:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .color-picker input[type='color']:focus {
+        outline: none;
+        box-shadow:
+          0 0 0 3px rgba(26, 115, 232, 0.2),
+          0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Color Picker Icon Overlay */
+      .color-picker-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .color-picker-icon {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+        z-index: 10;
+        pointer-events: auto;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .color-picker-icon:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      .color-picker-icon:active {
+        transform: translateY(-50%) scale(0.95);
+      }
+
+      /* Hide the native color picker when closed */
+      .color-picker-container input[type='color'].closed {
+        pointer-events: none;
+      }
+      .color-palette {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 4px;
+        margin-top: 6px;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e8eaed;
+        max-height: 140px;
+        overflow-y: auto;
+      }
+      .color-swatch {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .color-swatch:hover {
+        border-color: #1a73e8;
+        transform: scale(1.1);
+      }
+      .color-swatch.selected {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+      }
+      .transparency-button {
+        margin-top: 4px;
+        padding: 4px 8px;
+        background: #1a73e8;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        font-size: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+        width: 100%;
+      }
+      .transparency-button:hover {
+        background: #1557b0;
+      }
+      .opacity-control {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin-top: 4px;
+      }
+      .opacity-control label {
+        font-size: 9px;
+        color: #666;
+        text-align: center;
+      }
+      .opacity-control input[type='range'] {
+        width: 100%;
+        height: 3px;
+        background: #ddd;
+        border-radius: 2px;
+        outline: none;
+      }
+      .opacity-control input[type='range']::-webkit-slider-thumb {
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        background: #1a73e8;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .opacity-control input[type='range']::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        background: #1a73e8;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+      }
+      .opacity-value {
+        font-size: 10px;
+        color: #666;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      /* Enhanced Opacity Controls */
+      .enhanced-opacity-control {
+        margin-top: 8px;
+        padding: 12px;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+
+      .opacity-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .opacity-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .opacity-value-display {
+        background: #1a73e8;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 12px;
+        font-size: 9px;
+        font-weight: 600;
+        min-width: 28px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+      }
+
+      .opacity-presets {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .opacity-presets:has(.opacity-preset-btn[data-opacity='100']) {
+        gap: 3px;
+      }
+
+      .opacity-preset-btn {
+        padding: 4px 6px;
+        background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 9px;
+        font-weight: 500;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        min-width: 30px;
+        text-align: center;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        flex: 1;
+        max-width: 45px;
+      }
+
+      .opacity-preset-btn[data-opacity='100'] {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        color: white;
+        border-color: #059669;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+      }
+
+      .opacity-preset-btn[data-opacity='100']:hover {
+        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px rgba(5, 150, 105, 0.4);
+      }
+
+      .opacity-preset-btn[data-opacity='100'].active {
+        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        box-shadow:
+          0 0 0 2px rgba(5, 150, 105, 0.2),
+          0 3px 6px rgba(5, 150, 105, 0.4);
+      }
+
+      .opacity-preset-btn:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #475569;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .opacity-preset-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      .opacity-preset-btn.active {
+        background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+        color: white;
+        border-color: #1a73e8;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+      }
+
+      .opacity-slider-container {
+        position: relative;
+        margin: 8px 0;
+      }
+
+      .enhanced-opacity-control input[type='range'] {
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(to right, #e2e8f0 0%, #cbd5e1 100%);
+        border-radius: 3px;
+        outline: none;
+        appearance: none;
+        cursor: pointer;
+      }
+
+      .enhanced-opacity-control input[type='range']::-webkit-slider-thumb {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+        transition: all 0.15s ease;
+      }
+
+      .enhanced-opacity-control input[type='range']::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 3px 6px rgba(26, 115, 232, 0.4);
+      }
+
+      .enhanced-opacity-control input[type='range']::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.3);
+      }
+
+      .slider-track-fill {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 6px;
+        background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+        border-radius: 3px;
+        transform: translateY(-50%);
+        pointer-events: none;
+        transition: width 0.15s ease;
+      }
+      .custom-color-swatch {
+        position: relative;
+      }
+      .custom-color-remove {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 14px;
+        height: 14px;
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 8px;
+        line-height: 1;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+      .custom-color-swatch:hover .custom-color-remove {
+        display: flex;
+      }
+
+      /* Color Lab Styles */
+      .color-lab-panel {
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8fafc;
+        border: 1px solid #e8eaed;
+        border-radius: 8px;
+      }
+
+      .panel-title {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .add-color-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .color-input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .lab-color-picker {
+        width: 40px;
+        height: 32px;
+        border: 2px solid #e8eaed;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+
+      .lab-color-picker:hover {
+        border-color: #1a73e8;
+      }
+
+      .hex-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 2px solid #e8eaed;
+        border-radius: 6px;
+        font-size: 12px;
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        transition: border-color 0.2s;
+      }
+
+      .hex-input:focus {
+        outline: none;
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+      }
+
+      .lab-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .lab-btn.primary {
+        background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.2);
+      }
+
+      .lab-btn.primary:hover {
+        background: linear-gradient(135deg, #1557b0 0%, #0d47a1 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(26, 115, 232, 0.3);
+      }
+
+      .lab-btn.secondary {
+        background: white;
+        color: #1e293b;
+        border: 1px solid #e8eaed;
+      }
+
+      .lab-btn.secondary:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+      }
+
+      .lab-btn.danger {
+        background: #dc2626;
+        color: white;
+      }
+
+      .lab-btn.danger:hover {
+        background: #b91c1c;
+      }
+
+      .lab-btn.small {
+        padding: 4px 8px;
+        font-size: 10px;
+      }
+
+      /* Quick Add Section Styles */
+      .quick-add-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .palette-tabs {
+        display: flex;
+        background: #f1f5f9;
+        border-radius: 8px;
+        padding: 4px;
+        gap: 2px;
+      }
+
+      .palette-tab {
+        flex: 1;
+        padding: 8px 12px;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+      }
+
+      .palette-tab:hover {
+        background: #e2e8f0;
+        color: #475569;
+      }
+
+      .palette-tab.active {
+        background: #1a73e8;
+        color: white;
+        box-shadow: 0 2px 4px rgba(26, 115, 232, 0.2);
+      }
+
+      .quick-add-content {
+        position: relative;
+        min-height: 80px;
+      }
+
+      .quick-add-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+        gap: 8px;
+        padding: 8px;
+        background: #f8fafc;
+        border: 1px solid #e8eaed;
+        border-radius: 6px;
+        min-height: 60px;
+      }
+
+      .quick-add-color {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .quick-add-color:hover {
+        border-color: #1a73e8;
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(26, 115, 232, 0.2);
+      }
+
+      .quick-add-color::after {
+        content: '+';
+        position: absolute;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .quick-add-color:hover::after {
+        opacity: 1;
+      }
+
+      .quick-add-color.added::after {
+        content: '✓';
+        opacity: 1;
+        color: #10b981;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+      }
+
+      .quick-add-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .quick-add-label {
+        font-size: 11px;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .popular-colors-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .popular-color-item {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .popular-color-item:hover {
+        border-color: #1a73e8;
+        transform: scale(1.05);
+      }
+
+      .popular-color-item::after {
+        content: '+';
+        position: absolute;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .popular-color-item:hover::after {
+        opacity: 1;
+      }
+
+      /* My Custom Colors Panel - Unique Design */
+      .my-custom-colors-panel {
+        margin-bottom: 24px;
+        padding: 0;
+        background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+        border: 2px solid #fb923c;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+        overflow: hidden;
+      }
+
+      .custom-colors-header {
+        padding: 16px 20px;
+        background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .custom-colors-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .colors-stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .color-count-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .custom-colors-main {
+        padding: 20px;
+        background: white;
+        min-height: 80px;
+      }
+
+      .custom-colors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+        gap: 8px;
+        min-height: 60px;
+      }
+
+      .custom-colors-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 120px;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 20px;
+      }
+
+      .empty-icon {
+        font-size: 32px;
+        display: block;
+        margin-bottom: 12px;
+      }
+
+      .empty-title {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .empty-subtitle {
+        margin: 0;
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .custom-colors-actions {
+        padding: 16px 20px;
+        background: #f8fafc;
+        border-top: 1px solid #e8eaed;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .primary-actions,
+      .danger-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      /* Updated lab color swatch for featured section */
+      .my-custom-colors-panel .lab-color-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .my-custom-colors-panel .lab-color-swatch:hover {
+        transform: scale(1.1);
+        border-color: #fb923c;
+        z-index: 10;
+        box-shadow: 0 4px 8px rgba(251, 146, 60, 0.3);
+      }
+
+      .my-custom-colors-panel .lab-color-swatch.selected {
+        border-color: #fb923c;
+        box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+      }
+
+      .my-custom-colors-panel .lab-color-swatch .color-remove {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 14px;
+        height: 14px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 8px;
+        line-height: 1;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+      }
+
+      .my-custom-colors-panel .lab-color-swatch:hover .color-remove {
+        display: flex;
+      }
+
+      /* Other sections styling */
+      .custom-colors-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .subsection-label {
+        font-size: 11px;
+        color: #666;
+        font-weight: 500;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .recent-colors-grid,
+      .all-colors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(24px, 1fr));
+        gap: 6px;
+        min-height: 30px;
+        padding: 8px;
+        background: white;
+        border: 1px solid #e8eaed;
+        border-radius: 6px;
+      }
+
+      .lab-color-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+
+      .lab-color-swatch:hover {
+        transform: scale(1.1);
+        border-color: #1a73e8;
+        z-index: 10;
+      }
+
+      .lab-color-swatch.selected {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+      }
+
+      .lab-color-swatch .color-remove {
+        position: absolute;
+        top: -3px;
+        right: -3px;
+        width: 12px;
+        height: 12px;
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 8px;
+        line-height: 1;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .lab-color-swatch:hover .color-remove {
+        display: flex;
+      }
+
+      .bulk-operations {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 8px;
+      }
+
+      .templates-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .template-btn {
+        padding: 12px;
+        background: white;
+        border: 2px solid #e8eaed;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .template-btn:hover {
+        border-color: #1a73e8;
+        background: #f8fafc;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .template-preview {
+        font-size: 20px;
+      }
+
+      .template-name {
+        font-size: 10px;
+        font-weight: 500;
+        color: #1e293b;
+      }
+      .buttons {
+        text-align: center;
+        margin-top: 16px;
+      }
+      .btn {
+        padding: 8px 16px;
+        margin: 0 4px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .btn-primary {
+        background: #1a73e8;
+        color: white;
+      }
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #333;
+        border: 1px solid #dadce0;
+      }
+      .weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin-top: 8px;
+        overflow: visible;
+      }
+      .day-color-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 4px;
+        border: 1px solid #e8eaed;
+        border-radius: 6px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .day-color-item:hover {
+        border-color: #1a73e8;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .day-color-item.expanded {
+        border-color: #1a73e8;
+        box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+      }
+      .day-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+        text-align: center;
+      }
+      .day-color-preview {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid #e8eaed;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .day-color-preview:hover {
+        border-color: #1a73e8;
+      }
+      .day-details {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9000;
+        background: white;
+        border: 1px solid #1a73e8;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        padding: 0;
+        margin-top: 4px;
+        min-width: 300px;
+        max-width: 340px;
+        max-height: 280px;
+        overflow: visible;
+      }
+      .color-picker-tabs {
+        display: flex;
+        background: #f8f9fa;
+        border-radius: 8px 8px 0 0;
+        border-bottom: 1px solid #e8eaed;
+        overflow: hidden;
+      }
+      .color-tab {
+        flex: 1;
+        padding: 8px 6px;
+        font-size: 10px;
+        font-weight: 500;
+        text-align: center;
+        background: #f8f9fa;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #666;
+        border-bottom: 2px solid transparent;
+      }
+      .color-tab:hover {
+        background: #e8eaed;
+        color: #333;
+      }
+      .color-tab.active {
+        background: white;
+        color: #1a73e8;
+        border-bottom-color: #1a73e8;
+        font-weight: 600;
+      }
+      .color-tab-content {
+        padding: 12px;
+        background: white;
+        border-radius: 0 0 8px 8px;
+        max-height: 220px;
+        overflow-y: auto;
+      }
+      .color-tab-panel {
+        display: none;
+      }
+      .color-tab-panel.active {
+        display: block;
+      }
+      /* Ensure color picker stays within popup bounds */
+      .day-color-item:first-child .day-details {
+        left: 0;
+        transform: none;
+      }
+      .day-color-item[data-day='1'] .day-details {
+        left: -20px;
+        transform: none;
+      }
+      .day-color-item[data-day='5'] .day-details {
+        left: auto;
+        right: -20px;
+        transform: none;
+      }
+      .day-color-item:last-child .day-details {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+      .day-details.expanded {
+        display: block;
+        z-index: 99999;
+      }
+
+      /* Task Colors Grid */
+      .task-colors-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+        overflow: visible;
+      }
+      .task-color-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 4px;
+        border: 1px solid #e8eaed;
+        border-radius: 6px;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .task-color-item:hover {
+        border-color: #1a73e8;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .task-color-item.expanded {
+        border-color: #1a73e8;
+        box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+      }
+      .task-color-preview {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        border: 1px solid #e8eaed;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .task-color-preview:hover {
+        border-color: #1a73e8;
+      }
+      .task-color-details {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9500;
+        background: white;
+        border: 1px solid #1a73e8;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        padding: 0;
+        margin-top: 4px;
+        min-width: 300px;
+        max-width: 340px;
+        max-height: 280px;
+        overflow: visible;
+      }
+      .task-color-details.expanded {
+        display: block;
+        z-index: 99999;
+      }
+
+      /* Task color positioning - ensure they stay within popup bounds */
+      .task-color-item:nth-child(1) .task-color-details,
+      .task-color-item:nth-child(2) .task-color-details {
+        left: 0;
+        transform: none;
+      }
+      .task-color-item:nth-child(3) .task-color-details,
+      .task-color-item:nth-child(4) .task-color-details {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+      .task-color-item:nth-child(5) .task-color-details,
+      .task-color-item:nth-child(6) .task-color-details {
+        left: 0;
+        transform: none;
+      }
+      .task-color-item:nth-child(7) .task-color-details,
+      .task-color-item:nth-child(8) .task-color-details {
+        left: auto;
+        right: 0;
+        transform: none;
+      }
+
+      /* Time Block Global Color Picker */
+      .time-block-global-color-item {
+        display: flex;
+        align-items: center;
+        position: relative;
+      }
+      .time-block-global-color-preview {
+        width: 40px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid #dadce0;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .time-block-global-color-preview:hover {
+        border-color: #1a73e8;
+      }
+      .time-block-global-color-details {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 10000;
+        background: white;
+        border: 1px solid #1a73e8;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        padding: 0;
+        margin-top: 4px;
+        min-width: 280px;
+        max-width: 320px;
+        max-height: 280px;
+        overflow: visible;
+      }
+      .time-block-global-color-details.expanded {
+        display: block;
+        z-index: 2147483000;
+      }
+
+      /* Time Block Individual Color Picker (smaller size) */
+      .time-block-color-item {
+        display: inline-flex;
+        align-items: center;
+        position: relative;
+        margin-right: 8px;
+      }
+      .time-block-color-preview {
+        width: 30px;
+        height: 20px;
+        border-radius: 3px;
+        border: 1px solid #dadce0;
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+      .time-block-color-preview:hover {
+        border-color: #1a73e8;
+      }
+      .time-block-color-details {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;
+        background: white;
+        border: 1px solid #1a73e8;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        padding: 0;
+        margin-top: 4px;
+        min-width: 260px;
+        max-width: 300px;
+        max-height: 260px;
+        overflow: visible;
+      }
+      .time-block-color-details.expanded {
+        display: block;
+        z-index: 2147483000;
+      }
+      .inline-colors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+        gap: 6px;
+        margin-bottom: 8px;
+        justify-items: center;
+        max-width: 100%;
+      }
+      .preset-color-item {
+        position: relative;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        background-size: cover;
+        background-position: center;
+      }
+      .preset-color-item:hover {
+        border-color: #1a73e8;
+        transform: scale(1.05);
+      }
+      .preset-color-item.editing {
+        border-color: #ff9800;
+        box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+      }
+      .preset-color-remove {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 16px;
+        height: 16px;
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 10px;
+        line-height: 1;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .preset-color-item:hover .preset-color-remove {
+        display: flex;
+      }
+      .preset-color-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+
+      /* Time Blocking Enhanced Styles */
+      .time-block-global-settings {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+
+      .time-block-schedule-section {
+        margin-top: 24px;
+      }
+
+      .time-block-day-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .time-block-day-title {
+        font-weight: 600;
+        color: #92400e;
+        font-size: 14px;
+      }
+      .time-block-day-title-card {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        min-width: 80px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+      }
+      .time-block-day-title-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .time-block-add-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+      }
+
+      .time-block-add-btn:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+      }
+      .time-block-remove-all-btn {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: 1px solid #dc2626;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(239, 68, 68, 0.3);
+      }
+      .time-block-remove-all-btn:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+      }
+      .date-specific-footer {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(148, 163, 184, 0.2);
+        display: flex;
+        justify-content: center;
+      }
+      .time-block-remove-all-btn-footer {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: 1px solid #dc2626;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+        min-width: 200px;
+      }
+      .time-block-remove-all-btn-footer:hover {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(239, 68, 68, 0.35);
+      }
+
+      /* Enhanced visual separation for date-specific blocks */
+      .date-specific-container {
+        margin-top: 32px;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border: 2px solid #94a3b8;
+        border-radius: 12px;
+        padding: 12px;
+        position: relative;
+        box-shadow: 0 4px 12px rgba(148, 163, 184, 0.15);
+      }
+
+      .date-specific-separator {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fb923c;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .date-specific-separator::before {
+        content: 'Specific Dates';
+      }
+
+      .date-specific-schedule {
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 8px;
+        padding: 8px;
+        margin-top: 6px;
+        min-height: 30px;
+      }
+
+      /* Adjust the date-specific header to work better within the new container */
+      .date-specific-container .time-block-day-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        border: 1px solid #94a3b8;
+        margin-bottom: 8px;
+      }
+
+      .date-specific-container .time-block-day-title {
+        color: #475569;
+        font-size: 15px;
+      }
+
+      .time-block-item {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s ease;
+      }
+
+      .time-block-item:hover {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        border-color: #cbd5e1;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Custom Time Picker Styles */
+      .custom-time-picker {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 4px 8px;
+        background: white;
+        font-size: 11px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.2s ease;
+      }
+
+      .custom-time-picker:focus-within {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+      }
+
+      .time-input {
+        border: none;
+        outline: none;
+        text-align: center;
+        font-size: 10px;
+        padding: 1px;
+        background: transparent;
+      }
+
+      .time-input.hours {
+        width: 18px;
+      }
+
+      .time-input.minutes {
+        width: 18px;
+      }
+
+      .time-separator {
+        color: #666;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      /* Custom Label Input Styles - Matching Time Picker */
+      .custom-label-input {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 4px 8px;
+        background: white;
+        font-size: 11px;
+        flex: 1;
+        min-width: 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.2s ease;
+      }
+
+      .custom-label-input:focus-within {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+      }
+
+      .label-input {
+        border: none;
+        outline: none;
+        font-size: 10px;
+        padding: 1px;
+        background: transparent;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .label-input::placeholder {
+        color: #999;
+        font-style: italic;
+      }
+
+      /* --- Time Blocking: robust color picker layering & UX --- */
+
+      /* Ensure each row can host an absolutely-positioned popup safely */
+      .time-block-item {
+        position: relative;
+      }
+
+      /* When a picker is open inside a row, raise that row above all others */
+      .time-block-item:has(.time-block-color-details.expanded),
+      .time-block-item:has(.time-block-global-color-details.expanded) {
+        isolation: isolate; /* new stacking context for this row */
+        z-index: 2147483600; /* above any sibling contexts */
+      }
+
+      /* While a picker is open, disable hover transforms to prevent flicker & re-stacking */
+      .time-block-schedule-section.tb-picker-open .time-block-item:hover {
+        transform: none !important;
+      }
+
+      /* While a picker is open, ignore pointer events on other rows so they don't steal hover/focus */
+      .time-block-schedule-section.tb-picker-open .time-block-item {
+        pointer-events: none;
+      }
+
+      /* …but keep the active row interactive */
+      .time-block-schedule-section.tb-picker-open .time-block-item:has(.time-block-color-details.expanded),
+      .time-block-schedule-section.tb-picker-open .time-block-item:has(.time-block-global-color-details.expanded) {
+        pointer-events: auto;
+      }
+
+      /* Make sure the panel itself stays above its row's content */
+      .time-block-color-details {
+        z-index: 2147483000; /* stays within row but above its contents */
+      }
+
+      /* Auth Overlay Styles */
+      .auth-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .auth-overlay.hidden {
+        display: none;
+      }
+
+      .auth-content {
+        text-align: center;
+        color: white;
+        max-width: 400px;
+      }
+
+      .logo-container {
+        margin-bottom: 20px;
+      }
+
+      .logo-pulse {
+        width: 80px;
+        height: 80px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .auth-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .auth-description {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 20px;
+      }
+
+      .auth-features {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 25px;
+      }
+
+      .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .feature-icon {
+        font-size: 20px;
+      }
+
+      .btn-get-started {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .btn-get-started:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .auth-note {
+        margin-top: 15px;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+
+      .main-content.disabled {
+        opacity: 0.3;
+        pointer-events: none;
+        filter: blur(2px);
+      }
+
+      .trial-banner {
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        color: #333;
+        padding: 10px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 13px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .trial-banner a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .chrome-update-notice {
+        background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 100%);
+        color: #1e40af;
+        padding: 6px 12px;
+        text-align: center;
+        font-size: 11px;
+        border-radius: 4px;
+        margin: 8px 12px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: 1px solid #93c5fd;
+        font-weight: 500;
+      }
+
+      .chrome-update-notice.visible {
+        display: flex;
+      }
+
+      .chrome-update-notice .icon {
+        font-size: 13px;
+      }
+
+      .chrome-update-notice .dismiss-btn {
+        margin-left: 8px;
+        padding: 2px 8px;
+        background: rgba(255, 255, 255, 0.7);
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 10px;
+        color: #1e40af;
+        font-weight: 600;
+      }
+
+      .chrome-update-notice .dismiss-btn:hover {
+        background: rgba(255, 255, 255, 0.95);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Auth Overlay -->
+    <div id="authOverlay" class="auth-overlay hidden">
+      <div class="auth-content">
+        <div class="logo-container">
+          <img src="../images/icon-128.png" alt="ColorKit" class="logo-pulse" />
+        </div>
+        <h2 class="auth-title">Welcome to ColorKit</h2>
+        <p class="auth-description">Transform your Google Calendar with custom colors and time blocks</p>
+
+        <div class="auth-features">
+          <div class="feature-item">
+            <span class="feature-icon">🎨</span>
+            <span>Day Column Coloring</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">✨</span>
+            <span>Custom Task Colors</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">⏰</span>
+            <span>Time Block Overlays</span>
+          </div>
+        </div>
+
+        <button id="getStartedBtn" class="btn-get-started">
+          Get Started
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path
+              d="M7.5 15L12.5 10L7.5 5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <p class="auth-note">Already have an account? Sign in on the website and reopen this extension.</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="main-content">
+      <div class="header">
+        <div class="header-text">
+          <div class="header-logo">
+            <img src="colorkit-logo.png" alt="Logo" />
+          </div>
+          <h1>Calendar Extension</h1>
+        </div>
+        <div class="header-actions">
+          <button id="manageAccountBtn" class="manage-account-btn" title="Manage your subscription">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M8 10a2 2 0 100-4 2 2 0 000 4z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M12.93 10a1.1 1.1 0 00.22 1.21l.04.04a1.34 1.34 0 11-1.9 1.9l-.04-.04a1.1 1.1 0 00-1.21-.22 1.1 1.1 0 00-.67 1v.11a1.33 1.33 0 11-2.67 0v-.06a1.1 1.1 0 00-.72-1 1.1 1.1 0 00-1.21.22l-.04.04a1.34 1.34 0 11-1.9-1.9l.04-.04a1.1 1.1 0 00.22-1.21 1.1 1.1 0 00-1-.67H2a1.33 1.33 0 110-2.67h.06a1.1 1.1 0 001-.72 1.1 1.1 0 00-.22-1.21l-.04-.04a1.34 1.34 0 111.9-1.9l.04.04a1.1 1.1 0 001.21.22h.05a1.1 1.1 0 00.67-1V2a1.33 1.33 0 112.67 0v.06a1.1 1.1 0 00.67 1h.05a1.1 1.1 0 001.21-.22l.04-.04a1.34 1.34 0 011.9 1.9l-.04.04a1.1 1.1 0 00-.22 1.21v.05a1.1 1.1 0 001 .67H14a1.33 1.33 0 110 2.67h-.06a1.1 1.1 0 00-1 .67z"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Account
+          </button>
+          <div class="colour-kit-card">🎨 Colour Kit</div>
+        </div>
+      </div>
+
+      <!-- Chrome Update Notice (shown for users on Chrome < 121) -->
+      <div id="chromeUpdateNotice" class="chrome-update-notice">
+        <span class="icon">ℹ️</span>
+        <span>Update Chrome to v121+ for instant subscription updates</span>
+        <button class="dismiss-btn" onclick="dismissChromeNotice()">Dismiss</button>
+      </div>
+
+      <div class="content-wrapper">
+        <div class="section day-coloring">
+          <div class="section-header">
+            <h3><span class="section-icon">🎨</span>Day Coloring</h3>
+            <div class="toggle">
+              <label>Enable day coloring</label>
+              <div class="switch" id="enableDayColoring"></div>
+            </div>
+          </div>
+          <div class="section-content">
+            <div id="colorSettings" style="display: none; overflow: visible">
+              <div class="weekdays">
+                <div class="day-color-item" data-day="0">
+                  <div class="day-label">Sun</div>
+                  <div class="day-color-preview" id="preview0" style="background-color: #ffd5d5"></div>
+                  <div class="day-details" id="details0">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="0">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="0">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="0">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="0">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color0" value="#ffd5d5" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="0" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-0">
+                        <div class="color-palette" id="palette0"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-0">
+                        <div class="color-palette" id="pastel-palette0"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-0">
+                        <div class="color-palette" id="dark-palette0"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-0">
+                        <div class="color-palette" id="custom-palette0"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue0">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="0" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="0" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="0" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="0" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="0" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="0" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill0" style="width: 30%"></div>
+                          <input type="range" id="opacity0" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="day-color-item" data-day="1">
+                  <div class="day-label">Mon</div>
+                  <div class="day-color-preview" id="preview1" style="background-color: #e8deff"></div>
+                  <div class="day-details" id="details1">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="1">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="1">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="1">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="1">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color1" value="#e8deff" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="1" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-1">
+                        <div class="color-palette" id="palette1"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-1">
+                        <div class="color-palette" id="pastel-palette1"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-1">
+                        <div class="color-palette" id="dark-palette1"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-1">
+                        <div class="color-palette" id="custom-palette1"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue1">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="1" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="1" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="1" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="1" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="1" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="1" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill1" style="width: 30%"></div>
+                          <input type="range" id="opacity1" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="day-color-item" data-day="2">
+                  <div class="day-label">Tue</div>
+                  <div class="day-color-preview" id="preview2" style="background-color: #d5f5e3"></div>
+                  <div class="day-details" id="details2">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="2">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="2">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="2">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="2">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color2" value="#d5f5e3" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="2" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-2">
+                        <div class="color-palette" id="palette2"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-2">
+                        <div class="color-palette" id="pastel-palette2"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-2">
+                        <div class="color-palette" id="dark-palette2"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-2">
+                        <div class="color-palette" id="custom-palette2"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue2">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="2" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="2" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="2" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="2" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="2" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="2" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill2" style="width: 30%"></div>
+                          <input type="range" id="opacity2" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="day-color-item" data-day="3">
+                  <div class="day-label">Wed</div>
+                  <div class="day-color-preview" id="preview3" style="background-color: #ffe8d5"></div>
+                  <div class="day-details" id="details3">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="3">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="3">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="3">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="3">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color3" value="#ffe8d5" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="3" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-3">
+                        <div class="color-palette" id="palette3"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-3">
+                        <div class="color-palette" id="pastel-palette3"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-3">
+                        <div class="color-palette" id="dark-palette3"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-3">
+                        <div class="color-palette" id="custom-palette3"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue3">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="3" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="3" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="3" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="3" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="3" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="3" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill3" style="width: 30%"></div>
+                          <input type="range" id="opacity3" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="day-color-item" data-day="4">
+                  <div class="day-label">Thu</div>
+                  <div class="day-color-preview" id="preview4" style="background-color: #d5f0ff"></div>
+                  <div class="day-details" id="details4">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="4">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="4">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="4">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="4">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color4" value="#d5f0ff" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="4" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-4">
+                        <div class="color-palette" id="palette4"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-4">
+                        <div class="color-palette" id="pastel-palette4"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-4">
+                        <div class="color-palette" id="dark-palette4"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-4">
+                        <div class="color-palette" id="custom-palette4"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue4">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="4" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="4" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="4" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="4" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="4" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="4" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill4" style="width: 30%"></div>
+                          <input type="range" id="opacity4" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="day-color-item" data-day="5">
+                  <div class="day-label">Fri</div>
+                  <div class="day-color-preview" id="preview5" style="background-color: #fff5d5"></div>
+                  <div class="day-details" id="details5">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="5">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="5">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="5">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="5">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color5" value="#fff5d5" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="5" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-5">
+                        <div class="color-palette" id="palette5"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-5">
+                        <div class="color-palette" id="pastel-palette5"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-5">
+                        <div class="color-palette" id="dark-palette5"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-5">
+                        <div class="color-palette" id="custom-palette5"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue5">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="5" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="5" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="5" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="5" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="5" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="5" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill5" style="width: 30%"></div>
+                          <input type="range" id="opacity5" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="day-color-item" data-day="6">
+                  <div class="day-label">Sat</div>
+                  <div class="day-color-preview" id="preview6" style="background-color: #f0d5ff"></div>
+                  <div class="day-details" id="details6">
+                    <div class="color-picker-tabs">
+                      <button class="color-tab active" data-tab="vibrant" data-day="6">Vibrant</button>
+                      <button class="color-tab" data-tab="pastel" data-day="6">Pastel</button>
+                      <button class="color-tab" data-tab="dark" data-day="6">Dark</button>
+                      <button class="color-tab" data-tab="custom" data-day="6">Custom</button>
+                    </div>
+                    <div class="color-tab-content">
+                      <div class="color-picker-container" style="margin-bottom: 8px">
+                        <input type="color" id="color6" value="#f0d5ff" style="width: 100%; height: 36px" />
+                        <div class="color-picker-icon" data-day="6" title="Click to open/close color picker">🎨</div>
+                      </div>
+
+                      <div class="color-tab-panel active" id="vibrant-panel-6">
+                        <div class="color-palette" id="palette6"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="pastel-panel-6">
+                        <div class="color-palette" id="pastel-palette6"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="dark-panel-6">
+                        <div class="color-palette" id="dark-palette6"></div>
+                      </div>
+
+                      <div class="color-tab-panel" id="custom-panel-6">
+                        <div class="color-palette" id="custom-palette6"></div>
+                      </div>
+
+                      <div class="enhanced-opacity-control">
+                        <div class="opacity-header">
+                          <div class="opacity-label">🎚️ Opacity</div>
+                          <div class="opacity-value-display" id="opacityValue6">30%</div>
+                        </div>
+                        <div class="opacity-presets">
+                          <button class="opacity-preset-btn" data-day="6" data-opacity="10">10%</button>
+                          <button class="opacity-preset-btn" data-day="6" data-opacity="20">20%</button>
+                          <button class="opacity-preset-btn" data-day="6" data-opacity="30" class="active">30%</button>
+                          <button class="opacity-preset-btn" data-day="6" data-opacity="40">40%</button>
+                          <button class="opacity-preset-btn" data-day="6" data-opacity="50">50%</button>
+                          <button class="opacity-preset-btn" data-day="6" data-opacity="100">100%</button>
+                        </div>
+                        <div class="opacity-slider-container">
+                          <div class="slider-track-fill" id="sliderFill6" style="width: 30%"></div>
+                          <input type="range" id="opacity6" min="0" max="100" value="30" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top: 8px; font-size: 11px; color: #666; text-align: center">
+                Colors will match the actual day order in your calendar
+              </div>
+
+              <div
+                style="
+                  margin-top: 16px;
+                  padding: 12px;
+                  background: #f8f9fa;
+                  border-radius: 6px;
+                  border: 1px solid #e8eaed;
+                "
+              >
+                <label style="font-size: 12px; color: #333; display: block; margin-bottom: 6px; font-weight: 600"
+                  >Week starts on:</label
+                >
+                <select
+                  id="weekStart"
+                  style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid #dadce0;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    background: white;
+                  "
+                >
+                  <option value="0">Sunday</option>
+                  <option value="1">Monday</option>
+                  <option value="6">Saturday</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section task-coloring">
+          <div class="section-header">
+            <h3><span class="section-icon">🏷️</span>Task Coloring</h3>
+            <div class="toggle">
+              <label>Enable custom task colors</label>
+              <div class="switch" id="enableTaskColoring"></div>
+            </div>
+          </div>
+          <div class="section-content">
+            <div id="taskColorSettings" style="display: none">
+              <div
+                style="
+                  margin-bottom: 16px;
+                  padding: 12px;
+                  background: #f8f9fa;
+                  border-radius: 6px;
+                  border: 1px solid #e8eaed;
+                "
+              >
+                <label style="font-size: 12px; color: #333; display: block; margin-bottom: 8px; font-weight: 600"
+                  >Quick Access Colors (8 colors in task popup):</label
+                >
+                <div class="task-colors-grid">
+                  <div class="task-color-item" data-index="0">
+                    <div class="task-color-preview" id="taskPreview0" style="background-color: #4285f4"></div>
+                    <div class="task-color-details" id="taskDetails0">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="0">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="0">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="0">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="0">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor0" value="#4285f4" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="0" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-0">
+                          <div class="color-palette" id="taskPalette0"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-0">
+                          <div class="color-palette" id="taskPastelPalette0"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-0">
+                          <div class="color-palette" id="taskDarkPalette0"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-0">
+                          <div class="color-palette" id="taskCustomPalette0"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="1">
+                    <div class="task-color-preview" id="taskPreview1" style="background-color: #34a853"></div>
+                    <div class="task-color-details" id="taskDetails1">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="1">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="1">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="1">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="1">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor1" value="#34a853" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="1" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-1">
+                          <div class="color-palette" id="taskPalette1"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-1">
+                          <div class="color-palette" id="taskPastelPalette1"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-1">
+                          <div class="color-palette" id="taskDarkPalette1"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-1">
+                          <div class="color-palette" id="taskCustomPalette1"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="2">
+                    <div class="task-color-preview" id="taskPreview2" style="background-color: #ea4335"></div>
+                    <div class="task-color-details" id="taskDetails2">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="2">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="2">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="2">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="2">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor2" value="#ea4335" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="2" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-2">
+                          <div class="color-palette" id="taskPalette2"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-2">
+                          <div class="color-palette" id="taskPastelPalette2"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-2">
+                          <div class="color-palette" id="taskDarkPalette2"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-2">
+                          <div class="color-palette" id="taskCustomPalette2"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="3">
+                    <div class="task-color-preview" id="taskPreview3" style="background-color: #fbbc04"></div>
+                    <div class="task-color-details" id="taskDetails3">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="3">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="3">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="3">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="3">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor3" value="#fbbc04" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="3" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-3">
+                          <div class="color-palette" id="taskPalette3"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-3">
+                          <div class="color-palette" id="taskPastelPalette3"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-3">
+                          <div class="color-palette" id="taskDarkPalette3"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-3">
+                          <div class="color-palette" id="taskCustomPalette3"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="4">
+                    <div class="task-color-preview" id="taskPreview4" style="background-color: #ff6d01"></div>
+                    <div class="task-color-details" id="taskDetails4">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="4">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="4">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="4">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="4">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor4" value="#ff6d01" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="4" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-4">
+                          <div class="color-palette" id="taskPalette4"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-4">
+                          <div class="color-palette" id="taskPastelPalette4"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-4">
+                          <div class="color-palette" id="taskDarkPalette4"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-4">
+                          <div class="color-palette" id="taskCustomPalette4"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="5">
+                    <div class="task-color-preview" id="taskPreview5" style="background-color: #9c27b0"></div>
+                    <div class="task-color-details" id="taskDetails5">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="5">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="5">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="5">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="5">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor5" value="#9c27b0" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="5" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-5">
+                          <div class="color-palette" id="taskPalette5"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-5">
+                          <div class="color-palette" id="taskPastelPalette5"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-5">
+                          <div class="color-palette" id="taskDarkPalette5"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-5">
+                          <div class="color-palette" id="taskCustomPalette5"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="6">
+                    <div class="task-color-preview" id="taskPreview6" style="background-color: #e91e63"></div>
+                    <div class="task-color-details" id="taskDetails6">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="6">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="6">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="6">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="6">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor6" value="#e91e63" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="6" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-6">
+                          <div class="color-palette" id="taskPalette6"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-6">
+                          <div class="color-palette" id="taskPastelPalette6"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-6">
+                          <div class="color-palette" id="taskDarkPalette6"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-6">
+                          <div class="color-palette" id="taskCustomPalette6"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="task-color-item" data-index="7">
+                    <div class="task-color-preview" id="taskPreview7" style="background-color: #00bcd4"></div>
+                    <div class="task-color-details" id="taskDetails7">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-task="7">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-task="7">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-task="7">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-task="7">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="taskColor7" value="#00bcd4" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-task="7" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="task-vibrant-panel-7">
+                          <div class="color-palette" id="taskPalette7"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-pastel-panel-7">
+                          <div class="color-palette" id="taskPastelPalette7"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-dark-panel-7">
+                          <div class="color-palette" id="taskDarkPalette7"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="task-custom-panel-7">
+                          <div class="color-palette" id="taskCustomPalette7"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size: 10px; color: #666; margin-top: 4px; text-align: center">
+                  Click any color above to change it with the advanced color picker
+                </div>
+              </div>
+
+              <!-- Task Templates Coming Soon Section -->
+              <div
+                style="
+                  margin: 16px 0;
+                  padding: 16px;
+                  background: #fafbfc;
+                  border: 1px solid #e5e7eb;
+                  border-radius: 8px;
+                  opacity: 0.7;
+                "
+              >
+                <!-- Header -->
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px">
+                  <div
+                    style="
+                      width: 32px;
+                      height: 32px;
+                      background: #f3f4f6;
+                      border-radius: 6px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      font-size: 16px;
+                    "
+                  >
+                    📋
+                  </div>
+                  <div style="flex: 1">
+                    <div style="font-size: 14px; font-weight: 600; color: #4b5563; margin-bottom: 2px">
+                      Task Templates
+                    </div>
+                    <div
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 4px;
+                        background: #f9fafb;
+                        color: #6b7280;
+                        font-size: 10px;
+                        font-weight: 500;
+                        padding: 3px 8px;
+                        border-radius: 12px;
+                        border: 1px solid #e5e7eb;
+                      "
+                    >
+                      <span style="font-size: 9px">🚧</span>
+                      <span>Coming Soon</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Features Grid -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px">
+                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
+                      <span style="font-size: 12px">🎨</span>
+                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Color Sets</span>
+                    </div>
+                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Save & reuse combinations</div>
+                  </div>
+
+                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
+                      <span style="font-size: 12px">⭐</span>
+                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Priorities</span>
+                    </div>
+                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Visual indicators</div>
+                  </div>
+
+                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
+                      <span style="font-size: 12px">📝</span>
+                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Templates</span>
+                    </div>
+                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Reuse description templates</div>
+                  </div>
+
+                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
+                      <span style="font-size: 12px">🏷️</span>
+                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Tags</span>
+                    </div>
+                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Custom categories</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section time-blocking">
+          <div class="section-header">
+            <h3><span class="section-icon">⏰</span>Time Blocking</h3>
+            <div class="toggle">
+              <label>Enable time blocks</label>
+              <div class="switch" id="enableTimeBlocking"></div>
+            </div>
+          </div>
+          <div class="section-content">
+            <div id="timeBlockSettings" style="display: none">
+              <div class="time-block-global-settings">
+                <label style="font-size: 14px; color: #065f46; display: block; margin-bottom: 12px; font-weight: 600"
+                  >Global Settings</label
+                >
+
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
+                  <label style="font-size: 11px; color: #666">Default Color:</label>
+                  <div class="time-block-global-color-item" data-type="global">
+                    <div
+                      class="time-block-global-color-preview"
+                      id="globalTimeBlockPreview"
+                      style="background-color: #ffeb3b"
+                    ></div>
+                    <div class="time-block-global-color-details" id="globalTimeBlockDetails">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-timeblock="global">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-timeblock="global">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-timeblock="global">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-timeblock="global">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input
+                            type="color"
+                            id="timeBlockGlobalColor"
+                            value="#FFEB3B"
+                            style="width: 60%; height: 32px"
+                          />
+                          <input
+                            type="text"
+                            id="timeBlockGlobalHex"
+                            value="#FFEB3B"
+                            placeholder="#FF0000"
+                            maxlength="7"
+                            class="hex-input-small"
+                            style="
+                              width: 35%;
+                              height: 28px;
+                              margin-left: 4px;
+                              font-size: 10px;
+                              padding: 2px 4px;
+                              border: 1px solid #ccc;
+                              border-radius: 3px;
+                              text-transform: uppercase;
+                            "
+                          />
+                          <div
+                            class="color-picker-icon"
+                            data-timeblock="global"
+                            title="Click to open/close color picker"
+                          >
+                            🎨
+                          </div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="global-vibrant-panel">
+                          <div class="color-palette" id="globalTimeBlockPalette"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="global-pastel-panel">
+                          <div class="color-palette" id="globalTimeBlockPastelPalette"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="global-dark-panel">
+                          <div class="color-palette" id="globalTimeBlockDarkPalette"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="global-custom-panel">
+                          <div class="color-palette" id="globalTimeBlockCustomPalette"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
+                  <label style="font-size: 11px; color: #666">Shading Style:</label>
+                  <select
+                    id="timeBlockShadingStyle"
+                    style="
+                      padding: 4px 8px;
+                      border: 1px solid #dadce0;
+                      border-radius: 4px;
+                      font-size: 11px;
+                      background: white;
+                    "
+                  >
+                    <option value="solid">Solid</option>
+                    <option value="hashed">Hashed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="time-block-schedule-section">
+                <div id="timeBlockSchedule">
+                  <!-- Time blocking schedule will be populated by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Date-specific timeblocks section -->
+              <div class="date-specific-container">
+                <div class="date-specific-separator"></div>
+                <div class="time-block-day-header">
+                  <div class="time-block-day-title">📅 Date-Specific Blocks</div>
+                  <button id="addDateSpecificBlock" class="time-block-add-btn">+ Add Date Block</button>
+                </div>
+                <div id="dateSpecificSchedule" class="date-specific-schedule">
+                  <!-- Date-specific blocks will be populated by JavaScript -->
+                </div>
+                <div class="date-specific-footer">
+                  <button id="removeAllDateSpecificBlocks" class="time-block-remove-all-btn-footer">
+                    🗑️ Remove All Date-Specific Blocks
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section color-lab">
+          <div class="section-header" id="colorLabHeader" style="cursor: pointer">
+            <h3><span class="section-icon">🧪</span>Color Lab</h3>
+            <div class="expand-collapse-arrow" id="colorLabArrow">
+              <span>▼</span>
+            </div>
+          </div>
+          <div class="section-content">
+            <div id="colorLabSettings" style="display: none">
+              <!-- My Custom Colors Panel - Featured at Top -->
+              <div class="my-custom-colors-panel">
+                <div class="custom-colors-header">
+                  <h4 class="custom-colors-title">🎨 My Color Collection</h4>
+                  <div class="colors-stats">
+                    <span class="color-count-badge"><span id="colorCount">0</span> colors</span>
+                  </div>
+                </div>
+                <div class="custom-colors-main">
+                  <div class="custom-colors-grid" id="allColorsGrid">
+                    <!-- All custom colors will be populated by JavaScript -->
+                  </div>
+                  <div class="custom-colors-empty" id="customColorsEmpty" style="display: none">
+                    <div class="empty-state">
+                      <span class="empty-icon">🎭</span>
+                      <p class="empty-title">No custom colors yet</p>
+                      <p class="empty-subtitle">Add colors using the tools below to build your palette</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="custom-colors-actions">
+                  <div class="primary-actions">
+                    <button class="lab-btn secondary small" id="selectAllColors">Select All</button>
+                    <button class="lab-btn secondary small" id="clearSelectedColors">Clear Selected</button>
+                    <button class="lab-btn secondary small" id="exportColors">📋 Export</button>
+                  </div>
+                  <div class="danger-actions">
+                    <button class="lab-btn danger small" id="clearAllColors">🗑️ Clear All</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add Colors Panel -->
+              <div class="color-lab-panel">
+                <h4 class="panel-title">➕ Add Custom Color</h4>
+                <div class="add-color-controls">
+                  <div class="color-input-row">
+                    <input type="color" id="colorLabPicker" value="#ff0000" class="lab-color-picker" />
+                    <input type="text" id="colorLabHex" placeholder="#FF0000" maxlength="7" class="hex-input" />
+                    <button id="addColorBtn" class="lab-btn primary">Add Color</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Add from Color Tabs Panel -->
+              <div class="color-lab-panel">
+                <h4 class="panel-title">⚡ Quick Add from Palettes</h4>
+                <div class="quick-add-section">
+                  <div class="palette-tabs">
+                    <button class="palette-tab active" data-palette="vibrant">Vibrant</button>
+                    <button class="palette-tab" data-palette="pastel">Pastel</button>
+                    <button class="palette-tab" data-palette="dark">Dark</button>
+                  </div>
+                  <div class="quick-add-content">
+                    <div class="quick-add-grid" id="quickAddGrid">
+                      <!-- Colors will be populated by JavaScript based on active tab -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Community Templates Panel (Coming Soon) -->
+              <div class="color-lab-panel" style="opacity: 0.5; pointer-events: none">
+                <h4 class="panel-title">🌍 Community Templates</h4>
+                <div class="coming-soon-section" style="text-align: center; padding: 20px">
+                  <div style="font-size: 24px; margin-bottom: 8px">🚧</div>
+                  <div style="font-weight: 600; color: #666; margin-bottom: 4px">Coming Soon</div>
+                  <div style="font-size: 12px; color: #888">Browse and share color templates with the community</div>
+                  <button class="btn btn-outline" disabled style="margin-top: 12px; cursor: not-allowed">
+                    🔗 Browse Templates
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section reset-section">
+          <div class="section-header">
+            <h3><span class="section-icon">🔄</span>Reset Settings</h3>
+          </div>
+          <div class="section-content">
+            <div
+              style="
+                margin-bottom: 12px;
+                padding: 12px;
+                background: #fef3c7;
+                border: 1px solid #f59e0b;
+                border-radius: 6px;
+              "
+            >
+              <p style="margin: 0; font-size: 12px; color: #92400e; font-weight: 500">
+                ⚠️ This will reset ALL settings to their default values including colors, opacity, time blocks, and task
+                settings.
+              </p>
+            </div>
+            <div style="text-align: center">
+              <button
+                class="btn btn-secondary"
+                id="resetBtn"
+                style="background: #dc2626; color: white; border-color: #dc2626"
+              >
+                Reset All Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script src="../lib/storage.js"></script>
+      <script type="module" src="popup.js"></script>
+    </div>
+    <!-- End main-content -->
+  </body>
+</html>
