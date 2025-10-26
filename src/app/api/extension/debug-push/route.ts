@@ -181,7 +181,9 @@ export async function GET(request: NextRequest) {
 
       if (!customerId) {
         diagnostics.testPush = {
-          sent: false,
+          sent: 0,
+          failed: 0,
+          success: false,
           error: 'No customer_id available. User needs to make a purchase first.',
         };
       } else {

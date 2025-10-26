@@ -3,11 +3,7 @@ import { DashboardLandingPage } from '@/components/dashboard/landing/dashboard-l
 import { ExtensionNotifier } from '@/components/extension/ExtensionNotifier';
 import { prepareAuthSuccessMessage } from '@/utils/extension-messaging';
 
-interface DashboardPageProps {
-  searchParams: Promise<{ ext_auth?: string }>;
-}
-
-export default async function LandingPage(_props: DashboardPageProps) {
+export default async function LandingPage() {
   // Always prepare auth message for extension when user visits dashboard
   // This ensures extension gets session tokens even if they didn't come from auth callback
   const extensionMessage = await prepareAuthSuccessMessage();
