@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import type { ExtensionMessage } from '@/utils/extension-messaging';
 
 interface ExtensionNotifierProps {
-  message: Record<string, unknown> | null;
+  message: ExtensionMessage | null;
 }
 
 /**

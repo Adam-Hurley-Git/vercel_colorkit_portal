@@ -505,6 +505,7 @@ VALUES ('ctm_your_paddle_customer_id', 'your-email@example.com');
 - TypeScript errors (fix locally first)
 - Missing environment variables
 - Dependency issues
+- Lint rules promoted to errors during `next build`
 
 **Solution:**
 
@@ -514,6 +515,15 @@ pnpm build
 # or
 npm run build
 ```
+
+If the build log shows ESLint failures such as `Unexpected any. Specify a different type.` in
+`src/app/api/extension/debug-push/route.ts` or other API routes, update the files locally to use
+explicit interfaces instead of `any`, run `pnpm lint`, and commit the fixes before redeploying.
+
+> ℹ️ The Chrome extension bundle under `customise calendar 3/` is excluded from deployments via
+> `.vercelignore`, so the removal log you see at the start of a build is expected and not a
+> failure condition. Focus on the lint/type errors reported during `pnpm run build` to resolve
+> the deployment.
 
 ### Issue: Environment Variables Not Loading
 
