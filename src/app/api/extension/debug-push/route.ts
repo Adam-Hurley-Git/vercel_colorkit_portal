@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     console.log('✅ User authenticated:', user.email);
 
     // Collect diagnostic information
-    const diagnostics: any = {
+    const diagnostics: Record<string, unknown> = {
       user: {
         id: user.id,
         email: user.email,
@@ -171,7 +171,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (diagnostics.subscriptions.count > 0) {
-      const mismatchCount = diagnostics.subscriptions.items?.filter((s: any) => !s.vapidHashMatch).length || 0;
+      const items = diagnostics.subscriptions.items as Array<{ vapidHashMatch: boolean }> | undefined;
+      const mismatchCount = items?.filter((s) => !s.vapidHashMatch).length || 0;
       if (mismatchCount > 0) {
         analysis.push(`❌ CRITICAL: ${mismatchCount} subscription(s) have VAPID key mismatch`);
         analysis.push('   → Extension was built with different VAPID_PUBLIC_KEY than backend');
@@ -191,7 +192,7 @@ export async function GET(request: NextRequest) {
     if (
       diagnostics.customer.hasCustomer &&
       diagnostics.subscriptions.count > 0 &&
-      diagnostics.subscriptions.items?.some((s: any) => !s.customerId)
+      (diagnostics.subscriptions.items as Array<{ customerId: string | null }> | undefined)?.some((s) => !s.customerId)
     ) {
       analysis.push('⚠️ Some subscriptions missing customer_id');
       analysis.push('   → These subscriptions were registered before purchase');

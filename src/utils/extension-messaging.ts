@@ -2,7 +2,8 @@ import { createClient } from '@/utils/supabase/server';
 import { getCustomerId } from '@/utils/paddle/get-customer-id';
 import { getPaddleInstance } from '@/utils/paddle/get-paddle-instance';
 
-interface ExtensionAuthMessage {
+// Type definitions for extension messaging (exported for use in other files)
+export interface ExtensionAuthMessage {
   type: 'AUTH_SUCCESS';
   session: {
     access_token: string;
@@ -18,7 +19,7 @@ interface ExtensionAuthMessage {
   };
 }
 
-interface ExtensionPaymentMessage {
+export interface ExtensionPaymentMessage {
   type: 'PAYMENT_SUCCESS';
   userId: string;
 }

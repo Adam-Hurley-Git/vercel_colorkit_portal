@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     let customerId: string | null = null;
     try {
       customerId = await getCustomerIdFromSupabase(supabase);
-    } catch (error) {
+    } catch {
       // Customer ID not found is okay, user may not have purchased yet
     }
 

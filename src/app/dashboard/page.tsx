@@ -7,7 +7,7 @@ interface DashboardPageProps {
   searchParams: Promise<{ ext_auth?: string }>;
 }
 
-export default async function LandingPage({ searchParams }: DashboardPageProps) {
+export default async function LandingPage(_props: DashboardPageProps) {
   // Always prepare auth message for extension when user visits dashboard
   // This ensures extension gets session tokens even if they didn't come from auth callback
   const extensionMessage = await prepareAuthSuccessMessage();
