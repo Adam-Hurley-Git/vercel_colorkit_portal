@@ -24,6 +24,15 @@ export interface ExtensionPaymentMessage {
   userId: string;
 }
 
+export interface ExtensionSubscriptionCancelledMessage {
+  type: 'SUBSCRIPTION_CANCELLED';
+  customerId: string;
+  timestamp: number;
+}
+
+// Union type for all possible extension messages
+export type ExtensionMessage = ExtensionAuthMessage | ExtensionPaymentMessage | ExtensionSubscriptionCancelledMessage;
+
 /**
  * Prepares an authentication success message for the Chrome extension
  * Extracts Supabase session tokens and checks subscription status
