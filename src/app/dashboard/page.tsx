@@ -1,7 +1,7 @@
 import { DashboardPageHeader } from '@/components/dashboard/layout/dashboard-page-header';
 import { DashboardLandingPage } from '@/components/dashboard/landing/dashboard-landing-page';
 import { ExtensionNotifier } from '@/components/extension/ExtensionNotifier';
-import { prepareAuthSuccessMessage } from '@/utils/extension-messaging';
+import { prepareAuthSuccessMessage, type ExtensionSubscriptionCancelledMessage } from '@/utils/extension-messaging';
 
 export default async function LandingPage() {
   // Always prepare auth message for extension when user visits dashboard
@@ -9,9 +9,9 @@ export default async function LandingPage() {
   const extensionMessage = await prepareAuthSuccessMessage();
 
   // Check if subscription is cancelled and send cache invalidation message
-  let cancellationMessage: Record<string, unknown> | null = null;
+  let cancellationMessage: ExtensionSubscriptionCancelledMessage | null = null;
   if (extensionMessage && extensionMessage.subscriptionStatus) {
-    const subStatus = extensionMessage.subscriptionStatus as { hasSubscription: boolean; status?: string };
+    const subStatus = extensionMessage.subscriptionStatus;
 
     // If user has no active subscription, send cancellation message to clear extension cache
     if (!subStatus.hasSubscription || subStatus.status === 'canceled' || subStatus.status === 'cancelled') {
