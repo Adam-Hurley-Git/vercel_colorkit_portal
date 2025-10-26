@@ -144,11 +144,26 @@ export class ProcessWebhook {
     console.log('[Webhook] Email:', eventData.data.email);
 
     const supabase = await createClient();
+
+    // NEW: Look up user_id by email for reliable linking
+    console.log('[Webhook] 🔍 Looking up user by email:', eventData.data.email);
+    const { data: userData } = await supabase.auth.admin.listUsers();
+    const matchingUser = userData?.users?.find((u) => u.email === eventData.data.email);
+    const userId = matchingUser?.id || null;
+
+    if (userId) {
+      console.log('[Webhook] ✅ Found matching user for customer:', userId);
+    } else {
+      console.log('[Webhook] ⚠️ No matching user found for email:', eventData.data.email);
+      console.log('[Webhook] Customer will be saved without user_id (can be linked later)');
+    }
+
     const { data, error } = await supabase
       .from('customers')
       .upsert({
         customer_id: eventData.data.id,
         email: eventData.data.email,
+        user_id: userId, // NEW: Set user_id for automatic linking via trigger
       })
       .select();
 
@@ -209,12 +224,24 @@ export class ProcessWebhook {
 
       console.log('[Webhook] 📥 Fetched customer from Paddle:', customer.email);
 
+      // NEW: Look up user_id by email
+      const { data: userData } = await supabase.auth.admin.listUsers();
+      const matchingUser = userData?.users?.find((u) => u.email === customer.email);
+      const userId = matchingUser?.id || null;
+
+      if (userId) {
+        console.log('[Webhook] ✅ Found matching user for customer:', userId);
+      } else {
+        console.log('[Webhook] ⚠️ No matching user found for customer email:', customer.email);
+      }
+
       // Save to database
       const { data, error } = await supabase
         .from('customers')
         .insert({
           customer_id: customerId,
           email: customer.email || email || '',
+          user_id: userId, // NEW: Set user_id for automatic linking
         })
         .select();
 

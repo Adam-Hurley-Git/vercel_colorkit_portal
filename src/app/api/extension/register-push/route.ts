@@ -118,6 +118,30 @@ export async function POST(request: NextRequest) {
     console.log('✅ Push subscription stored successfully');
     console.log('   Data:', JSON.stringify(insertedData, null, 2));
 
+    // NEW: Immediately link to customer if one exists for this user
+    // This fixes the issue where user purchases before installing extension
+    console.log('🔗 Checking for existing customer to link...');
+
+    const { data: customer } = await supabase.from('customers').select('customer_id').eq('user_id', user.id).single();
+
+    if (customer) {
+      console.log('✅ Found customer, linking push subscription:', customer.customer_id);
+
+      const { error: updateError } = await supabase
+        .from('push_subscriptions')
+        .update({ customer_id: customer.customer_id })
+        .eq('endpoint', subscription.endpoint);
+
+      if (updateError) {
+        console.error('⚠️ Failed to link customer_id:', updateError);
+      } else {
+        console.log('✅ Push subscription linked to customer immediately!');
+      }
+    } else {
+      console.log('ℹ️ No customer found yet (user may not have purchased)');
+      console.log('   Push subscription will be linked automatically after payment');
+    }
+
     return NextResponse.json(
       {
         success: true,
