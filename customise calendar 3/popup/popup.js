@@ -202,8 +202,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const getStartedBtn = document.getElementById('getStartedBtn');
   if (getStartedBtn) {
     getStartedBtn.addEventListener('click', () => {
-      debugLog('Get Started clicked, opening signup page...');
-      chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/signup' });
+      // Check if user was previously subscribed - route accordingly
+      chrome.storage.local.get(['subscriptionStatus'], (data) => {
+        const wasPreviouslySubscribed = data.subscriptionStatus?.wasPreviouslySubscribed || false;
+
+        if (wasPreviouslySubscribed) {
+          // Lapsed subscriber - go directly to checkout (skip onboarding)
+          debugLog('Resubscribe clicked, opening checkout page...');
+          chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/checkout/pri_01k81t07rfhatra9vs6zf8831c' });
+        } else {
+          // New user - go to signup/onboarding
+          debugLog('Get Started clicked, opening signup page...');
+          chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/signup' });
+        }
+      });
     });
   }
 
