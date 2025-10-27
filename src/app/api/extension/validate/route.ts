@@ -136,6 +136,7 @@ export async function GET(request: NextRequest) {
         isActive: false,
         reason: 'subscription_inactive',
         status: subscription.subscription_status,
+        wasPreviouslySubscribed: true, // User has customer record - they subscribed before!
         message:
           subscription.subscription_status === 'canceled'
             ? 'Subscription cancelled. Renew to continue.'
