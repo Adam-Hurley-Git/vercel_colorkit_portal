@@ -196,7 +196,13 @@ async function handleWebAppMessage(message) {
       // If subscription status provided, store it
       if (message.subscriptionStatus) {
         sessionData.subscriptionActive = message.subscriptionStatus.hasSubscription;
-        sessionData.subscriptionStatus = message.subscriptionStatus.status;
+        sessionData.subscriptionStatus = {
+          isActive: message.subscriptionStatus.hasSubscription,
+          status: message.subscriptionStatus.status,
+          message: message.subscriptionStatus.hasSubscription ? 'Subscription active' : 'No active subscription',
+          dataSource: 'auth_success',
+        };
+        sessionData.lastChecked = Date.now(); // Set cache timestamp
         debugLog('Subscription status:', message.subscriptionStatus);
       }
 
@@ -229,14 +235,21 @@ async function handleWebAppMessage(message) {
       break;
 
     case 'PAYMENT_SUCCESS':
+      // Clear old cache first to avoid conflicts
+      await chrome.storage.local.remove(['lastChecked']);
+
+      // Set subscription state
       await chrome.storage.local.set({
         subscriptionActive: true,
-        subscriptionStatus: 'active',
+        subscriptionStatus: {
+          isActive: true,
+          status: 'active',
+          message: 'Subscription active',
+          dataSource: 'payment_success',
+        },
         subscriptionTimestamp: Date.now(),
+        lastChecked: Date.now(), // Set cache timestamp so popup doesn't re-fetch
       });
-
-      // Clear any cached subscription status to force recheck
-      await chrome.storage.local.remove(['subscriptionStatus', 'lastChecked']);
 
       // Notify popup
       notifyPopup({ type: 'SUBSCRIPTION_UPDATED' });
@@ -248,15 +261,19 @@ async function handleWebAppMessage(message) {
       break;
 
     case 'SUBSCRIPTION_CANCELLED':
-      // Subscription was cancelled - clear cache and update status
+      // Subscription was cancelled - update status
       await chrome.storage.local.set({
         subscriptionActive: false,
-        subscriptionStatus: 'cancelled',
+        subscriptionStatus: {
+          isActive: false,
+          status: 'cancelled',
+          reason: 'subscription_cancelled',
+          message: 'Subscription cancelled',
+          dataSource: 'cancellation_event',
+        },
         subscriptionTimestamp: Date.now(),
+        lastChecked: Date.now(), // Set cache timestamp
       });
-
-      // Clear cached subscription status to force immediate revalidation
-      await chrome.storage.local.remove(['lastChecked']);
 
       // Notify popup to show "Get Started" button
       notifyPopup({ type: 'SUBSCRIPTION_UPDATED' });
