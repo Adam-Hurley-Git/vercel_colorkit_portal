@@ -269,6 +269,7 @@ async function handleWebAppMessage(message) {
           status: 'cancelled',
           reason: 'subscription_cancelled',
           message: 'Subscription cancelled',
+          wasPreviouslySubscribed: true, // User had subscription - show "Sorry to see you go"
           dataSource: 'cancellation_event',
         },
         subscriptionTimestamp: Date.now(),
