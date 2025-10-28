@@ -184,7 +184,11 @@ export default function CompletePage() {
                     />
                     <span className="text-xs text-slate-700">
                       I agree to the{' '}
-                      <a href="/terms" target="_blank" className="text-blue-600 hover:underline">
+                      <a
+                        href="https://www.calendarextension.com/terms"
+                        target="_blank"
+                        className="text-blue-600 hover:underline"
+                      >
                         Terms of Service
                       </a>
                     </span>
@@ -200,7 +204,11 @@ export default function CompletePage() {
                     />
                     <span className="text-xs text-slate-700">
                       I agree to the{' '}
-                      <a href="/refund" target="_blank" className="text-blue-600 hover:underline">
+                      <a
+                        href="https://www.calendarextension.com/refund"
+                        target="_blank"
+                        className="text-blue-600 hover:underline"
+                      >
                         Refund Policy
                       </a>
                     </span>
@@ -216,7 +224,11 @@ export default function CompletePage() {
                     />
                     <span className="text-xs text-slate-700">
                       I agree to the{' '}
-                      <a href="/privacy" target="_blank" className="text-blue-600 hover:underline">
+                      <a
+                        href="https://www.calendarextension.com/privacy"
+                        target="_blank"
+                        className="text-blue-600 hover:underline"
+                      >
                         Privacy Policy
                       </a>
                     </span>
