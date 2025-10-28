@@ -1,7 +1,7 @@
 # ColorKit System Architecture - Complete Technical Reference
 
-**Last Updated:** 2025-01-26
-**Version:** 2.0 (Storage Format Fixed)
+**Last Updated:** 2025-10-28
+**Version:** 2.1 (Lapsed Subscriber Flow)
 **Status:** Production Ready
 
 ---
@@ -13,12 +13,13 @@
 3. [Message Flow Architecture](#message-flow-architecture)
 4. [Authentication System](#authentication-system)
 5. [Payment & Unlock Flow](#payment--unlock-flow)
-6. [Push Notification System](#push-notification-system)
-7. [Extension Components](#extension-components)
-8. [Backend API Endpoints](#backend-api-endpoints)
-9. [Database Schema](#database-schema)
-10. [Common Issues & Solutions](#common-issues--solutions)
-11. [Debugging Guide](#debugging-guide)
+6. [Lapsed Subscriber & Resubscription Flow](#lapsed-subscriber--resubscription-flow)
+7. [Push Notification System](#push-notification-system)
+8. [Extension Components](#extension-components)
+9. [Backend API Endpoints](#backend-api-endpoints)
+10. [Database Schema](#database-schema)
+11. [Common Issues & Solutions](#common-issues--solutions)
+12. [Debugging Guide](#debugging-guide)
 
 ---
 
@@ -113,7 +114,8 @@
     "status": "active",                    // String: 'active'|'trialing'|'cancelled'
     "reason": "active",                    // String: Reason code
     "message": "Subscription active",      // String: Human-readable message
-    "dataSource": "payment_success"        // String: Where this came from
+    "dataSource": "payment_success",       // String: Where this came from
+    "wasPreviouslySubscribed": false       // Boolean: User had subscription before (for lapsed subscriber UX)
   },
 
   "subscriptionTimestamp": 1234567890000,  // Number: When status was updated
@@ -350,7 +352,8 @@ case 'SUBSCRIPTION_CANCELLED':
       status: 'cancelled',
       reason: 'subscription_cancelled',
       message: 'Subscription cancelled',
-      dataSource: 'cancellation_event'
+      dataSource: 'cancellation_event',
+      wasPreviouslySubscribed: true  // User had subscription - show "Sorry to see you go" UI
     },
     subscriptionTimestamp: Date.now(),
     lastChecked: Date.now(),
@@ -664,6 +667,247 @@ if (error || !user) {
 4. ✅ Storage format is OBJECT not STRING
 5. ✅ Push subscription linked to customer_id
 6. ✅ Webhooks configured in Paddle Dashboard
+
+---
+
+## Lapsed Subscriber & Resubscription Flow
+
+### Overview
+
+ColorKit differentiates between **new users** and **lapsed subscribers** (users who previously had an active subscription but cancelled). This provides a personalized experience and prevents trial abuse.
+
+### User Types
+
+| User Type             | Definition                           | Extension UI                        | Web App CTA                                      | Paddle Price                                  |
+| --------------------- | ------------------------------------ | ----------------------------------- | ------------------------------------------------ | --------------------------------------------- |
+| **New User**          | Never subscribed before              | "Get Started" overlay               | "Start 7-Day Free Trial"                         | `pri_01k81t07rfhatra9vs6zf8831c` (with trial) |
+| **Lapsed Subscriber** | Previously subscribed, now cancelled | "We're Sorry to See You Go" overlay | "Resubscribe to Plan" / "Start New Subscription" | `pri_01k8m1wyqcebmvsvsc7pwvy69j` (no trial)   |
+
+### Detection Mechanism
+
+**Backend Detection (`/api/extension/validate`):**
+
+- Checks if customer record exists in database
+- If customer exists but subscription inactive → `wasPreviouslySubscribed: true`
+- If no customer record → new user
+
+**Extension Storage:**
+
+- `wasPreviouslySubscribed` flag in `subscriptionStatus` object
+- Set by API response or push notification
+
+**Code Locations:**
+
+- API: `src/app/api/extension/validate/route.ts:139`
+- Extension: `customise calendar 3/background.js:272`
+
+### Extension UX Flow
+
+#### New User (Never Subscribed)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Extension Popup (Locked State)                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Title: "Welcome to ColorKit"                                    │
+│  Description: "Transform your Google Calendar with custom        │
+│                colors and time blocks"                           │
+│                                                                   │
+│  Button: [Get Started →]                                         │
+│                                                                   │
+│  Note: "Already have an account? Sign in on the website and      │
+│         reopen this extension."                                  │
+│                                                                   │
+│  Click → Opens /signup → Onboarding → Checkout (with trial)     │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Lapsed Subscriber (Previously Subscribed)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Extension Popup (Locked State)                                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Title: "We're Sorry to See You Go"                             │
+│  Description: "Reactivate your subscription to continue          │
+│                enjoying ColorKit features"                       │
+│                                                                   │
+│  Button: [Resubscribe to Plan →]                                │
+│                                                                   │
+│  Note: "Questions? Contact our support team anytime."            │
+│                                                                   │
+│  Click → Opens /checkout/{priceId} directly (no trial)          │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Code Location:** `customise calendar 3/popup/popup.js:57-104`
+
+### Resubscription Button Routing
+
+**Extension Popup (`popup.js:204-218`):**
+
+```javascript
+getStartedBtn.addEventListener('click', () => {
+  chrome.storage.local.get(['subscriptionStatus'], (data) => {
+    const wasPreviouslySubscribed = data.subscriptionStatus?.wasPreviouslySubscribed || false;
+
+    if (wasPreviouslySubscribed) {
+      // Lapsed subscriber → Direct to checkout (skip onboarding + no trial)
+      chrome.runtime.sendMessage({
+        type: 'OPEN_WEB_APP',
+        path: '/checkout/pri_01k8m1wyqcebmvsvsc7pwvy69j', // No-trial price
+      });
+    } else {
+      // New user → Signup flow (includes onboarding + 7-day trial)
+      chrome.runtime.sendMessage({
+        type: 'OPEN_WEB_APP',
+        path: '/signup',
+      });
+    }
+  });
+});
+```
+
+**Web App - Dashboard Subscriptions (`subscription-cards.tsx:87`):**
+
+When user views cancelled subscription in dashboard:
+
+```typescript
+<Link href={'/checkout/pri_01k8m1wyqcebmvsvsc7pwvy69j'}>
+  Start New Subscription
+</Link>
+```
+
+**Web App - Dashboard Landing (`dashboard-no-subscription-card.tsx:91`):**
+
+When new user has no subscription:
+
+```typescript
+<Link href={'/checkout/pri_01k81t07rfhatra9vs6zf8831c'}>
+  Start 7-Day Free Trial
+</Link>
+```
+
+### Paddle Price Configuration
+
+**Trial Price (New Users):**
+
+- Price ID: `pri_01k81t07rfhatra9vs6zf8831c`
+- Features: 7-day free trial, annual billing
+- Used for: New signups, dashboard "Get Started" CTA
+
+**No-Trial Price (Returning Subscribers):**
+
+- Price ID: `pri_01k8m1wyqcebmvsvsc7pwvy69j`
+- Features: Immediate payment, no trial, annual billing
+- Used for: Resubscriptions from extension, cancelled subscription CTAs
+
+### Trial Abuse Prevention
+
+**Paddle's Built-in Protection:**
+
+1. **Email Tracking** - Same email cannot get multiple trials
+2. **Payment Method Fingerprinting** - Card number tracked across trials
+3. **Device Fingerprinting** - Browser/IP/device ID patterns detected
+4. **Customer ID Persistence** - Once customer exists, flag is permanent
+
+**Your Additional Protection:**
+
+1. **Supabase Auth** - Google OAuth prevents easy email spoofing
+2. **Database Linking** - `customers.user_id` → `auth.users.id` prevents duplicate accounts
+3. **Separate Price IDs** - Returning customers automatically get no-trial price
+
+**Recommended Paddle Settings:**
+
+Enable in **Paddle Dashboard → Settings → Fraud**:
+
+- ✅ One trial per email
+- ✅ One trial per payment method
+- ✅ Block disposable email domains
+- ✅ Automatic fraud detection
+
+### Complete Resubscription Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Lapsed Subscriber Resubscription Journey                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  1. User's subscription cancelled                                │
+│     ↓                                                             │
+│     Paddle webhook → subscription.updated (status: cancelled)    │
+│     ↓                                                             │
+│     Backend sends push notification                              │
+│     ↓                                                             │
+│  2. Extension receives SUBSCRIPTION_CANCELLED                    │
+│     ↓                                                             │
+│     background.js sets:                                          │
+│     subscriptionStatus: {                                        │
+│       isActive: false,                                           │
+│       status: 'cancelled',                                       │
+│       wasPreviouslySubscribed: true  ← KEY FLAG                  │
+│     }                                                             │
+│     ↓                                                             │
+│  3. Extension locks features                                     │
+│     ↓                                                             │
+│  4. User opens extension popup                                   │
+│     ↓                                                             │
+│     popup.js reads wasPreviouslySubscribed                       │
+│     ↓                                                             │
+│     Shows "We're Sorry to See You Go" UI                         │
+│     ↓                                                             │
+│  5. User clicks "Resubscribe to Plan"                            │
+│     ↓                                                             │
+│     Opens /checkout/pri_01k8m1wyqcebmvsvsc7pwvy69j               │
+│     (Direct to payment, no onboarding, no trial)                 │
+│     ↓                                                             │
+│  6. User completes payment                                       │
+│     ↓                                                             │
+│     Paddle webhook → subscription.created                        │
+│     ↓                                                             │
+│     Backend sends SUBSCRIPTION_UPDATED push                      │
+│     ↓                                                             │
+│  7. Extension unlocks immediately ✅                              │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Debugging Lapsed Subscriber Issues
+
+**Check wasPreviouslySubscribed Flag:**
+
+```javascript
+// In extension service worker console
+chrome.storage.local.get(['subscriptionStatus'], (data) => {
+  console.log('wasPreviouslySubscribed:', data.subscriptionStatus?.wasPreviouslySubscribed);
+  console.log('Full status:', data.subscriptionStatus);
+});
+```
+
+**Expected Output (Lapsed Subscriber):**
+
+```javascript
+{
+  subscriptionStatus: {
+    isActive: false,
+    status: 'cancelled',
+    reason: 'subscription_cancelled',
+    message: 'Subscription cancelled',
+    wasPreviouslySubscribed: true,  // ← Must be true
+    dataSource: 'cancellation_event'
+  }
+}
+```
+
+**If wasPreviouslySubscribed is Missing:**
+
+1. Check API response: `GET /api/extension/validate` should return `wasPreviouslySubscribed: true`
+2. Check push handler: `background.js:272` should set the flag
+3. Clear cache and test cancellation flow again
 
 ---
 
@@ -1097,13 +1341,25 @@ async function checkSubscription() {
 }
 ```
 
-**Response (Inactive):**
+**Response (Inactive - New User):**
 
 ```json
 {
   "isActive": false,
   "reason": "no_subscription",
   "message": "No subscription found. Start your free trial!"
+}
+```
+
+**Response (Inactive - Lapsed Subscriber):**
+
+```json
+{
+  "isActive": false,
+  "reason": "subscription_inactive",
+  "status": "canceled",
+  "wasPreviouslySubscribed": true,
+  "message": "Subscription cancelled. Renew to continue."
 }
 ```
 
@@ -1956,7 +2212,32 @@ T+5s: Calendar features work
 
 ## Version History
 
-### v2.0 (2025-01-26) - CURRENT
+### v2.1 (2025-10-28) - CURRENT
+
+**Changes:**
+
+- ✅ Added lapsed subscriber detection and personalized UX
+- ✅ Added `wasPreviouslySubscribed` flag to subscriptionStatus
+- ✅ Implemented separate trial/no-trial pricing for new vs returning users
+- ✅ Updated extension popup to show "Sorry to see you go" message
+- ✅ Direct checkout routing for resubscriptions (bypasses onboarding)
+- ✅ Trial abuse prevention through Paddle price differentiation
+- ✅ Comprehensive resubscription flow documentation
+
+**Price IDs:**
+
+- Trial: `pri_01k81t07rfhatra9vs6zf8831c` (new users)
+- No-Trial: `pri_01k8m1wyqcebmvsvsc7pwvy69j` (returning subscribers)
+
+**Files Modified:**
+
+- `src/app/api/extension/validate/route.ts` - Added wasPreviouslySubscribed flag
+- `customise calendar 3/background.js` - Set flag on cancellation
+- `customise calendar 3/popup/popup.js` - Dynamic routing based on user type
+- `src/components/dashboard/subscriptions/components/subscription-cards.tsx` - No-trial price for resubscriptions
+- `SYSTEM_ARCHITECTURE_COMPLETE.md` - Added lapsed subscriber section
+
+### v2.0 (2025-01-26)
 
 **Changes:**
 
