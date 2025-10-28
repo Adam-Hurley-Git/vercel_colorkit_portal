@@ -21,7 +21,7 @@ export default function PersonalizePage() {
       id: 'taskPriority',
       icon: <Sparkles className="w-8 h-8" />,
       title: 'Important tasks get buried',
-      description: 'Need a way to make critical events stand out with custom colors',
+      description: 'Need a way to make Google tasks stand out with custom colors',
       gradient: 'from-red-500 to-orange-500',
     },
     {
