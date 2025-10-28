@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { PricingTier } from '@/constants/pricing-tier';
+import { CheckCircle, Calendar, Palette, Clock, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function CompletePage() {
   const router = useRouter();
@@ -104,14 +105,7 @@ export default function CompletePage() {
             <div className="card-body text-center space-y-6">
               {/* Success Icon */}
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-full animate-scale-in">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+                <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
 
               {/* Heading */}
@@ -137,14 +131,7 @@ export default function CompletePage() {
                 <div className="grid sm:grid-cols-3 gap-3">
                   <div className="bg-white rounded-lg p-3 border border-slate-200 text-center">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
+                      <Calendar className="w-4 h-4 text-blue-600" />
                     </div>
                     <p className="font-medium text-slate-900 text-xs mb-1">Day Coloring</p>
                     <p className="text-xs text-slate-600">Tinted columns per day</p>
@@ -152,14 +139,7 @@ export default function CompletePage() {
 
                   <div className="bg-white rounded-lg p-3 border border-slate-200 text-center">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
-                        />
-                      </svg>
+                      <Palette className="w-4 h-4 text-blue-600" />
                     </div>
                     <p className="font-medium text-slate-900 text-xs mb-1">Task Colors</p>
                     <p className="text-xs text-slate-600">Any color, any task</p>
@@ -167,14 +147,7 @@ export default function CompletePage() {
 
                   <div className="bg-white rounded-lg p-3 border border-slate-200 text-center">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
+                      <Clock className="w-4 h-4 text-blue-600" />
                     </div>
                     <p className="font-medium text-slate-900 text-xs mb-1">Time Blocks</p>
                     <p className="text-xs text-slate-600">Protect focus time</p>
@@ -288,37 +261,9 @@ export default function CompletePage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 animate-pulse opacity-20"></div>
                   <span className="relative">{isSaving ? 'Saving...' : 'Start Free Trial'}</span>
                   {!isSaving && (
-                    <svg
-                      className="w-5 h-5 transition-transform group-hover:translate-x-1 relative"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1 relative" />
                   )}
-                  {isSaving && (
-                    <svg
-                      className="animate-spin h-5 w-5 relative"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  )}
+                  {isSaving && <Loader2 className="animate-spin h-5 w-5 relative" />}
                 </button>
                 {!allRequiredChecked && !saveError && (
                   <p className="text-xs text-slate-500 italic">Please accept all required agreements to continue</p>

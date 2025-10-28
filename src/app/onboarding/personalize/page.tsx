@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Eye, Sparkles, Lock, Palette, ArrowRight, ArrowLeft, Lightbulb, CheckCircle } from 'lucide-react';
 
 export default function PersonalizePage() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -11,65 +12,28 @@ export default function PersonalizePage() {
   const painPoints = [
     {
       id: 'visualClarity',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-          />
-        </svg>
-      ),
+      icon: <Eye className="w-8 h-8" />,
       title: 'My calendar days blend together',
       description: 'Hard to distinguish between different days at a glance—need visual clarity',
       gradient: 'from-blue-500 to-purple-500',
     },
     {
       id: 'taskPriority',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-          />
-        </svg>
-      ),
+      icon: <Sparkles className="w-8 h-8" />,
       title: 'Important tasks get buried',
       description: 'Need a way to make critical events stand out with custom colors',
       gradient: 'from-red-500 to-orange-500',
     },
     {
       id: 'timeProtection',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-          />
-        </svg>
-      ),
+      icon: <Lock className="w-8 h-8" />,
       title: 'Need to block time for deep work',
       description: 'Want to protect focus time without cluttering calendar with fake events',
       gradient: 'from-green-500 to-teal-500',
     },
     {
       id: 'allFeatures',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
-          />
-        </svg>
-      ),
+      icon: <Palette className="w-8 h-8" />,
       title: 'Want complete calendar control',
       description: 'Need day coloring, custom task colors, and time blocks all in one',
       gradient: 'from-purple-500 to-pink-500',
@@ -100,9 +64,7 @@ export default function PersonalizePage() {
             onClick={() => router.push('/onboarding')}
             className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ArrowLeft className="w-4 h-4" />
             Back
           </button>
 
@@ -160,9 +122,7 @@ export default function PersonalizePage() {
                       <div
                         className={`w-6 h-6 bg-gradient-to-br ${point.gradient} rounded-full flex items-center justify-center shadow-lg`}
                       >
-                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
+                        <CheckCircle className="w-4 h-4 text-white" fill="currentColor" />
                       </div>
                     </div>
                   )}
@@ -176,14 +136,7 @@ export default function PersonalizePage() {
             <div className="bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-lg">
               <div className="flex items-start gap-3 mb-3">
                 <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-200 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                    />
-                  </svg>
+                  <Lightbulb className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-display font-bold text-slate-900 text-base mb-1">
@@ -217,14 +170,7 @@ export default function PersonalizePage() {
               className="btn btn-primary btn-xl group disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
-              <svg
-                className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </button>
           </div>
         </div>

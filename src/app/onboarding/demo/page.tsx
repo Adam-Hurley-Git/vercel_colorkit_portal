@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Calendar, Palette, Clock, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function DemoPage() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -16,19 +17,7 @@ export default function DemoPage() {
         'Soft tints color each day of the week differently, making your calendar instantly scannable. No more squinting to figure out which day is which.',
       benefit: '⚡ Instant clarity',
       gradient: 'from-blue-500 to-purple-500',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-          <rect x="7" y="11" width="3" height="3" fill="currentColor" opacity="0.3" rx="0.5" />
-          <rect x="11" y="11" width="3" height="3" fill="currentColor" opacity="0.5" rx="0.5" />
-          <rect x="15" y="11" width="3" height="3" fill="currentColor" opacity="0.7" rx="0.5" />
-        </svg>
-      ),
+      icon: <Calendar className="w-8 h-8" />,
     },
     {
       id: 'customColors',
@@ -38,16 +27,7 @@ export default function DemoPage() {
         'Google Tasks only allows 1 color for all your tasks. ColorKit lets you pick ANY color for each task—giving you unlimited visual organization.',
       benefit: '🎨 Unlimited colors',
       gradient: 'from-red-500 to-orange-500',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
-          />
-        </svg>
-      ),
+      icon: <Palette className="w-8 h-8" />,
     },
     {
       id: 'timeBlocks',
@@ -57,16 +37,7 @@ export default function DemoPage() {
         'Add visual time blocks to protect deep work sessions—without cluttering your calendar with fake events that mess up your schedule.',
       benefit: '🧘 Stay focused',
       gradient: 'from-green-500 to-teal-500',
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      ),
+      icon: <Clock className="w-8 h-8" />,
     },
   ];
 
@@ -102,9 +73,7 @@ export default function DemoPage() {
             onClick={() => router.push('/onboarding/personalize')}
             className="mb-3 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-sm"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ArrowLeft className="w-4 h-4" />
             Back
           </button>
 
@@ -432,14 +401,7 @@ export default function DemoPage() {
               <div className="text-center">
                 <button onClick={handleTryFeature} className="btn btn-primary btn-xl group">
                   {currentStep < features.length - 1 ? 'Next Feature' : "I'm Ready!"}
-                  <svg
-                    className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
             </div>
