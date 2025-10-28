@@ -207,9 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const wasPreviouslySubscribed = data.subscriptionStatus?.wasPreviouslySubscribed || false;
 
         if (wasPreviouslySubscribed) {
-          // Lapsed subscriber - go directly to checkout (skip onboarding)
+          // Lapsed subscriber - go directly to checkout (skip onboarding + no trial)
           debugLog('Resubscribe clicked, opening checkout page...');
-          chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/checkout/pri_01k81t07rfhatra9vs6zf8831c' });
+          chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/checkout/pri_01k8m1wyqcebmvsvsc7pwvy69j' });
         } else {
           // New user - go to signup/onboarding
           debugLog('Get Started clicked, opening signup page...');

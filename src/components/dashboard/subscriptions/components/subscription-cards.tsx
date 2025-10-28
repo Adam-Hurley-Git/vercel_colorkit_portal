@@ -84,7 +84,7 @@ export function SubscriptionCards({ subscriptions, className }: Props) {
                       }
                       size={'sm'}
                     >
-                      <Link href={'/checkout/pri_01k81t07rfhatra9vs6zf8831c'}>
+                      <Link href={'/checkout/pri_01k8m1wyqcebmvsvsc7pwvy69j'}>
                         Start New Subscription
                         <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path
