@@ -3,7 +3,7 @@
 // ========================================
 
 // Import validation function (will be loaded as module via script tag)
-import { validateSubscription, forceRefreshSubscription } from '../lib/subscription-validator.js';
+import { validateSubscription } from '../lib/subscription-validator.js';
 import { CONFIG, debugLog } from '../config.production.js';
 
 // Auth state
@@ -219,12 +219,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle "Manage Account" button click
-  const manageAccountBtn = document.getElementById('manageAccountBtn');
-  if (manageAccountBtn) {
-    manageAccountBtn.addEventListener('click', () => {
+  // Handle Account Dropdown Menu
+  const accountMenuBtn = document.getElementById('accountMenuBtn');
+  const accountDropdownMenu = document.getElementById('accountDropdownMenu');
+
+  if (accountMenuBtn && accountDropdownMenu) {
+    // Toggle dropdown on button click
+    accountMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = accountDropdownMenu.style.display === 'block';
+
+      if (isOpen) {
+        accountDropdownMenu.style.display = 'none';
+        accountMenuBtn.classList.remove('active');
+      } else {
+        accountDropdownMenu.style.display = 'block';
+        accountMenuBtn.classList.add('active');
+      }
+
+      debugLog('Account menu toggled:', !isOpen ? 'opened' : 'closed');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!accountMenuBtn.contains(e.target) && !accountDropdownMenu.contains(e.target)) {
+        accountDropdownMenu.style.display = 'none';
+        accountMenuBtn.classList.remove('active');
+      }
+    });
+  }
+
+  // Handle "Manage Account" menu item
+  const menuManageAccount = document.getElementById('menuManageAccount');
+  if (menuManageAccount) {
+    menuManageAccount.addEventListener('click', (e) => {
+      e.preventDefault();
       debugLog('Manage Account clicked, opening dashboard...');
-      chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/dashboard/subscriptions' });
+      chrome.runtime.sendMessage({ type: 'OPEN_WEB_APP', path: '/dashboard' });
+      accountDropdownMenu.style.display = 'none';
+      accountMenuBtn.classList.remove('active');
+    });
+  }
+
+  // Handle "Open Feedback Portal" menu item
+  const menuFeedback = document.getElementById('menuFeedback');
+  if (menuFeedback) {
+    menuFeedback.addEventListener('click', (e) => {
+      e.preventDefault();
+      debugLog('Feedback Portal clicked, opening in new tab...');
+      chrome.tabs.create({ url: 'https://calendarextension.sleekplan.app' });
+      accountDropdownMenu.style.display = 'none';
+      accountMenuBtn.classList.remove('active');
+    });
+  }
+
+  // Handle "Report an Issue or Bug" menu item
+  const menuBugReport = document.getElementById('menuBugReport');
+  if (menuBugReport) {
+    menuBugReport.addEventListener('click', (e) => {
+      e.preventDefault();
+      debugLog('Bug Report clicked, opening in new tab...');
+      chrome.tabs.create({ url: 'https://bugs-calendarextension.sleekplan.app/' });
+      accountDropdownMenu.style.display = 'none';
+      accountMenuBtn.classList.remove('active');
     });
   }
 });
@@ -234,15 +291,10 @@ chrome.runtime.onMessage.addListener((message) => {
   debugLog('Message received in popup:', message.type);
 
   if (message.type === 'AUTH_UPDATED' || message.type === 'SUBSCRIPTION_UPDATED') {
-    debugLog('Auth/subscription updated, rechecking...');
-    // Force refresh to bypass cache
-    forceRefreshSubscription().then((result) => {
-      if (result.isActive) {
-        hideAuthOverlay();
-      } else {
-        showAuthOverlay(result.reason, result.message);
-      }
-    });
+    debugLog('Auth/subscription updated, re-reading from storage...');
+    // No need to make API call - background.js already updated storage
+    // Just re-read the fresh data from storage
+    checkAuthAndSubscription();
   }
 });
 

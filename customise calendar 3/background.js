@@ -75,21 +75,21 @@ self.addEventListener('push', async (event) => {
     // Always fetch authoritative state from server
     debugLog('Push received - re-validating subscription from server...');
 
-    // Force refresh from server (bypasses cache)
+    // Force refresh from server (makes API call and updates storage)
     const result = await forceRefreshSubscription();
     debugLog('Server validation result:', result.isActive ? 'Active' : 'Inactive');
 
-    // Update extension state based on server response
+    // Broadcast to calendar tabs based on subscription status
     if (!result.isActive && result.reason !== 'no_session') {
-      debugLog('Subscription inactive - locking extension');
-      await handleWebAppMessage({ type: 'SUBSCRIPTION_CANCELLED' });
+      debugLog('Subscription inactive - notifying extension to lock');
+      await broadcastToCalendarTabs({ type: 'SUBSCRIPTION_CANCELLED' });
     } else if (result.isActive) {
-      debugLog('Subscription active - ensuring extension is unlocked');
-      await handleWebAppMessage({ type: 'SUBSCRIPTION_UPDATED' });
+      debugLog('Subscription active - notifying extension to unlock');
+      await broadcastToCalendarTabs({ type: 'SUBSCRIPTION_UPDATED' });
     }
 
-    // Notify popup if open
-    notifyPopup({ type: 'SUBSCRIPTION_STATUS', payload: result });
+    // Notify popup if open to refresh display
+    notifyPopup({ type: 'SUBSCRIPTION_UPDATED' });
   } catch (error) {
     console.error('Error handling push notification:', error);
   }
@@ -104,10 +104,15 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       const result = await forceRefreshSubscription();
       debugLog('Periodic validation complete:', result.isActive ? 'Active' : 'Inactive');
 
-      // If subscription is no longer active, trigger cancellation handler
-      // This will update storage and broadcast to all calendar tabs
+      // Broadcast to calendar tabs based on subscription status
+      // forceRefreshSubscription() already updated storage
       if (!result.isActive && result.reason !== 'no_session') {
-        await handleWebAppMessage({ type: 'SUBSCRIPTION_CANCELLED' });
+        debugLog('Subscription inactive - notifying extension to lock');
+        await broadcastToCalendarTabs({ type: 'SUBSCRIPTION_CANCELLED' });
+        notifyPopup({ type: 'SUBSCRIPTION_UPDATED' });
+      } else if (result.isActive) {
+        debugLog('Subscription still active - no action needed');
+        // Features already unlocked, storage already updated
       }
     } catch (error) {
       console.error('Periodic validation failed:', error);
@@ -202,7 +207,6 @@ async function handleWebAppMessage(message) {
           message: message.subscriptionStatus.hasSubscription ? 'Subscription active' : 'No active subscription',
           dataSource: 'auth_success',
         };
-        sessionData.lastChecked = Date.now(); // Set cache timestamp
         debugLog('Subscription status:', message.subscriptionStatus);
       }
 
@@ -235,10 +239,7 @@ async function handleWebAppMessage(message) {
       break;
 
     case 'PAYMENT_SUCCESS':
-      // Clear old cache first to avoid conflicts
-      await chrome.storage.local.remove(['lastChecked']);
-
-      // Set subscription state
+      // Set subscription state - extension now unlocked
       await chrome.storage.local.set({
         subscriptionActive: true,
         subscriptionStatus: {
@@ -248,7 +249,6 @@ async function handleWebAppMessage(message) {
           dataSource: 'payment_success',
         },
         subscriptionTimestamp: Date.now(),
-        lastChecked: Date.now(), // Set cache timestamp so popup doesn't re-fetch
       });
 
       // Notify popup
@@ -261,7 +261,7 @@ async function handleWebAppMessage(message) {
       break;
 
     case 'SUBSCRIPTION_CANCELLED':
-      // Subscription was cancelled - update status
+      // Subscription was cancelled - update status and lock extension
       await chrome.storage.local.set({
         subscriptionActive: false,
         subscriptionStatus: {
@@ -273,7 +273,6 @@ async function handleWebAppMessage(message) {
           dataSource: 'cancellation_event',
         },
         subscriptionTimestamp: Date.now(),
-        lastChecked: Date.now(), // Set cache timestamp
       });
 
       // Notify popup to show "Get Started" button

@@ -163,18 +163,18 @@ subscriptionStatus: {
 
 | File                        | Function                                        | Updates Keys                                                                            |
 | --------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `background.js`             | `handleWebAppMessage('PAYMENT_SUCCESS')`        | `subscriptionActive`, `subscriptionStatus` (object), `lastChecked`                      |
+| `background.js`             | `handleWebAppMessage('PAYMENT_SUCCESS')`        | `subscriptionActive`, `subscriptionStatus` (object)                                     |
 | `background.js`             | `handleWebAppMessage('AUTH_SUCCESS')`           | `authenticated`, `supabaseSession`, `subscriptionActive`, `subscriptionStatus` (object) |
 | `background.js`             | `handleWebAppMessage('SUBSCRIPTION_CANCELLED')` | `subscriptionActive`, `subscriptionStatus` (object)                                     |
-| `subscription-validator.js` | `cacheStatus()`                                 | `subscriptionStatus` (object), `lastChecked`                                            |
+| `subscription-validator.js` | `forceRefreshSubscription()`                    | `subscriptionStatus` (object), `subscriptionActive`, `subscriptionTimestamp`            |
 
 #### Storage Read Locations
 
-| File                        | Function                           | Reads Keys                                   |
-| --------------------------- | ---------------------------------- | -------------------------------------------- |
-| `content/index.js`          | `validateSubscriptionBeforeInit()` | `subscriptionActive` (boolean only)          |
-| `popup/popup.js`            | `checkSubscription()`              | `subscriptionStatus` (object)                |
-| `subscription-validator.js` | `getCachedStatus()`                | `subscriptionStatus` (object), `lastChecked` |
+| File                        | Function                           | Reads Keys                          |
+| --------------------------- | ---------------------------------- | ----------------------------------- |
+| `content/index.js`          | `validateSubscriptionBeforeInit()` | `subscriptionActive` (boolean only) |
+| `popup/popup.js`            | `checkAuthAndSubscription()`       | `subscriptionStatus` (object)       |
+| `subscription-validator.js` | `validateSubscription()`           | `subscriptionStatus` (object)       |
 
 ---
 
@@ -2212,7 +2212,37 @@ T+5s: Calendar features work
 
 ## Version History
 
-### v2.1 (2025-10-28) - CURRENT
+### v2.2 (2025-10-31) - CURRENT
+
+**Changes:**
+
+- ✅ **Removed 24-hour cache validator** - Eliminated time-based API calls from popup
+- ✅ **Storage-first architecture** - Popup always reads from storage (instant display)
+- ✅ **Simplified validation logic** - Only push notifications and 3-day alarm make API calls
+- ✅ **Fixed push handler bug** - Correctly broadcasts to calendar tabs on unlock
+- ✅ **Fixed redundant API calls** - Popup no longer calls API when receiving update messages
+- ✅ **Removed `lastChecked` storage key** - No longer needed without time-based cache
+- ✅ **Improved UX** - No false lock screens from temporary API failures
+
+**Architecture Changes:**
+
+- `validateSubscription()` - Now just reads storage, never makes API call
+- `forceRefreshSubscription()` - Only function that makes API calls (called by push + alarm)
+- Popup opens instantly, no loading delay or network dependency
+- Storage kept fresh by: Push notifications (real-time) + 3-day alarm (backup)
+
+**Why This Change:**
+
+The 24h cache created risk of false lock screens when API calls failed temporarily. Since push notifications work reliably and 3-day alarm provides backup validation, the automatic popup validation was redundant and could show paying users a lock screen during transient failures. The new approach eliminates this risk while maintaining the same functionality.
+
+**Files Modified:**
+
+- `customise calendar 3/lib/subscription-validator.js` - Removed cache duration, getCachedStatus(), cacheStatus()
+- `customise calendar 3/popup/popup.js` - Removed redundant API call, reads storage only
+- `customise calendar 3/background.js` - Fixed push handler, removed lastChecked references
+- `SYSTEM_ARCHITECTURE_COMPLETE.md` - Updated documentation
+
+### v2.1 (2025-10-28)
 
 **Changes:**
 
