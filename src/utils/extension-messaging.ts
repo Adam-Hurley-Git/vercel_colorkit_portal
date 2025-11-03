@@ -16,6 +16,7 @@ export interface ExtensionAuthMessage {
   subscriptionStatus: {
     hasSubscription: boolean;
     status?: string;
+    verificationFailed?: boolean; // Indicates we couldn't verify (fail-open)
   };
 }
 
@@ -54,43 +55,106 @@ export async function prepareAuthSuccessMessage(): Promise<ExtensionAuthMessage 
 
     console.log('[extension-messaging] Session found for user:', session.user.email);
 
-    // Check subscription status
+    // Check subscription status with fail-open approach
     let subscriptionStatus = {
       hasSubscription: false,
       status: undefined as string | undefined,
+      verificationFailed: undefined as boolean | undefined,
     };
 
     try {
       const customerId = await getCustomerId();
       if (customerId) {
         console.log('[extension-messaging] Checking subscription for customer:', customerId);
-        const paddle = getPaddleInstance();
-        const subscriptionCollection = paddle.subscriptions.list({
-          customerId: [customerId],
-          perPage: 5,
-        });
 
-        const subscriptions = await subscriptionCollection.next();
+        // Try Paddle API first (most up-to-date)
+        try {
+          const paddle = getPaddleInstance();
+          const subscriptionCollection = paddle.subscriptions.list({
+            customerId: [customerId],
+            perPage: 5,
+          });
 
-        const activeSubscription = subscriptions.find(
-          (sub) => sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due',
-        );
+          const subscriptions = await subscriptionCollection.next();
 
-        if (activeSubscription) {
-          subscriptionStatus = {
-            hasSubscription: true,
-            status: activeSubscription.status,
-          };
-          console.log('[extension-messaging] Active subscription found:', activeSubscription.status);
-        } else {
-          console.log('[extension-messaging] No active subscription found');
+          const activeSubscription = subscriptions.find(
+            (sub) => sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due',
+          );
+
+          if (activeSubscription) {
+            subscriptionStatus = {
+              hasSubscription: true,
+              status: activeSubscription.status,
+              verificationFailed: false,
+            };
+            console.log(
+              '[extension-messaging] ✅ Active subscription found via Paddle API:',
+              activeSubscription.status,
+            );
+          } else {
+            subscriptionStatus = {
+              hasSubscription: false,
+              status: 'none',
+              verificationFailed: false,
+            };
+            console.log('[extension-messaging] ✅ No active subscription (confirmed via Paddle API)');
+          }
+        } catch (paddleError) {
+          console.error('[extension-messaging] ⚠️ Paddle API failed, falling back to database check:', paddleError);
+
+          // FAIL-OPEN: Paddle API failed, check database instead
+          // This prevents locking users out during Paddle API issues
+          try {
+            const { data: subscription } = await supabase
+              .from('subscriptions')
+              .select('subscription_id, subscription_status')
+              .eq('customer_id', customerId)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
+
+            if (subscription) {
+              const activeStatuses = ['active', 'trialing', 'past_due'];
+              const isActive = activeStatuses.includes(subscription.subscription_status);
+
+              subscriptionStatus = {
+                hasSubscription: isActive,
+                status: subscription.subscription_status,
+                verificationFailed: false,
+              };
+              console.log(
+                `[extension-messaging] ✅ Database fallback: subscription ${isActive ? 'active' : 'inactive'} (${subscription.subscription_status})`,
+              );
+            } else {
+              subscriptionStatus = {
+                hasSubscription: false,
+                status: 'none',
+                verificationFailed: false,
+              };
+              console.log('[extension-messaging] ✅ Database fallback: no subscription found');
+            }
+          } catch (dbError) {
+            console.error('[extension-messaging] ❌ Database fallback also failed:', dbError);
+            // FAIL-OPEN: Can't verify, don't change user's lock state
+            subscriptionStatus = {
+              hasSubscription: false,
+              status: 'verification_error',
+              verificationFailed: true, // Signal to not send cancellation message
+            };
+            console.log('[extension-messaging] ⚠️ Verification failed - will NOT send lock message (fail-open)');
+          }
         }
       } else {
-        console.log('[extension-messaging] No customer ID found');
+        console.log('[extension-messaging] No customer ID found - user has no subscription');
       }
-    } catch (subError) {
-      console.error('[extension-messaging] Subscription check failed:', subError);
-      // Continue anyway - user is authenticated even without subscription
+    } catch (error) {
+      console.error('[extension-messaging] ❌ Unexpected error during subscription check:', error);
+      // FAIL-OPEN: Preserve existing state on errors
+      subscriptionStatus = {
+        hasSubscription: false,
+        status: 'verification_error',
+        verificationFailed: true,
+      };
     }
 
     return {

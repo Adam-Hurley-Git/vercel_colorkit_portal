@@ -254,15 +254,23 @@ async function handleWebAppMessage(message) {
       }
 
       // If subscription status provided, store it
+      // FAIL-OPEN: Only update if verification succeeded (verificationFailed !== true)
       if (message.subscriptionStatus) {
-        sessionData.subscriptionActive = message.subscriptionStatus.hasSubscription;
-        sessionData.subscriptionStatus = {
-          isActive: message.subscriptionStatus.hasSubscription,
-          status: message.subscriptionStatus.status,
-          message: message.subscriptionStatus.hasSubscription ? 'Subscription active' : 'No active subscription',
-          dataSource: 'auth_success',
-        };
-        debugLog('Subscription status:', message.subscriptionStatus);
+        if (message.subscriptionStatus.verificationFailed === true) {
+          // Verification failed - don't update subscription state (preserve current)
+          debugLog('⚠️ Subscription verification failed - preserving current lock state (fail-open)');
+          // Don't add subscription data to sessionData - keep existing state
+        } else {
+          // Verification succeeded - update subscription state
+          sessionData.subscriptionActive = message.subscriptionStatus.hasSubscription;
+          sessionData.subscriptionStatus = {
+            isActive: message.subscriptionStatus.hasSubscription,
+            status: message.subscriptionStatus.status,
+            message: message.subscriptionStatus.hasSubscription ? 'Subscription active' : 'No active subscription',
+            dataSource: 'auth_success',
+          };
+          debugLog('Subscription status verified:', message.subscriptionStatus);
+        }
       }
 
       await chrome.storage.local.set(sessionData);

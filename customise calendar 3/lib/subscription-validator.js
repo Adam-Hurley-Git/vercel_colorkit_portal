@@ -69,16 +69,34 @@ export async function validateSubscription() {
  * - 3-day periodic alarm (backup validation)
  *
  * Updates storage with fresh data from server
+ * FAIL-OPEN: Preserves existing lock state on errors (only locks when subscription is CONFIRMED inactive)
  */
 export async function forceRefreshSubscription() {
   debugLog('Force refreshing subscription status from API...');
 
   try {
     // Get stored Supabase session
-    const { supabaseSession } = await chrome.storage.local.get('supabaseSession');
+    const stored = await chrome.storage.local.get(['supabaseSession', 'subscriptionActive', 'subscriptionStatus']);
+    const supabaseSession = stored.supabaseSession;
+    const currentLockState = stored.subscriptionActive; // Preserve current state
+    const currentStatus = stored.subscriptionStatus;
 
     if (!supabaseSession || !supabaseSession.access_token) {
       debugLog('No Supabase session found - cannot validate');
+
+      // FAIL-OPEN: If user was previously unlocked but session expired,
+      // preserve unlock state temporarily (user may be offline)
+      if (currentLockState === true) {
+        debugLog('⚠️ Session missing but user was unlocked - preserving unlock state (fail-open)');
+        return (
+          currentStatus || {
+            isActive: true,
+            reason: 'session_missing_preserved',
+            message: 'Session expired but access preserved',
+          }
+        );
+      }
+
       const noSessionResult = {
         isActive: false,
         reason: 'no_session',
@@ -86,7 +104,7 @@ export async function forceRefreshSubscription() {
         needsAuth: true,
       };
 
-      // Update storage
+      // Only update storage if user was not previously unlocked
       await chrome.storage.local.set({
         subscriptionStatus: noSessionResult,
         subscriptionActive: false,
@@ -109,8 +127,77 @@ export async function forceRefreshSubscription() {
     if (!response.ok) {
       debugLog('API returned error:', response.status);
 
-      // If unauthorized, clear session and ask user to re-login
+      // If unauthorized, try to refresh token
       if (response.status === 401) {
+        debugLog('Token expired, attempting refresh...');
+
+        // Try to refresh token using refresh_token
+        if (supabaseSession.refresh_token) {
+          try {
+            const refreshResponse = await fetch(`${CONFIG.SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                apikey: CONFIG.SUPABASE_ANON_KEY || '',
+              },
+              body: JSON.stringify({
+                refresh_token: supabaseSession.refresh_token,
+              }),
+            });
+
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              debugLog('✅ Token refreshed successfully');
+
+              // Update session with new tokens
+              const newSession = {
+                access_token: refreshData.access_token,
+                refresh_token: refreshData.refresh_token,
+                user: supabaseSession.user,
+              };
+
+              await chrome.storage.local.set({ supabaseSession: newSession });
+
+              // Retry validation with new token
+              const retryResponse = await fetch(`${CONFIG.WEB_APP_URL}/api/extension/validate`, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${refreshData.access_token}`,
+                },
+              });
+
+              if (retryResponse.ok) {
+                const data = await retryResponse.json();
+                debugLog('✅ Validation succeeded after token refresh');
+
+                await chrome.storage.local.set({
+                  subscriptionStatus: data,
+                  subscriptionActive: data.isActive || false,
+                  subscriptionTimestamp: Date.now(),
+                });
+
+                return data;
+              }
+            }
+          } catch (refreshError) {
+            console.error('Token refresh failed:', refreshError);
+          }
+        }
+
+        // FAIL-OPEN: Token refresh failed, but preserve unlock state
+        if (currentLockState === true) {
+          debugLog('⚠️ Token expired and refresh failed, but preserving unlock state (fail-open)');
+          return (
+            currentStatus || {
+              isActive: true,
+              reason: 'token_expired_preserved',
+              message: 'Token expired but access preserved',
+            }
+          );
+        }
+
+        // User was locked anyway, safe to clear session
         await chrome.storage.local.remove(['supabaseSession', 'authenticated']);
         const sessionExpiredResult = {
           isActive: false,
@@ -119,7 +206,6 @@ export async function forceRefreshSubscription() {
           needsAuth: true,
         };
 
-        // Update storage
         await chrome.storage.local.set({
           subscriptionStatus: sessionExpiredResult,
           subscriptionActive: false,
@@ -128,7 +214,15 @@ export async function forceRefreshSubscription() {
         return sessionExpiredResult;
       }
 
-      throw new Error(`API returned ${response.status}`);
+      // Other errors (500, 503, etc.) - FAIL-OPEN: preserve state
+      debugLog(`⚠️ API error ${response.status} - preserving current lock state (fail-open)`);
+      return (
+        currentStatus || {
+          isActive: currentLockState || false,
+          reason: 'api_error_preserved',
+          message: 'Temporary verification error, retaining current access state',
+        }
+      );
     }
 
     const data = await response.json();
@@ -147,17 +241,25 @@ export async function forceRefreshSubscription() {
     return data;
   } catch (error) {
     console.error('Force refresh failed:', error);
+
+    // FAIL-OPEN: On network/fetch errors, preserve current state
+    const stored = await chrome.storage.local.get(['subscriptionActive', 'subscriptionStatus']);
+    const currentLockState = stored.subscriptionActive;
+    const currentStatus = stored.subscriptionStatus;
+
+    debugLog(`⚠️ Network error - preserving current lock state: ${currentLockState} (fail-open)`);
+
     const errorResult = {
-      isActive: false,
-      reason: 'error',
-      message: 'Unable to verify subscription. Please check your connection.',
+      isActive: currentLockState || false,
+      reason: 'network_error_preserved',
+      message: 'Network error. Access state preserved until connection restored.',
       error: error.message,
     };
 
-    // Update storage - mark as inactive on error (fail-safe)
+    // Update status but preserve lock state
     await chrome.storage.local.set({
       subscriptionStatus: errorResult,
-      subscriptionActive: false,
+      // DO NOT change subscriptionActive - preserve current state
     });
 
     return errorResult;

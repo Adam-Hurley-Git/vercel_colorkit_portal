@@ -9,18 +9,29 @@ export default async function LandingPage() {
   const extensionMessage = await prepareAuthSuccessMessage();
 
   // Check if subscription is cancelled and send cache invalidation message
+  // FAIL-OPEN: Only send cancellation if we CONFIRMED the subscription is inactive
+  // Do NOT send cancellation if verification failed (preserves user's existing state)
   let cancellationMessage: ExtensionSubscriptionCancelledMessage | null = null;
   if (extensionMessage && extensionMessage.subscriptionStatus) {
     const subStatus = extensionMessage.subscriptionStatus;
 
-    // If user has no active subscription, send cancellation message to clear extension cache
-    if (!subStatus.hasSubscription || subStatus.status === 'canceled' || subStatus.status === 'cancelled') {
-      console.log('[Dashboard] User has cancelled/inactive subscription - sending cache clear message to extension');
+    // Only send cancellation if:
+    // 1. We successfully verified subscription status (verificationFailed is false/undefined)
+    // 2. AND subscription is confirmed inactive
+    if (
+      !subStatus.verificationFailed &&
+      (!subStatus.hasSubscription || subStatus.status === 'canceled' || subStatus.status === 'cancelled')
+    ) {
+      console.log(
+        '[Dashboard] User has cancelled/inactive subscription (verified) - sending lock message to extension',
+      );
 
       cancellationMessage = {
         type: 'SUBSCRIPTION_CANCELLED',
         timestamp: Date.now(),
       };
+    } else if (subStatus.verificationFailed) {
+      console.log('[Dashboard] ⚠️ Subscription verification failed - NOT sending lock message (fail-open)');
     }
   }
 

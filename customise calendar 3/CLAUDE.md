@@ -1,7 +1,7 @@
 # ColorKit Chrome Extension - Full Codebase Reference
 
-**Last Updated**: November 3, 2025
-**Extension Version**: 1.0
+**Last Updated**: January 2025
+**Extension Version**: 2.0 (Fail-Open Architecture)
 **Manifest Version**: 3
 
 This document provides comprehensive context about the ColorKit Chrome extension codebase for AI assistants and developers.
@@ -318,21 +318,35 @@ async function checkStorageQuota()                   // Monitor quota usage
 
 ### 3. Subscription Validation (`lib/subscription-validator.js`)
 
-**Purpose**: Validate user subscriptions via Supabase backend
+**Purpose**: Validate user subscriptions via Supabase backend with **FAIL-OPEN** architecture
+
+**CRITICAL: Fail-Open Architecture**:
+
+The system is designed to **preserve user access during temporary failures**:
+
+- ✅ Only locks when subscription is **confirmed inactive**
+- ✅ Preserves unlock state on API errors, network issues, token expiry
+- ✅ Auto-refreshes expired tokens instead of locking
+- ❌ **NEVER** locks paying users during temporary system failures
 
 **Integration**:
 
 - Connects to Supabase project
-- Validates subscription status on popup open
-- Caches result for 5 minutes
-- Required for all features to function
+- Validates subscription status via `/api/extension/validate`
+- Auto-refreshes expired access tokens (1-hour expiry)
+- Preserves lock state on errors (fail-open)
+- Updated by push notifications and 3-day alarm
 
 **Key Functions**:
 
 ```javascript
-async function checkSubscriptionStatus()             // Validate subscription
-async function getSubscriptionFromCache()            // Get cached status
-async function clearSubscriptionCache()              // Force revalidation
+async function validateSubscription()               // Read from storage (no API call)
+async function forceRefreshSubscription()           // API call with fail-open logic
+  // - Reads current lock state BEFORE making API call
+  // - Attempts token refresh on 401 errors
+  // - Preserves unlock state on all error types
+  // - Only locks when API confirms subscription is inactive
+async function clearSubscriptionCache()             // Force revalidation
 ```
 
 **Subscription States**:
@@ -340,8 +354,34 @@ async function clearSubscriptionCache()              // Force revalidation
 - `active` - Subscription valid, all features unlocked
 - `trialing` - Trial period, all features unlocked
 - `canceled` - Subscription canceled, features locked
-- `past_due` - Payment failed, grace period
+- `past_due` - Payment failed, grace period (still unlocked)
 - `incomplete` - Payment not completed
+- **NEW**: `token_expired_preserved` - Token expired but access preserved (fail-open)
+- **NEW**: `api_error_preserved` - API error but access preserved (fail-open)
+- **NEW**: `network_error_preserved` - Network error but access preserved (fail-open)
+
+**Token Refresh Flow** (NEW):
+
+When 401 Unauthorized received:
+
+1. Extract `refresh_token` from storage
+2. POST to `${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`
+3. Receive new `access_token` and `refresh_token`
+4. Update storage with new tokens
+5. Retry original API call with new token
+6. If success → continue normally
+7. If fails → preserve unlock state (fail-open)
+
+**Error Handling Matrix**:
+
+| Scenario                        | Behavior                                |
+| ------------------------------- | --------------------------------------- |
+| Paddle API timeout              | ✅ Database fallback (web app)          |
+| Token expired                   | ✅ Auto-refresh token                   |
+| Token refresh fails             | ✅ Preserve unlock if user was unlocked |
+| API 500/503 error               | ✅ Preserve current lock state          |
+| Network offline                 | ✅ Preserve current lock state          |
+| Subscription confirmed inactive | ✅ Lock user (correct)                  |
 
 ---
 
@@ -1519,6 +1559,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 ---
 
 ## Version History
+
+### v2.0 (January 2025) - Fail-Open Architecture
+
+- 🔒 **CRITICAL**: Refactored to fail-open architecture
+- ✅ Paying users never locked during API failures
+- ✅ Auto-refresh expired tokens (1-hour expiry)
+- ✅ Database fallback when Paddle API fails
+- ✅ Preserve lock state on network/API errors
+- 🐛 Fixed: Token expiry locking paying users
+- 🐛 Fixed: Paddle API timeouts locking paying users
+- 🐛 Fixed: Network issues locking paying users
+- 📚 Documentation: Added FAIL_OPEN_ARCHITECTURE.md
 
 ### v1.0 (November 2025)
 
