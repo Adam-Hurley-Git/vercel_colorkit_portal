@@ -32,7 +32,6 @@
           0 1px 0 rgba(255, 255, 255, 0.8) inset;
         border-bottom: 2px solid rgba(148, 163, 184, 0.2);
         position: relative;
-        overflow: hidden;
       }
       .header::before {
         content: '';
@@ -80,31 +79,125 @@
       }
 
       .manage-account-btn {
-        font-family: 'Nunito', sans-serif;
-        font-size: 12px;
-        font-weight: 600;
         color: #64748b;
         background: rgba(255, 255, 255, 0.6);
-        padding: 6px 12px;
-        border-radius: 8px;
+        padding: 8px;
+        border-radius: 10px;
         border: 1px solid rgba(148, 163, 184, 0.2);
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 6px;
+        justify-content: center;
         transition: all 0.2s ease;
+        width: 36px;
+        height: 36px;
       }
 
       .manage-account-btn:hover {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         border-color: rgba(148, 163, 184, 0.4);
         color: #475569;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
       .manage-account-btn svg {
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+      }
+
+      .manage-account-btn:hover svg {
+        opacity: 1;
+      }
+
+      .manage-account-btn.active {
+        background: rgba(255, 255, 255, 0.95);
+        border-color: rgba(99, 102, 241, 0.3);
+        color: #6366f1;
+      }
+
+      /* Account Dropdown Container */
+      .account-dropdown {
+        position: relative;
+        display: inline-block;
+        z-index: 2147483647;
+      }
+
+      /* Account Menu Dropdown */
+      .account-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow:
+          0 10px 40px rgba(0, 0, 0, 0.15),
+          0 4px 12px rgba(0, 0, 0, 0.1),
+          0 0 0 1px rgba(148, 163, 184, 0.1);
+        min-width: 220px;
+        overflow: hidden;
+        z-index: 2147483647;
+        animation: menuSlideIn 0.2s ease-out;
+      }
+
+      @keyframes menuSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        font-family: 'Nunito', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: #475569;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        border: none;
+        background: transparent;
+        width: 100%;
+        cursor: pointer;
+      }
+
+      .menu-item:hover {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        color: #1e293b;
+      }
+
+      .menu-item svg {
+        flex-shrink: 0;
         opacity: 0.7;
+      }
+
+      .menu-item:hover svg {
+        opacity: 1;
+      }
+
+      .menu-item:not(:last-child) {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      /* Bug Report Menu Item - Red Theme */
+      #menuBugReport {
+        color: #dc2626;
+      }
+
+      #menuBugReport:hover {
+        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        color: #b91c1c;
+      }
+
+      #menuBugReport svg {
+        opacity: 1;
       }
 
       .colour-kit-card {
@@ -125,6 +218,8 @@
         gap: 6px;
         border: 1.5px solid #e9d5ff;
         transition: all 0.2s ease;
+        text-decoration: none;
+        cursor: pointer;
       }
       .colour-kit-card:hover {
         transform: translateY(-1px);
@@ -203,6 +298,10 @@
 
       .section.task-coloring .section-icon {
         background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+      }
+
+      .section.task-list-coloring .section-icon {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
       }
 
       .section.time-blocking .section-icon {
@@ -1412,6 +1511,77 @@
         transform: none;
       }
 
+      /* Task List Items */
+      .task-list-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 12px;
+        border-bottom: 1px solid #e8eaed;
+        align-items: center;
+        transition: background-color 0.2s;
+      }
+
+      .task-list-item:last-child {
+        border-bottom: none;
+      }
+
+      .task-list-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      .task-list-name {
+        font-size: 14px;
+        color: #202124;
+        font-weight: 500;
+      }
+
+      .task-list-color-picker {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .task-list-color-preview {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 2px solid #dadce0;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #ffffff;
+      }
+
+      .task-list-color-preview:hover {
+        border-color: #1a73e8;
+        transform: scale(1.05);
+      }
+
+      .task-list-color-preview.has-color {
+        border-width: 1px;
+      }
+
+      .task-list-clear-button {
+        padding: 4px 8px;
+        background: #f1f3f4;
+        color: #5f6368;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+
+      .task-list-clear-button:hover {
+        background: #e8eaed;
+        border-color: #c1c3c5;
+      }
+
+      .task-list-clear-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       /* Time Block Global Color Picker */
       .time-block-global-color-item {
         display: flex;
@@ -2062,26 +2232,168 @@
           <h1>Calendar Extension</h1>
         </div>
         <div class="header-actions">
-          <button id="manageAccountBtn" class="manage-account-btn" title="Manage your subscription">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path
-                d="M8 10a2 2 0 100-4 2 2 0 000 4z"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M12.93 10a1.1 1.1 0 00.22 1.21l.04.04a1.34 1.34 0 11-1.9 1.9l-.04-.04a1.1 1.1 0 00-1.21-.22 1.1 1.1 0 00-.67 1v.11a1.33 1.33 0 11-2.67 0v-.06a1.1 1.1 0 00-.72-1 1.1 1.1 0 00-1.21.22l-.04.04a1.34 1.34 0 11-1.9-1.9l.04-.04a1.1 1.1 0 00.22-1.21 1.1 1.1 0 00-1-.67H2a1.33 1.33 0 110-2.67h.06a1.1 1.1 0 001-.72 1.1 1.1 0 00-.22-1.21l-.04-.04a1.34 1.34 0 111.9-1.9l.04.04a1.1 1.1 0 001.21.22h.05a1.1 1.1 0 00.67-1V2a1.33 1.33 0 112.67 0v.06a1.1 1.1 0 00.67 1h.05a1.1 1.1 0 001.21-.22l.04-.04a1.34 1.34 0 011.9 1.9l-.04.04a1.1 1.1 0 00-.22 1.21v.05a1.1 1.1 0 001 .67H14a1.33 1.33 0 110 2.67h-.06a1.1 1.1 0 00-1 .67z"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            Account
-          </button>
-          <div class="colour-kit-card">🎨 Colour Kit</div>
+          <a
+            href="https://www.calendarextension.com/"
+            target="_blank"
+            class="colour-kit-card"
+            title="Visit Calendar Extension website"
+            >🎨 Colour Kit</a
+          >
+          <div class="account-dropdown">
+            <button id="accountMenuBtn" class="manage-account-btn" title="Account menu">
+              <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M8 10a2 2 0 100-4 2 2 0 000 4z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12.93 10a1.1 1.1 0 00.22 1.21l.04.04a1.34 1.34 0 11-1.9 1.9l-.04-.04a1.1 1.1 0 00-1.21-.22 1.1 1.1 0 00-.67 1v.11a1.33 1.33 0 11-2.67 0v-.06a1.1 1.1 0 00-.72-1 1.1 1.1 0 00-1.21.22l-.04.04a1.34 1.34 0 11-1.9-1.9l.04-.04a1.1 1.1 0 00.22-1.21 1.1 1.1 0 00-1-.67H2a1.33 1.33 0 110-2.67h.06a1.1 1.1 0 001-.72 1.1 1.1 0 00-.22-1.21l-.04-.04a1.34 1.34 0 111.9-1.9l.04.04a1.1 1.1 0 001.21.22h.05a1.1 1.1 0 00.67-1V2a1.33 1.33 0 112.67 0v.06a1.1 1.1 0 00.67 1h.05a1.1 1.1 0 001.21-.22l.04-.04a1.34 1.34 0 011.9 1.9l-.04.04a1.1 1.1 0 00-.22 1.21v.05a1.1 1.1 0 001 .67H14a1.33 1.33 0 110 2.67h-.06a1.1 1.1 0 00-1 .67z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <div id="accountDropdownMenu" class="account-menu" style="display: none">
+              <a href="#" class="menu-item" id="menuManageAccount">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <polyline
+                    points="9 22 9 12 15 12 15 22"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Manage Account
+              </a>
+              <a href="#" class="menu-item" id="menuFeedback">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <line
+                    x1="9"
+                    x2="15"
+                    y1="10"
+                    y2="10"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <line
+                    x1="12"
+                    x2="12"
+                    y1="7"
+                    y2="13"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Open Feedback Portal
+              </a>
+              <a href="#" class="menu-item" id="menuBugReport">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="m8 2 1.88 1.88"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M14.12 3.88 16 2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M12 20v-9"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M6.53 9C4.6 8.8 3 7.1 3 5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M6 13H2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M3 21c0-2.1 1.7-3.9 3.8-4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M20.97 5c0 2.1-1.6 3.8-3.5 4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M22 13h-4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M17.2 17c2.1.1 3.8 1.9 3.8 4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Report an Issue or Bug
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2888,6 +3200,137 @@
                       <span style="font-size: 11px; font-weight: 500; color: #6b7280">Tags</span>
                     </div>
                     <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Custom categories</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task List Default Colors Section -->
+        <div class="section task-list-coloring">
+          <div class="section-header">
+            <h3><span class="section-icon">📋</span>Task List Colors</h3>
+            <div class="toggle">
+              <label>Enable list default colors</label>
+              <div class="switch" id="enableTaskListColoring"></div>
+            </div>
+          </div>
+          <div class="section-content">
+            <div id="taskListColorSettings" style="display: none">
+              <!-- Info box -->
+              <div
+                style="
+                  margin-bottom: 16px;
+                  padding: 12px;
+                  background: #e8f0fe;
+                  border-radius: 6px;
+                  border: 1px solid #d2e3fc;
+                  font-size: 13px;
+                  color: #1967d2;
+                "
+              >
+                <strong>💡 Auto-color tasks by their list</strong><br />
+                Set a default color for each Google Tasks list. New tasks will automatically get their list's color
+                (unless you set a manual color).
+              </div>
+
+              <!-- OAuth Status -->
+              <div id="taskListOAuthStatus" style="margin-bottom: 16px; padding: 12px; border-radius: 6px">
+                <!-- Not granted state -->
+                <div id="oauthNotGranted" style="display: none">
+                  <div style="margin-bottom: 8px; font-weight: 600; color: #ea4335">
+                    ⚠️ Google Tasks Access Required
+                  </div>
+                  <div style="margin-bottom: 12px; font-size: 13px; color: #666">
+                    Grant access to read your Google Tasks lists (read-only). This is required to map tasks to their
+                    lists.
+                  </div>
+                  <button
+                    id="grantOAuthButton"
+                    style="
+                      padding: 8px 16px;
+                      background: #1a73e8;
+                      color: white;
+                      border: none;
+                      border-radius: 4px;
+                      cursor: pointer;
+                      font-size: 14px;
+                      font-weight: 500;
+                    "
+                  >
+                    Grant Access
+                  </button>
+                </div>
+
+                <!-- Granted state -->
+                <div id="oauthGranted" style="display: none">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px">
+                    <div style="font-weight: 600; color: #34a853">✓ Google Tasks Access Granted</div>
+                    <button
+                      id="manualSyncButton"
+                      style="
+                        padding: 6px 12px;
+                        background: #f1f3f4;
+                        color: #5f6368;
+                        border: 1px solid #dadce0;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 13px;
+                      "
+                    >
+                      🔄 Sync Now
+                    </button>
+                  </div>
+                  <div id="syncStatus" style="font-size: 12px; color: #5f6368">Last sync: Never</div>
+                </div>
+              </div>
+
+              <!-- Task Lists Container -->
+              <div id="taskListsContainer">
+                <!-- Loading state -->
+                <div id="taskListsLoading" style="padding: 24px; text-align: center; color: #5f6368; display: none">
+                  <div style="margin-bottom: 8px">⏳</div>
+                  <div>Loading task lists...</div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="taskListsEmpty" style="padding: 24px; text-align: center; color: #5f6368; display: none">
+                  <div style="margin-bottom: 8px">📝</div>
+                  <div>No task lists found.</div>
+                  <div style="font-size: 12px; margin-top: 8px">
+                    Create task lists in Google Calendar to get started.
+                  </div>
+                </div>
+
+                <!-- Task lists grid (populated dynamically) -->
+                <div id="taskListsGrid" style="display: none">
+                  <!-- Grid header -->
+                  <div
+                    style="
+                      display: grid;
+                      grid-template-columns: 1fr auto;
+                      gap: 12px;
+                      padding: 8px 12px;
+                      background: #f8f9fa;
+                      border-radius: 6px 6px 0 0;
+                      border: 1px solid #e8eaed;
+                      border-bottom: none;
+                      font-size: 12px;
+                      font-weight: 600;
+                      color: #5f6368;
+                    "
+                  >
+                    <div>Task List</div>
+                    <div style="text-align: center">Default Color</div>
+                  </div>
+
+                  <!-- Task lists items (populated by JS) -->
+                  <div
+                    id="taskListItems"
+                    style="border: 1px solid #e8eaed; border-radius: 0 0 6px 6px; max-height: 400px; overflow-y: auto"
+                  >
+                    <!-- Items added dynamically -->
                   </div>
                 </div>
               </div>

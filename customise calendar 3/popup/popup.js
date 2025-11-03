@@ -1151,6 +1151,245 @@ checkAuthAndSubscription();
     updateDateSpecificSchedule();
   }
 
+  // ========================================
+  // TASK LIST COLORING FUNCTIONS
+  // ========================================
+
+  function updateTaskListColoringToggle() {
+    const toggle = qs('enableTaskListColoring');
+    const taskListColorSettings = qs('taskListColorSettings');
+
+    if (settings.taskListColoring?.enabled) {
+      toggle.classList.add('active');
+      taskListColorSettings.style.display = 'block';
+      initTaskListColoring();
+    } else {
+      toggle.classList.remove('active');
+      taskListColorSettings.style.display = 'none';
+    }
+  }
+
+  async function initTaskListColoring() {
+    // Check OAuth status
+    const response = await chrome.runtime.sendMessage({ type: 'CHECK_OAUTH_STATUS' });
+
+    const oauthNotGranted = qs('oauthNotGranted');
+    const oauthGranted = qs('oauthGranted');
+
+    if (response?.granted) {
+      // OAuth granted - show granted state and load lists
+      oauthNotGranted.style.display = 'none';
+      oauthGranted.style.display = 'block';
+
+      // Update sync status
+      updateSyncStatus();
+
+      // Load task lists
+      await loadTaskLists();
+    } else {
+      // OAuth not granted - show grant button
+      oauthNotGranted.style.display = 'block';
+      oauthGranted.style.display = 'none';
+    }
+  }
+
+  function updateSyncStatus() {
+    const syncStatus = qs('syncStatus');
+    const lastSync = settings.taskListColoring?.lastSync;
+
+    if (lastSync) {
+      const date = new Date(lastSync);
+      const now = new Date();
+      const diffMinutes = Math.floor((now - date) / 60000);
+
+      let timeAgo;
+      if (diffMinutes < 1) {
+        timeAgo = 'Just now';
+      } else if (diffMinutes < 60) {
+        timeAgo = `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
+      } else if (diffMinutes < 1440) {
+        const hours = Math.floor(diffMinutes / 60);
+        timeAgo = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      } else {
+        const days = Math.floor(diffMinutes / 1440);
+        timeAgo = `${days} day${days > 1 ? 's' : ''} ago`;
+      }
+
+      syncStatus.textContent = `Last sync: ${timeAgo}`;
+    } else {
+      syncStatus.textContent = 'Last sync: Never';
+    }
+  }
+
+  async function loadTaskLists() {
+    const taskListsLoading = qs('taskListsLoading');
+    const taskListsEmpty = qs('taskListsEmpty');
+    const taskListsGrid = qs('taskListsGrid');
+    const taskListItems = qs('taskListItems');
+
+    // Show loading state
+    taskListsLoading.style.display = 'block';
+    taskListsEmpty.style.display = 'none';
+    taskListsGrid.style.display = 'none';
+
+    try {
+      // Get task lists from storage
+      const lists = await chrome.runtime.sendMessage({ type: 'GET_TASK_LISTS_META' });
+
+      if (!lists || lists.length === 0) {
+        // Show empty state
+        taskListsLoading.style.display = 'none';
+        taskListsEmpty.style.display = 'block';
+        return;
+      }
+
+      // Get saved list colors
+      const listColors = await window.cc3Storage.getTaskListColors();
+
+      // Clear existing items
+      taskListItems.innerHTML = '';
+
+      // Create item for each list
+      for (const list of lists) {
+        const item = createTaskListItem(list, listColors[list.id]);
+        taskListItems.appendChild(item);
+      }
+
+      // Show grid
+      taskListsLoading.style.display = 'none';
+      taskListsGrid.style.display = 'block';
+    } catch (error) {
+      console.error('[Task List Colors] Error loading lists:', error);
+      taskListsLoading.style.display = 'none';
+      taskListsEmpty.style.display = 'block';
+    }
+  }
+
+  function createTaskListItem(list, currentColor) {
+    const item = document.createElement('div');
+    item.className = 'task-list-item';
+    item.dataset.listId = list.id;
+
+    // List name
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'task-list-name';
+    nameDiv.textContent = list.title;
+
+    // Color picker container
+    const pickerDiv = document.createElement('div');
+    pickerDiv.className = 'task-list-color-picker';
+
+    // Color preview button
+    const preview = document.createElement('div');
+    preview.className = 'task-list-color-preview';
+    if (currentColor) {
+      preview.style.backgroundColor = currentColor;
+      preview.classList.add('has-color');
+    }
+    preview.title = 'Click to set color';
+
+    // Create hidden color input
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = currentColor || '#4285f4';
+    colorInput.style.display = 'none';
+
+    // Color picker click handler
+    preview.onclick = () => {
+      colorInput.click();
+    };
+
+    // Color change handler
+    colorInput.onchange = async (e) => {
+      const newColor = e.target.value;
+      preview.style.backgroundColor = newColor;
+      preview.classList.add('has-color');
+
+      // Save color
+      await window.cc3Storage.setTaskListDefaultColor(list.id, newColor);
+      settings = await window.cc3Storage.getSettings();
+      await saveSettings();
+
+      // Show toast notification
+      showToast(`Color set for "${list.title}"`);
+
+      // Trigger repaint in content script
+      chrome.tabs.query({ url: 'https://calendar.google.com/*' }, (tabs) => {
+        tabs.forEach((tab) => {
+          chrome.tabs.sendMessage(tab.id, {
+            type: 'TASK_LIST_COLOR_UPDATED',
+            listId: list.id,
+            color: newColor,
+          });
+        });
+      });
+    };
+
+    // Clear button
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'task-list-clear-button';
+    clearBtn.textContent = 'Clear';
+    clearBtn.disabled = !currentColor;
+
+    clearBtn.onclick = async () => {
+      await window.cc3Storage.clearTaskListDefaultColor(list.id);
+      settings = await window.cc3Storage.getSettings();
+      await saveSettings();
+
+      preview.style.backgroundColor = '#ffffff';
+      preview.classList.remove('has-color');
+      clearBtn.disabled = true;
+
+      showToast(`Color cleared for "${list.title}"`);
+
+      // Trigger repaint in content script
+      chrome.tabs.query({ url: 'https://calendar.google.com/*' }, (tabs) => {
+        tabs.forEach((tab) => {
+          chrome.tabs.sendMessage(tab.id, {
+            type: 'TASK_LIST_COLOR_UPDATED',
+            listId: list.id,
+            color: null,
+          });
+        });
+      });
+    };
+
+    pickerDiv.appendChild(preview);
+    pickerDiv.appendChild(colorInput);
+    pickerDiv.appendChild(clearBtn);
+
+    item.appendChild(nameDiv);
+    item.appendChild(pickerDiv);
+
+    return item;
+  }
+
+  function showToast(message) {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #323232;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 10000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 2000);
+  }
+
   // Utility function to calculate luminance and determine readable text color
   function getReadableTextColor(hexColor, opacity = 100) {
     // Convert hex to RGB
@@ -3000,6 +3239,70 @@ checkAuthAndSubscription();
       notifyTimeBlockingChange();
     };
 
+    // Task list coloring toggle switch
+    qs('enableTaskListColoring').onclick = async () => {
+      const currentEnabled = settings.taskListColoring?.enabled || false;
+      await window.cc3Storage.setTaskListColoringEnabled(!currentEnabled);
+      settings = await window.cc3Storage.getSettings();
+      updateTaskListColoringToggle();
+      await saveSettings();
+    };
+
+    // OAuth grant button
+    const grantOAuthButton = qs('grantOAuthButton');
+    if (grantOAuthButton) {
+      grantOAuthButton.onclick = async () => {
+        try {
+          const response = await chrome.runtime.sendMessage({ type: 'GOOGLE_OAUTH_REQUEST', interactive: true });
+          if (response?.success) {
+            showToast('Access granted! Syncing task lists...');
+
+            // Trigger initial sync
+            await chrome.runtime.sendMessage({ type: 'SYNC_TASK_LISTS', fullSync: true });
+
+            // Reload the UI
+            settings = await window.cc3Storage.getSettings();
+            await initTaskListColoring();
+          } else {
+            showToast('Failed to grant access. Please try again.');
+          }
+        } catch (error) {
+          console.error('[Task List Colors] OAuth grant error:', error);
+          showToast('Error granting access. Please try again.');
+        }
+      };
+    }
+
+    // Manual sync button
+    const manualSyncButton = qs('manualSyncButton');
+    if (manualSyncButton) {
+      manualSyncButton.onclick = async () => {
+        try {
+          manualSyncButton.disabled = true;
+          manualSyncButton.textContent = '⏳ Syncing...';
+
+          const response = await chrome.runtime.sendMessage({ type: 'SYNC_TASK_LISTS', fullSync: true });
+
+          if (response?.success) {
+            showToast('Task lists synced successfully!');
+
+            // Reload task lists
+            settings = await window.cc3Storage.getSettings();
+            updateSyncStatus();
+            await loadTaskLists();
+          } else {
+            showToast('Sync failed. Please try again.');
+          }
+        } catch (error) {
+          console.error('[Task List Colors] Sync error:', error);
+          showToast('Sync error. Please try again.');
+        } finally {
+          manualSyncButton.disabled = false;
+          manualSyncButton.textContent = '🔄 Sync Now';
+        }
+      };
+    }
+
     // Time blocking global settings
     const timeBlockGlobalColor = qs('timeBlockGlobalColor');
     const globalPreview = qs('globalTimeBlockPreview');
@@ -3693,6 +3996,7 @@ checkAuthAndSubscription();
     updateToggle();
     updateTaskColoringToggle();
     updateTimeBlockingToggle();
+    updateTaskListColoringToggle();
     updateColorLabToggle();
     updateColors();
     initializeEnhancedOpacityControls();
@@ -3714,6 +4018,7 @@ checkAuthAndSubscription();
         updateToggle();
         updateTaskColoringToggle();
         updateTimeBlockingToggle();
+        updateTaskListColoringToggle();
         updateColors();
         initializeEnhancedOpacityControls();
         updateInlineColorsGrid();

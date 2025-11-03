@@ -1,4 +1,5 @@
 // features/tasks-coloring/index.js
+
 function isTasksChip(el) {
   return !!el && el.nodeType === 1 && el.matches?.('[data-eventid^="tasks."], [data-eventid^="tasks_"]');
 }
@@ -121,6 +122,13 @@ function resolveTaskIdFromEventTarget(t) {
 
 const KEY = 'cf.taskColors';
 let taskElementReferences = new Map();
+
+// PERFORMANCE: In-memory cache to avoid constant storage reads
+let taskToListMapCache = null;
+let listColorsCache = null;
+let manualColorsCache = null;
+let cacheLastUpdated = 0;
+const CACHE_LIFETIME = 30000; // 30 seconds
 let cachedColorMap = null;
 let colorMapLastLoaded = 0;
 const COLOR_MAP_CACHE_TIME = 1000; // Cache for 1 second
@@ -328,6 +336,16 @@ async function buildFallbackColorRow(initial) {
 async function paintTaskImmediately(taskId, color) {
   if (!taskId) return;
 
+  // If no color provided, check cache for list default color
+  let finalColor = color;
+  if (!finalColor) {
+    const cache = await refreshColorCache();
+    const listId = cache.taskToListMap[taskId];
+    if (listId && cache.listColors[listId]) {
+      finalColor = cache.listColors[listId];
+    }
+  }
+
   // Single optimized selector that combines all patterns for maximum speed
   const combinedSelector = `[data-eventid="tasks.${taskId}"], [data-eventid="tasks_${taskId}"], [data-taskid="${taskId}"]`;
   const allTaskElements = document.querySelectorAll(combinedSelector);
@@ -345,11 +363,11 @@ async function paintTaskImmediately(taskId, color) {
 
     const target = getPaintTarget(taskElement);
     if (target) {
-      if (color) {
+      if (finalColor) {
         // Apply the new color (skip clearPaint for speed since applyPaint overwrites)
-        applyPaint(target, color);
+        applyPaint(target, finalColor);
       } else {
-        // Clear the color
+        // Clear the color (no manual color and no list default)
         clearPaint(target);
       }
 
@@ -370,7 +388,7 @@ async function injectTaskColorControls(dialogEl, taskId, onChanged) {
 
   // Don't inject for temporary or new task IDs - only for existing tasks
   if (taskId.startsWith('test-task-') || taskId.startsWith('temp-') || taskId.startsWith('new-task-')) {
-    console.log('Skipping injection for temporary/new task ID:', taskId);
+    // Skip injection for temporary/new task IDs
     return;
   }
 
@@ -382,7 +400,7 @@ async function injectTaskColorControls(dialogEl, taskId, onChanged) {
 
   // Only inject if we have evidence this is an existing task modal
   if (!hasExistingTaskElements) {
-    console.log('No existing task elements found - appears to be create new event modal, skipping injection');
+    // No existing task elements found - appears to be create new event modal, skip injection
     return;
   }
 
@@ -596,6 +614,152 @@ function applyPaintIfNeeded(node, color) {
   applyPaint(node, color);
 }
 
+/**
+ * PERFORMANCE: Load all color/mapping data into memory cache
+ * Reduces storage reads from ~33/sec to ~1/30sec
+ */
+async function refreshColorCache() {
+  const now = Date.now();
+
+  // Return cached data if still fresh
+  if (taskToListMapCache && now - cacheLastUpdated < CACHE_LIFETIME) {
+    return {
+      taskToListMap: taskToListMapCache,
+      listColors: listColorsCache,
+      manualColors: manualColorsCache,
+    };
+  }
+
+  // Fetch all data in parallel
+  const [localData, syncData] = await Promise.all([
+    chrome.storage.local.get('cf.taskToListMap'),
+    chrome.storage.sync.get(['cf.taskColors', 'cf.taskListColors']),
+  ]);
+
+  // Update cache
+  taskToListMapCache = localData['cf.taskToListMap'] || {};
+  manualColorsCache = syncData['cf.taskColors'] || {};
+  listColorsCache = syncData['cf.taskListColors'] || {};
+  cacheLastUpdated = now;
+
+  return {
+    taskToListMap: taskToListMapCache,
+    listColors: listColorsCache,
+    manualColors: manualColorsCache,
+  };
+}
+
+/**
+ * Invalidate cache when storage changes (called by storage listeners)
+ */
+function invalidateColorCache() {
+  cacheLastUpdated = 0;
+  taskToListMapCache = null;
+  listColorsCache = null;
+  manualColorsCache = null;
+}
+
+/**
+ * Check if task is in the cache (taskToListMap)
+ * OPTIMIZED: Uses in-memory cache instead of storage read
+ * @param {string} taskId - Task ID
+ * @returns {Promise<boolean>} True if task is in cache
+ */
+async function isTaskInCache(taskId) {
+  const cache = await refreshColorCache();
+  return cache.taskToListMap.hasOwnProperty(taskId);
+}
+
+/**
+ * Get the appropriate color for a task
+ * OPTIMIZED: Uses in-memory cache instead of storage reads
+ * Priority: manual color > list default color > null
+ * @param {string} taskId - Task ID
+ * @param {Object} manualColorsMap - Map of manual task colors (DEPRECATED, uses cache now)
+ * @returns {Promise<string|null>} Color hex string or null
+ */
+async function getColorForTask(taskId, manualColorsMap) {
+  // Load cache once for all tasks
+  const cache = await refreshColorCache();
+
+  // Priority 1: Check for manual color
+  if (cache.manualColors[taskId]) {
+    return cache.manualColors[taskId];
+  }
+
+  // Priority 2: Check for list default color
+  const listId = cache.taskToListMap[taskId];
+  if (listId && cache.listColors[listId]) {
+    return cache.listColors[listId];
+  }
+
+  return null;
+}
+
+// Retry mechanism for waiting until tasks are actually in the DOM
+let repaintRetryCount = 0;
+const MAX_REPAINT_RETRIES = 20; // Try up to 20 times
+const REPAINT_RETRY_DELAY = 200; // Wait 200ms between retries
+
+// PERFORMANCE: Prevent instant lookup spam
+const pendingLookups = new Set();
+const lookupDebounceTimers = new Map();
+const LOOKUP_DEBOUNCE = 500; // Wait 500ms before triggering API
+
+// Handle new task creation - instant API call for list default color
+async function handleNewTaskCreated(taskId, element) {
+  // Store reference immediately
+  taskElementReferences.set(taskId, element);
+
+  // PERFORMANCE: Debounce rapid lookups (e.g., user creates 5 tasks in 2 seconds)
+  if (pendingLookups.has(taskId)) {
+    return; // Skip duplicate lookups
+  }
+
+  // Mark as pending
+  pendingLookups.add(taskId);
+
+  // Clear existing timer for this task
+  if (lookupDebounceTimers.has(taskId)) {
+    clearTimeout(lookupDebounceTimers.get(taskId));
+  }
+
+  // Debounce: wait 500ms before triggering API (in case user creates multiple tasks rapidly)
+  lookupDebounceTimers.set(
+    taskId,
+    setTimeout(async () => {
+      lookupDebounceTimers.delete(taskId);
+
+      // Check if list coloring is enabled
+      const settings = await window.cc3Storage?.getSettings?.();
+      if (!settings?.taskListColoring?.enabled) {
+        pendingLookups.delete(taskId);
+        return; // Feature disabled
+      }
+
+      // Send message to background script for instant API call
+      try {
+        const response = await chrome.runtime.sendMessage({
+          type: 'NEW_TASK_DETECTED',
+          taskId: taskId,
+        });
+
+        if (response?.success && response.color) {
+          // Apply color immediately
+          paintTaskImmediately(taskId, response.color);
+
+          // Invalidate cache so next repaint picks up the new task
+          invalidateColorCache();
+        }
+      } catch (error) {
+        console.error('[Task List Colors] Error applying instant color:', error);
+      } finally {
+        pendingLookups.delete(taskId);
+      }
+    }, LOOKUP_DEBOUNCE),
+  );
+}
+
 async function doRepaint(bypassThrottling = false) {
   const now = Date.now();
   repaintCount++;
@@ -625,43 +789,105 @@ async function doRepaint(bypassThrottling = false) {
   cleanupStaleReferences();
   const map = await loadMap();
 
-  // Early exit if no colors to apply
-  if (Object.keys(map).length === 0) return;
+  // Check if task list coloring is enabled
+  let taskListColoringEnabled = false;
+  try {
+    const settings = await window.cc3Storage?.getSettings?.();
+    taskListColoringEnabled = settings?.taskListColoring?.enabled === true;
+  } catch (e) {}
+
+  // Early exit if no colors to apply (neither manual nor list defaults)
+  if (Object.keys(map).length === 0 && !taskListColoringEnabled) {
+    return;
+  }
 
   const processedTaskIds = new Set();
 
   // First: Process stored element references (fast path)
   for (const [taskId, element] of taskElementReferences.entries()) {
-    if (element.isConnected && map[taskId]) {
-      const target = getPaintTarget(element);
-      if (target) {
-        applyPaintIfNeeded(target, map[taskId]);
-        processedTaskIds.add(taskId);
+    if (element.isConnected) {
+      const color = await getColorForTask(taskId, map);
+      if (color) {
+        const target = getPaintTarget(element);
+        if (target) {
+          applyPaintIfNeeded(target, color);
+          processedTaskIds.add(taskId);
+        }
       }
     }
   }
 
   // Second: Search for ALL tasks on the page (including new ones after navigation)
-  const calendarTasks = document.querySelectorAll('[data-eventid^="tasks."], [data-taskid]');
+  const calendarTasks = document.querySelectorAll('[data-eventid^="tasks."], [data-eventid^="tasks_"], [data-taskid]');
+
+  let skippedModalCount = 0;
+  let processedCount = 0;
+  let noIdCount = 0;
+  let noColorCount = 0;
 
   for (const chip of calendarTasks) {
     // Skip if in modal
-    if (chip.closest('[role="dialog"]')) continue;
+    if (chip.closest('[role="dialog"]')) {
+      skippedModalCount++;
+      continue;
+    }
 
     const id = getTaskIdFromChip(chip);
-    if (id && map[id]) {
-      // Always process tasks that have colors, regardless of stored references
-      const target = getPaintTarget(chip);
-      if (target) {
-        applyPaintIfNeeded(target, map[id]);
-        processedTaskIds.add(id);
 
-        // Store reference for future fast access (but don't require it for processing)
-        if (!taskElementReferences.has(id)) {
-          taskElementReferences.set(id, chip);
+    if (id) {
+      // Check for any color (manual or list default)
+      const color = await getColorForTask(id, map);
+
+      if (color) {
+        processedCount++;
+        // Always process tasks that have colors (manual or list default)
+        const target = getPaintTarget(chip);
+        if (target) {
+          applyPaintIfNeeded(target, color);
+          processedTaskIds.add(id);
+
+          // Store reference for future fast access
+          if (!taskElementReferences.has(id)) {
+            taskElementReferences.set(id, chip);
+          }
         }
+      } else {
+        // NO COLOR FOUND - Check if this is an unknown task (not in cache)
+        // If task is not in cache and list coloring is enabled, trigger instant API lookup
+        if (taskListColoringEnabled && !taskElementReferences.has(id)) {
+          // Check if task is in the cache before triggering API
+          const inCache = await isTaskInCache(id);
+          if (!inCache) {
+            // Mark as tracked to avoid duplicate lookups
+            taskElementReferences.set(id, chip);
+
+            // Trigger instant API call in background (non-blocking)
+            handleNewTaskCreated(id, chip);
+          } else {
+            // Task in cache but no list color assigned - mark as tracked
+            taskElementReferences.set(id, chip);
+          }
+        }
+        noColorCount++;
       }
+    } else {
+      noIdCount++;
     }
+  }
+
+  // RETRY MECHANISM: If we found 0 tasks but list coloring is enabled, keep retrying
+  // This handles the case where Google Calendar hasn't rendered tasks yet
+  if (calendarTasks.length === 0 && taskListColoringEnabled && repaintRetryCount < MAX_REPAINT_RETRIES) {
+    repaintRetryCount++;
+    setTimeout(() => {
+      doRepaint(true); // Retry with bypass throttling
+    }, REPAINT_RETRY_DELAY);
+    return; // Exit early, retry will handle the rest
+  }
+
+  // Reset retry count when tasks are found
+  if (calendarTasks.length > 0) {
+    repaintRetryCount = 0;
   }
 
   // Third: Fallback search for any task IDs we haven't found yet
@@ -818,6 +1044,18 @@ function initTasksColoring() {
   repaintSoon();
   setTimeout(repaintSoon, 500);
   setTimeout(repaintSoon, 1500);
+
+  // PERFORMANCE: Listen for storage changes to invalidate cache
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && (changes['cf.taskColors'] || changes['cf.taskListColors'])) {
+      invalidateColorCache();
+      repaintSoon(); // Repaint with new colors
+    }
+    if (area === 'local' && changes['cf.taskToListMap']) {
+      invalidateColorCache();
+      repaintSoon(); // Repaint with new mappings
+    }
+  });
 
   window.cfTasksColoring = {
     getLastClickedTaskId: () => lastClickedTaskId,

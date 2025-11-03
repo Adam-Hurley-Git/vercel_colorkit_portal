@@ -8,7 +8,7 @@
     "48": "images/icon-48.png",
     "128": "images/icon-128.png"
   },
-  "permissions": ["storage", "tabs", "cookies", "notifications", "alarms"],
+  "permissions": ["identity", "storage", "tabs", "cookies", "notifications", "alarms"],
   "host_permissions": [
     "https://calendar.google.com/*",
     "https://*.supabase.co/*",
@@ -26,7 +26,10 @@
     "default_popup": "popup/popup.html"
   },
   "options_page": "options/options.html",
-
+  "oauth2": {
+    "client_id": "373311643778-3m6quqgtu8jcsn1ncq6t2ubjeiit3f6n.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/tasks.readonly"]
+  },
   "content_scripts": [
     {
       "matches": ["https://calendar.google.com/*"],

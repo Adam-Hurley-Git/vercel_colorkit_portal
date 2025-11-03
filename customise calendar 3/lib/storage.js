@@ -70,6 +70,12 @@
       presetColors: DEFAULT_TASK_PRESET_COLORS,
       inlineColors: DEFAULT_TASK_INLINE_COLORS,
     },
+    taskListColoring: {
+      enabled: false, // List coloring feature toggle
+      oauthGranted: false, // Google OAuth granted
+      lastSync: null, // Last sync timestamp
+      syncInterval: 5, // Sync interval in minutes
+    },
     timeBlocking: {
       enabled: false,
       globalColor: '#FFEB3B',
@@ -256,6 +262,111 @@
     return setSettings({ taskColoring: { inlineColors: newColors } });
   }
 
+  // ========================================
+  // TASK LIST COLORING FUNCTIONS
+  // ========================================
+
+  // Enable/disable task list coloring feature
+  async function setTaskListColoringEnabled(enabled) {
+    return setSettings({
+      taskListColoring: { enabled },
+    });
+  }
+
+  // Set default color for a task list
+  async function setTaskListDefaultColor(listId, color) {
+    if (!listId) return;
+
+    return new Promise((resolve) => {
+      chrome.storage.sync.get('cf.taskListColors', (result) => {
+        const current = result['cf.taskListColors'] || {};
+        const updated = { ...current, [listId]: color };
+
+        chrome.storage.sync.set({ 'cf.taskListColors': updated }, () => {
+          resolve(updated);
+        });
+      });
+    });
+  }
+
+  // Clear default color for a task list
+  async function clearTaskListDefaultColor(listId) {
+    if (!listId) return;
+
+    return new Promise((resolve) => {
+      chrome.storage.sync.get('cf.taskListColors', (result) => {
+        const current = result['cf.taskListColors'] || {};
+        const updated = { ...current };
+        delete updated[listId];
+
+        chrome.storage.sync.set({ 'cf.taskListColors': updated }, () => {
+          resolve(updated);
+        });
+      });
+    });
+  }
+
+  // Get all list default colors
+  async function getTaskListColors() {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get('cf.taskListColors', (result) => {
+        resolve(result['cf.taskListColors'] || {});
+      });
+    });
+  }
+
+  // Get default color for specific task (checks priority: manual > list default > none)
+  async function getDefaultColorForTask(taskId) {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get(['cf.taskColors', 'cf.taskListColors'], async (syncResult) => {
+        const taskColors = syncResult['cf.taskColors'] || {};
+
+        // Priority 1: Check if task has manual color
+        if (taskColors[taskId]) {
+          resolve({ type: 'manual', color: taskColors[taskId] });
+          return;
+        }
+
+        // Priority 2: Check list default
+        chrome.storage.local.get('cf.taskToListMap', (localResult) => {
+          const mapping = localResult['cf.taskToListMap'] || {};
+          const listId = mapping[taskId];
+
+          if (listId) {
+            const listColors = syncResult['cf.taskListColors'] || {};
+            const color = listColors[listId];
+
+            if (color) {
+              resolve({ type: 'list_default', color, listId });
+              return;
+            }
+          }
+
+          // Priority 3: No color
+          resolve({ type: 'none', color: null });
+        });
+      });
+    });
+  }
+
+  // Get task list metadata
+  async function getTaskListsMeta() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get('cf.taskListsMeta', (result) => {
+        resolve(result['cf.taskListsMeta'] || []);
+      });
+    });
+  }
+
+  // Get task to list mapping
+  async function getTaskToListMap() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get('cf.taskToListMap', (result) => {
+        resolve(result['cf.taskToListMap'] || {});
+      });
+    });
+  }
+
   // Time Blocking functions
   async function setTimeBlockingEnabled(enabled) {
     return setSettings({ timeBlocking: { enabled } });
@@ -423,6 +534,14 @@
     updateTaskPresetColor,
     setTaskInlineColors,
     updateTaskInlineColor,
+    // Task list coloring functions
+    setTaskListColoringEnabled,
+    setTaskListDefaultColor,
+    clearTaskListDefaultColor,
+    getTaskListColors,
+    getDefaultColorForTask,
+    getTaskListsMeta,
+    getTaskToListMap,
     // Time blocking functions
     setTimeBlockingEnabled,
     setTimeBlockingGlobalColor,

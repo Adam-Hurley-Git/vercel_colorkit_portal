@@ -1,6 +1,7 @@
 // ColorKit Background Service Worker (Manifest V3)
 import { CONFIG, debugLog } from './config.production.js';
 import { forceRefreshSubscription, validateSubscription } from './lib/subscription-validator.js';
+import * as GoogleTasksAPI from './lib/google-tasks-api.js';
 
 // Service Worker Installation
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -118,6 +119,12 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
       console.error('Periodic validation failed:', error);
     }
   }
+
+  // Task list sync alarm (smart polling)
+  if (alarm.name === 'task-list-sync') {
+    debugLog('Periodic task list sync triggered');
+    await syncTaskLists();
+  }
 });
 
 // Listen for messages from web app (externally_connectable)
@@ -167,6 +174,54 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       ensureWebPushSubscription().then(() => {
         sendResponse({ initiated: true });
       });
+      return true;
+
+    // ========================================
+    // TASK LIST COLORING MESSAGE HANDLERS
+    // ========================================
+
+    case 'GOOGLE_OAUTH_REQUEST':
+      handleOAuthRequest().then(sendResponse);
+      return true;
+
+    case 'SYNC_TASK_LISTS':
+      syncTaskLists().then(sendResponse);
+      return true;
+
+    case 'CHECK_OAUTH_STATUS':
+      checkOAuthStatus().then(sendResponse);
+      return true;
+
+    case 'GET_TASK_LISTS_META':
+      getTaskListsMeta().then(sendResponse);
+      return true;
+
+    case 'NEW_TASK_DETECTED':
+      handleNewTaskDetected(message.taskId).then(sendResponse);
+      return true;
+
+    case 'GET_LIST_DEFAULT_COLOR':
+      getListDefaultColor(message.listId).then(sendResponse);
+      return true;
+
+    case 'CALENDAR_TAB_ACTIVE':
+      handleCalendarTabActive(sender.tab?.id);
+      sendResponse({ received: true });
+      break;
+
+    case 'CALENDAR_TAB_INACTIVE':
+      handleCalendarTabInactive(sender.tab?.id);
+      sendResponse({ received: true });
+      break;
+
+    case 'USER_ACTIVITY':
+      lastUserActivity = Date.now();
+      updatePollingState();
+      sendResponse({ received: true });
+      break;
+
+    case 'APPLY_LIST_COLOR_TO_EXISTING':
+      applyListColorToExistingTasks(message.listId, message.color).then(sendResponse);
       return true;
 
     default:
@@ -563,3 +618,302 @@ async function registerPushSubscription(subscription) {
 // Service workers can shut down after 30 seconds of inactivity
 // This is normal behavior in MV3, state should be in storage
 debugLog('Background service worker initialized');
+
+// ========================================
+// GOOGLE TASKS API INTEGRATION & STATE MACHINE
+// ========================================
+
+// State machine for smart polling
+let pollingState = 'SLEEP'; // 'ACTIVE', 'IDLE', 'SLEEP'
+let activeCalendarTabs = new Set();
+let lastUserActivity = Date.now();
+let lastSyncTime = null;
+
+// OAuth request handler
+async function handleOAuthRequest() {
+  try {
+    debugLog('Handling Google OAuth request...');
+    const token = await GoogleTasksAPI.getAuthToken(true); // interactive = true
+
+    if (token) {
+      debugLog('OAuth granted successfully');
+
+      // Update settings to reflect OAuth granted
+      const { settings } = await chrome.storage.sync.get('settings');
+      await chrome.storage.sync.set({
+        settings: {
+          ...(settings || {}),
+          taskListColoring: {
+            ...(settings?.taskListColoring || {}),
+            enabled: settings?.taskListColoring?.enabled || false,
+            oauthGranted: true,
+          },
+        },
+      });
+
+      // Perform initial full sync
+      debugLog('Performing initial sync after OAuth grant...');
+      await syncTaskLists(true); // full sync
+
+      return { success: true, message: 'OAuth granted and initial sync complete' };
+    }
+
+    return { success: false, error: 'NO_TOKEN' };
+  } catch (error) {
+    console.error('OAuth request failed:', error);
+
+    if (error.message === 'OAUTH_NOT_GRANTED') {
+      return { success: false, error: 'USER_DENIED', message: 'User denied OAuth access' };
+    }
+
+    return { success: false, error: error.message };
+  }
+}
+
+// Sync task lists from Google API (with optimized storage strategy)
+async function syncTaskLists(fullSync = false) {
+  try {
+    // Check if feature is enabled
+    const { settings } = await chrome.storage.sync.get('settings');
+    if (!settings?.taskListColoring?.enabled || !settings?.taskListColoring?.oauthGranted) {
+      debugLog('Task list coloring not enabled or OAuth not granted, skipping sync');
+      return { success: false, error: 'FEATURE_DISABLED' };
+    }
+
+    const startTime = Date.now();
+
+    if (fullSync || !lastSyncTime) {
+      // FULL SYNC: Replace entire mapping
+      debugLog('Running FULL SYNC: rebuilding entire task-to-list mapping...');
+      await GoogleTasksAPI.safeApiCall(() => GoogleTasksAPI.buildTaskToListMapping(), 3);
+      lastSyncTime = new Date().toISOString();
+    } else {
+      // INCREMENTAL SYNC: Only fetch changes since last sync
+      debugLog('Running INCREMENTAL SYNC: fetching tasks updated since', lastSyncTime);
+      await GoogleTasksAPI.safeApiCall(() => GoogleTasksAPI.incrementalSync(lastSyncTime), 3);
+      lastSyncTime = new Date().toISOString();
+    }
+
+    const duration = Date.now() - startTime;
+    debugLog(`Sync complete in ${duration}ms`);
+
+    // Update last sync time in settings
+    await chrome.storage.sync.set({
+      settings: {
+        ...(settings || {}),
+        taskListColoring: {
+          ...(settings?.taskListColoring || {}),
+          lastSync: Date.now(),
+        },
+      },
+    });
+
+    // Check storage quota
+    await GoogleTasksAPI.checkStorageQuota();
+
+    // Notify content scripts
+    await broadcastToCalendarTabs({ type: 'TASK_LISTS_UPDATED' });
+
+    // Get task count for response
+    const { 'cf.taskToListMap': mapping } = await chrome.storage.local.get('cf.taskToListMap');
+    const taskCount = Object.keys(mapping || {}).length;
+
+    return { success: true, taskCount, duration };
+  } catch (error) {
+    console.error('Task list sync failed:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Check OAuth status
+async function checkOAuthStatus() {
+  try {
+    const granted = await GoogleTasksAPI.isAuthGranted();
+    return { granted };
+  } catch (error) {
+    console.error('Error checking OAuth status:', error);
+    return { granted: false };
+  }
+}
+
+// Get task lists metadata
+async function getTaskListsMeta() {
+  try {
+    const { 'cf.taskListsMeta': lists } = await chrome.storage.local.get('cf.taskListsMeta');
+    return lists || [];
+  } catch (error) {
+    console.error('Error getting task lists meta:', error);
+    return [];
+  }
+}
+
+// Handle new task detected (instant coloring)
+async function handleNewTaskDetected(taskId) {
+  try {
+    // Quick lookup from cache first
+    let listId = await GoogleTasksAPI.getListIdForTask(taskId);
+
+    // If not in cache, search all lists (slower)
+    if (!listId) {
+      const result = await GoogleTasksAPI.safeApiCall(() => GoogleTasksAPI.findTaskInAllLists(taskId), 2);
+
+      if (result) {
+        listId = result.listId;
+      }
+    }
+
+    if (listId) {
+      // Get default color for this list
+      const color = await getListDefaultColor(listId);
+
+      if (color) {
+        return { success: true, listId, color };
+      }
+
+      return { success: true, listId, color: null };
+    }
+
+    return { success: false, error: 'TASK_NOT_FOUND' };
+  } catch (error) {
+    console.error('[Background] Error handling new task detection:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Get default color for a list
+async function getListDefaultColor(listId) {
+  const { 'cf.taskListColors': listColors } = await chrome.storage.sync.get('cf.taskListColors');
+  return listColors?.[listId] || null;
+}
+
+// Apply list default color to all existing tasks in a list
+async function applyListColorToExistingTasks(listId, color) {
+  try {
+    debugLog(`Applying color ${color} to all tasks in list ${listId}...`);
+
+    // Get all tasks in this list from mapping
+    const { 'cf.taskToListMap': mapping } = await chrome.storage.local.get('cf.taskToListMap');
+
+    if (!mapping) {
+      return { success: false, error: 'NO_MAPPING' };
+    }
+
+    // Find all task IDs that belong to this list
+    const taskIds = Object.entries(mapping)
+      .filter(([_, lid]) => lid === listId)
+      .map(([tid, _]) => tid);
+
+    debugLog(`Found ${taskIds.length} tasks in list ${listId}`);
+
+    // Get existing manual task colors
+    const { 'cf.taskColors': taskColors } = await chrome.storage.sync.get('cf.taskColors');
+    const updatedTaskColors = { ...(taskColors || {}) };
+
+    // Apply color to tasks that don't have manual colors
+    let appliedCount = 0;
+    for (const taskId of taskIds) {
+      if (!updatedTaskColors[taskId]) {
+        // No manual color, so this task will use list default
+        // We don't need to set anything - the task coloring logic
+        // will automatically use list default when no manual color exists
+        appliedCount++;
+      }
+    }
+
+    // Notify content scripts to repaint
+    await broadcastToCalendarTabs({ type: 'REPAINT_TASKS', listId, color });
+
+    return { success: true, appliedCount, totalTasks: taskIds.length };
+  } catch (error) {
+    console.error('Error applying list color to existing tasks:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// State machine: Calendar tab active
+function handleCalendarTabActive(tabId) {
+  if (tabId) {
+    activeCalendarTabs.add(tabId);
+    debugLog(`Calendar tab ${tabId} active (${activeCalendarTabs.size} active tabs)`);
+  }
+  updatePollingState();
+}
+
+// State machine: Calendar tab inactive
+function handleCalendarTabInactive(tabId) {
+  if (tabId) {
+    activeCalendarTabs.delete(tabId);
+    debugLog(`Calendar tab ${tabId} inactive (${activeCalendarTabs.size} active tabs)`);
+  }
+  updatePollingState();
+}
+
+// Update polling state based on activity
+async function updatePollingState() {
+  const hasActiveTabs = activeCalendarTabs.size > 0;
+  const recentActivity = Date.now() - lastUserActivity < 5 * 60 * 1000; // 5 minutes
+
+  let newState;
+  if (hasActiveTabs && recentActivity) {
+    newState = 'ACTIVE';
+  } else if (hasActiveTabs) {
+    newState = 'IDLE';
+  } else {
+    newState = 'SLEEP';
+  }
+
+  if (newState !== pollingState) {
+    debugLog(`Polling state transition: ${pollingState} → ${newState}`);
+    await transitionPollingState(pollingState, newState);
+    pollingState = newState;
+  }
+}
+
+// Transition polling state
+async function transitionPollingState(from, to) {
+  // Clear existing alarm
+  await chrome.alarms.clear('task-list-sync');
+
+  // Set new alarm based on state
+  if (to === 'ACTIVE') {
+    // 1-minute polling when actively using calendar
+    await chrome.alarms.create('task-list-sync', {
+      periodInMinutes: 1,
+      delayInMinutes: 0, // Start immediately
+    });
+    debugLog('📊 Polling: ACTIVE mode (1-minute interval)');
+  } else if (to === 'IDLE') {
+    // 5-minute polling when calendar open but inactive
+    await chrome.alarms.create('task-list-sync', {
+      periodInMinutes: 5,
+    });
+    debugLog('📊 Polling: IDLE mode (5-minute interval)');
+  } else {
+    // SLEEP - no polling when no calendar tabs
+    debugLog('📊 Polling: SLEEP mode (paused)');
+  }
+}
+
+// Monitor tab changes for state machine
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (tab.url?.includes('calendar.google.com')) {
+      handleCalendarTabActive(activeInfo.tabId);
+    }
+  } catch (error) {
+    // Tab might have been closed
+  }
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  handleCalendarTabInactive(tabId);
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url?.includes('calendar.google.com')) {
+    handleCalendarTabActive(tabId);
+  }
+});
+
+debugLog('✅ Google Tasks API integration and state machine initialized');

@@ -125,6 +125,62 @@
     } catch (e) {
       console.warn('Task coloring init failed:', e);
     }
+
+    // Initialize activity tracking for smart polling state machine
+    initActivityTracking();
+  }
+
+  // ========================================
+  // ACTIVITY TRACKING (for smart polling)
+  // ========================================
+
+  /**
+   * Initialize activity tracking to inform background state machine
+   * Enables smart polling: 1-min active, 5-min idle, paused when closed
+   */
+  function initActivityTracking() {
+    // Report active on page load
+    chrome.runtime.sendMessage({
+      type: 'CALENDAR_TAB_ACTIVE',
+      timestamp: Date.now(),
+    });
+
+    // Track user activity (clicks, keypresses)
+    let lastActivityTime = Date.now();
+    const ACTIVITY_REPORT_INTERVAL = 30000; // Report activity every 30 seconds max
+
+    function reportActivity() {
+      const now = Date.now();
+      // Throttle activity reports to avoid spamming background
+      if (now - lastActivityTime > ACTIVITY_REPORT_INTERVAL) {
+        chrome.runtime.sendMessage({
+          type: 'USER_ACTIVITY',
+          timestamp: now,
+        });
+        lastActivityTime = now;
+      }
+    }
+
+    // Add passive event listeners for better performance
+    document.addEventListener('click', reportActivity, { passive: true });
+    document.addEventListener('keydown', reportActivity, { passive: true });
+
+    // Track visibility changes (tab switching, minimizing)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        chrome.runtime.sendMessage({
+          type: 'CALENDAR_TAB_INACTIVE',
+          timestamp: Date.now(),
+        });
+      } else {
+        chrome.runtime.sendMessage({
+          type: 'CALENDAR_TAB_ACTIVE',
+          timestamp: Date.now(),
+        });
+      }
+    });
+
+    console.log('[Task List Colors] Activity tracking initialized');
   }
 
   // Check if colors should be applied immediately on page load
