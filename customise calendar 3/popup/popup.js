@@ -4611,6 +4611,29 @@ checkAuthAndSubscription();
     });
   }
 
+  // Setup tab navigation
+  function setupTabNavigation() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+
+        // Remove active class from all buttons and contents
+        tabButtons.forEach((btn) => btn.classList.remove('active'));
+        tabContents.forEach((content) => content.classList.remove('active'));
+
+        // Add active class to clicked button and corresponding content
+        button.classList.add('active');
+        const targetContent = document.getElementById(`${targetTab}Content`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        }
+      });
+    });
+  }
+
   async function init() {
     // Check auth and subscription first
     await checkAuthAndSubscription();
@@ -4635,6 +4658,7 @@ checkAuthAndSubscription();
     setupDayClickHandlers();
     setupTaskClickHandlers(); // Add task color picker handlers
     setupTimeBlockClickHandlers(); // Add time block color picker handlers
+    setupTabNavigation(); // Setup tab switching
     // Setup color picker toggle after all other event listeners
     setupColorPickerToggle();
 

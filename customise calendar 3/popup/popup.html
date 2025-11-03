@@ -2217,6 +2217,61 @@
       .chrome-update-notice .dismiss-btn:hover {
         background: rgba(255, 255, 255, 0.95);
       }
+
+      /* Tab Navigation Styles */
+      .tab-navigation {
+        display: flex;
+        gap: 2px;
+        padding: 0 16px;
+        background: white;
+        border-bottom: 1px solid #dadce0;
+        margin-bottom: 0;
+      }
+
+      .tab-button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 12px 16px;
+        background: transparent;
+        border: none;
+        border-bottom: 3px solid transparent;
+        font-size: 13px;
+        font-weight: 500;
+        color: #5f6368;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border-radius: 0;
+        margin-bottom: -1px;
+      }
+
+      .tab-button:hover {
+        color: #202124;
+        background: #f8f9fa;
+        border-bottom-color: #dadce0;
+      }
+
+      .tab-button.active {
+        color: #1a73e8;
+        border-bottom-color: #1a73e8;
+        background: transparent;
+        font-weight: 600;
+      }
+
+      .tab-icon {
+        font-size: 14px;
+      }
+
+      /* Tab Content Styles */
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -2443,1186 +2498,1166 @@
         <button class="dismiss-btn" onclick="dismissChromeNotice()">Dismiss</button>
       </div>
 
-      <div class="content-wrapper">
-        <div class="section day-coloring">
-          <div class="section-header">
-            <h3><span class="section-icon">🎨</span>Day Coloring</h3>
-            <div class="toggle">
-              <label>Enable day coloring</label>
-              <div class="switch" id="enableDayColoring"></div>
-            </div>
-          </div>
-          <div class="section-content">
-            <div id="colorSettings" style="display: none; overflow: visible">
-              <div class="weekdays">
-                <div class="day-color-item" data-day="0">
-                  <div class="day-label">Sun</div>
-                  <div class="day-color-preview" id="preview0" style="background-color: #ffd5d5"></div>
-                  <div class="day-details" id="details0">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="0">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="0">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="0">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="0">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color0" value="#ffd5d5" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="0" title="Click to open/close color picker">🎨</div>
-                      </div>
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-button active" data-tab="dashboard">
+          <span class="tab-icon">📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="tab-button" data-tab="preferences">
+          <span class="tab-icon">⚙️</span>
+          <span>Preferences</span>
+        </button>
+      </div>
 
-                      <div class="color-tab-panel active" id="vibrant-panel-0">
-                        <div class="color-palette" id="palette0"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-0">
-                        <div class="color-palette" id="pastel-palette0"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-0">
-                        <div class="color-palette" id="dark-palette0"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-0">
-                        <div class="color-palette" id="custom-palette0"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue0">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="0" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="0" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="0" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="0" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="0" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="0" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill0" style="width: 30%"></div>
-                          <input type="range" id="opacity0" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="day-color-item" data-day="1">
-                  <div class="day-label">Mon</div>
-                  <div class="day-color-preview" id="preview1" style="background-color: #e8deff"></div>
-                  <div class="day-details" id="details1">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="1">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="1">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="1">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="1">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color1" value="#e8deff" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="1" title="Click to open/close color picker">🎨</div>
-                      </div>
-
-                      <div class="color-tab-panel active" id="vibrant-panel-1">
-                        <div class="color-palette" id="palette1"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-1">
-                        <div class="color-palette" id="pastel-palette1"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-1">
-                        <div class="color-palette" id="dark-palette1"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-1">
-                        <div class="color-palette" id="custom-palette1"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue1">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="1" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="1" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="1" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="1" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="1" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="1" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill1" style="width: 30%"></div>
-                          <input type="range" id="opacity1" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="day-color-item" data-day="2">
-                  <div class="day-label">Tue</div>
-                  <div class="day-color-preview" id="preview2" style="background-color: #d5f5e3"></div>
-                  <div class="day-details" id="details2">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="2">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="2">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="2">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="2">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color2" value="#d5f5e3" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="2" title="Click to open/close color picker">🎨</div>
-                      </div>
-
-                      <div class="color-tab-panel active" id="vibrant-panel-2">
-                        <div class="color-palette" id="palette2"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-2">
-                        <div class="color-palette" id="pastel-palette2"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-2">
-                        <div class="color-palette" id="dark-palette2"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-2">
-                        <div class="color-palette" id="custom-palette2"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue2">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="2" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="2" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="2" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="2" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="2" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="2" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill2" style="width: 30%"></div>
-                          <input type="range" id="opacity2" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="day-color-item" data-day="3">
-                  <div class="day-label">Wed</div>
-                  <div class="day-color-preview" id="preview3" style="background-color: #ffe8d5"></div>
-                  <div class="day-details" id="details3">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="3">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="3">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="3">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="3">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color3" value="#ffe8d5" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="3" title="Click to open/close color picker">🎨</div>
-                      </div>
-
-                      <div class="color-tab-panel active" id="vibrant-panel-3">
-                        <div class="color-palette" id="palette3"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-3">
-                        <div class="color-palette" id="pastel-palette3"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-3">
-                        <div class="color-palette" id="dark-palette3"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-3">
-                        <div class="color-palette" id="custom-palette3"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue3">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="3" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="3" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="3" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="3" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="3" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="3" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill3" style="width: 30%"></div>
-                          <input type="range" id="opacity3" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="day-color-item" data-day="4">
-                  <div class="day-label">Thu</div>
-                  <div class="day-color-preview" id="preview4" style="background-color: #d5f0ff"></div>
-                  <div class="day-details" id="details4">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="4">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="4">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="4">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="4">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color4" value="#d5f0ff" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="4" title="Click to open/close color picker">🎨</div>
-                      </div>
-
-                      <div class="color-tab-panel active" id="vibrant-panel-4">
-                        <div class="color-palette" id="palette4"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-4">
-                        <div class="color-palette" id="pastel-palette4"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-4">
-                        <div class="color-palette" id="dark-palette4"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-4">
-                        <div class="color-palette" id="custom-palette4"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue4">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="4" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="4" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="4" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="4" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="4" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="4" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill4" style="width: 30%"></div>
-                          <input type="range" id="opacity4" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="day-color-item" data-day="5">
-                  <div class="day-label">Fri</div>
-                  <div class="day-color-preview" id="preview5" style="background-color: #fff5d5"></div>
-                  <div class="day-details" id="details5">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="5">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="5">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="5">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="5">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color5" value="#fff5d5" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="5" title="Click to open/close color picker">🎨</div>
-                      </div>
-
-                      <div class="color-tab-panel active" id="vibrant-panel-5">
-                        <div class="color-palette" id="palette5"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-5">
-                        <div class="color-palette" id="pastel-palette5"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-5">
-                        <div class="color-palette" id="dark-palette5"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-5">
-                        <div class="color-palette" id="custom-palette5"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue5">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="5" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="5" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="5" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="5" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="5" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="5" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill5" style="width: 30%"></div>
-                          <input type="range" id="opacity5" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="day-color-item" data-day="6">
-                  <div class="day-label">Sat</div>
-                  <div class="day-color-preview" id="preview6" style="background-color: #f0d5ff"></div>
-                  <div class="day-details" id="details6">
-                    <div class="color-picker-tabs">
-                      <button class="color-tab active" data-tab="vibrant" data-day="6">Vibrant</button>
-                      <button class="color-tab" data-tab="pastel" data-day="6">Pastel</button>
-                      <button class="color-tab" data-tab="dark" data-day="6">Dark</button>
-                      <button class="color-tab" data-tab="custom" data-day="6">Custom</button>
-                    </div>
-                    <div class="color-tab-content">
-                      <div class="color-picker-container" style="margin-bottom: 8px">
-                        <input type="color" id="color6" value="#f0d5ff" style="width: 100%; height: 36px" />
-                        <div class="color-picker-icon" data-day="6" title="Click to open/close color picker">🎨</div>
-                      </div>
-
-                      <div class="color-tab-panel active" id="vibrant-panel-6">
-                        <div class="color-palette" id="palette6"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="pastel-panel-6">
-                        <div class="color-palette" id="pastel-palette6"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="dark-panel-6">
-                        <div class="color-palette" id="dark-palette6"></div>
-                      </div>
-
-                      <div class="color-tab-panel" id="custom-panel-6">
-                        <div class="color-palette" id="custom-palette6"></div>
-                      </div>
-
-                      <div class="enhanced-opacity-control">
-                        <div class="opacity-header">
-                          <div class="opacity-label">🎚️ Opacity</div>
-                          <div class="opacity-value-display" id="opacityValue6">30%</div>
-                        </div>
-                        <div class="opacity-presets">
-                          <button class="opacity-preset-btn" data-day="6" data-opacity="10">10%</button>
-                          <button class="opacity-preset-btn" data-day="6" data-opacity="20">20%</button>
-                          <button class="opacity-preset-btn" data-day="6" data-opacity="30" class="active">30%</button>
-                          <button class="opacity-preset-btn" data-day="6" data-opacity="40">40%</button>
-                          <button class="opacity-preset-btn" data-day="6" data-opacity="50">50%</button>
-                          <button class="opacity-preset-btn" data-day="6" data-opacity="100">100%</button>
-                        </div>
-                        <div class="opacity-slider-container">
-                          <div class="slider-track-fill" id="sliderFill6" style="width: 30%"></div>
-                          <input type="range" id="opacity6" min="0" max="100" value="30" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div style="margin-top: 8px; font-size: 11px; color: #666; text-align: center">
-                Colors will match the actual day order in your calendar
-              </div>
-
-              <div
-                style="
-                  margin-top: 16px;
-                  padding: 12px;
-                  background: #f8f9fa;
-                  border-radius: 6px;
-                  border: 1px solid #e8eaed;
-                "
-              >
-                <label style="font-size: 12px; color: #333; display: block; margin-bottom: 6px; font-weight: 600"
-                  >Week starts on:</label
-                >
-                <select
-                  id="weekStart"
-                  style="
-                    width: 100%;
-                    padding: 8px;
-                    border: 1px solid #dadce0;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    background: white;
-                  "
-                >
-                  <option value="0">Sunday</option>
-                  <option value="1">Monday</option>
-                  <option value="6">Saturday</option>
-                </select>
+      <!-- Dashboard Tab Content -->
+      <div class="tab-content active" id="dashboardContent">
+        <div class="content-wrapper">
+          <div class="section day-coloring">
+            <div class="section-header">
+              <h3><span class="section-icon">🎨</span>Day Coloring</h3>
+              <div class="toggle">
+                <label>Enable day coloring</label>
+                <div class="switch" id="enableDayColoring"></div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="section task-coloring">
-          <div class="section-header">
-            <h3><span class="section-icon">🏷️</span>Task Coloring</h3>
-            <div class="toggle">
-              <label>Enable custom task colors</label>
-              <div class="switch" id="enableTaskColoring"></div>
-            </div>
-          </div>
-          <div class="section-content">
-            <div id="taskColorSettings" style="display: none">
-              <div
-                style="
-                  margin-bottom: 16px;
-                  padding: 12px;
-                  background: #f8f9fa;
-                  border-radius: 6px;
-                  border: 1px solid #e8eaed;
-                "
-              >
-                <label style="font-size: 12px; color: #333; display: block; margin-bottom: 8px; font-weight: 600"
-                  >Quick Access Colors (8 colors in task popup):</label
-                >
-                <div class="task-colors-grid">
-                  <div class="task-color-item" data-index="0">
-                    <div class="task-color-preview" id="taskPreview0" style="background-color: #4285f4"></div>
-                    <div class="task-color-details" id="taskDetails0">
+            <div class="section-content">
+              <div id="colorSettings" style="display: none; overflow: visible">
+                <div class="weekdays">
+                  <div class="day-color-item" data-day="0">
+                    <div class="day-label">Sun</div>
+                    <div class="day-color-preview" id="preview0" style="background-color: #ffd5d5"></div>
+                    <div class="day-details" id="details0">
                       <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="0">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="0">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="0">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="0">Custom</button>
+                        <button class="color-tab active" data-tab="vibrant" data-day="0">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="0">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="0">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="0">Custom</button>
                       </div>
                       <div class="color-tab-content">
                         <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor0" value="#4285f4" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="0" title="Click to open/close color picker">🎨</div>
+                          <input type="color" id="color0" value="#ffd5d5" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="0" title="Click to open/close color picker">🎨</div>
                         </div>
 
-                        <div class="color-tab-panel active" id="task-vibrant-panel-0">
-                          <div class="color-palette" id="taskPalette0"></div>
+                        <div class="color-tab-panel active" id="vibrant-panel-0">
+                          <div class="color-palette" id="palette0"></div>
                         </div>
 
-                        <div class="color-tab-panel" id="task-pastel-panel-0">
-                          <div class="color-palette" id="taskPastelPalette0"></div>
+                        <div class="color-tab-panel" id="pastel-panel-0">
+                          <div class="color-palette" id="pastel-palette0"></div>
                         </div>
 
-                        <div class="color-tab-panel" id="task-dark-panel-0">
-                          <div class="color-palette" id="taskDarkPalette0"></div>
+                        <div class="color-tab-panel" id="dark-panel-0">
+                          <div class="color-palette" id="dark-palette0"></div>
                         </div>
 
-                        <div class="color-tab-panel" id="task-custom-panel-0">
-                          <div class="color-palette" id="taskCustomPalette0"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="1">
-                    <div class="task-color-preview" id="taskPreview1" style="background-color: #34a853"></div>
-                    <div class="task-color-details" id="taskDetails1">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="1">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="1">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="1">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="1">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor1" value="#34a853" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="1" title="Click to open/close color picker">🎨</div>
+                        <div class="color-tab-panel" id="custom-panel-0">
+                          <div class="color-palette" id="custom-palette0"></div>
                         </div>
 
-                        <div class="color-tab-panel active" id="task-vibrant-panel-1">
-                          <div class="color-palette" id="taskPalette1"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-1">
-                          <div class="color-palette" id="taskPastelPalette1"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-1">
-                          <div class="color-palette" id="taskDarkPalette1"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-1">
-                          <div class="color-palette" id="taskCustomPalette1"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="2">
-                    <div class="task-color-preview" id="taskPreview2" style="background-color: #ea4335"></div>
-                    <div class="task-color-details" id="taskDetails2">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="2">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="2">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="2">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="2">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor2" value="#ea4335" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="2" title="Click to open/close color picker">🎨</div>
-                        </div>
-
-                        <div class="color-tab-panel active" id="task-vibrant-panel-2">
-                          <div class="color-palette" id="taskPalette2"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-2">
-                          <div class="color-palette" id="taskPastelPalette2"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-2">
-                          <div class="color-palette" id="taskDarkPalette2"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-2">
-                          <div class="color-palette" id="taskCustomPalette2"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="3">
-                    <div class="task-color-preview" id="taskPreview3" style="background-color: #fbbc04"></div>
-                    <div class="task-color-details" id="taskDetails3">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="3">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="3">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="3">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="3">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor3" value="#fbbc04" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="3" title="Click to open/close color picker">🎨</div>
-                        </div>
-
-                        <div class="color-tab-panel active" id="task-vibrant-panel-3">
-                          <div class="color-palette" id="taskPalette3"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-3">
-                          <div class="color-palette" id="taskPastelPalette3"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-3">
-                          <div class="color-palette" id="taskDarkPalette3"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-3">
-                          <div class="color-palette" id="taskCustomPalette3"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="4">
-                    <div class="task-color-preview" id="taskPreview4" style="background-color: #ff6d01"></div>
-                    <div class="task-color-details" id="taskDetails4">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="4">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="4">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="4">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="4">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor4" value="#ff6d01" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="4" title="Click to open/close color picker">🎨</div>
-                        </div>
-
-                        <div class="color-tab-panel active" id="task-vibrant-panel-4">
-                          <div class="color-palette" id="taskPalette4"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-4">
-                          <div class="color-palette" id="taskPastelPalette4"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-4">
-                          <div class="color-palette" id="taskDarkPalette4"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-4">
-                          <div class="color-palette" id="taskCustomPalette4"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="5">
-                    <div class="task-color-preview" id="taskPreview5" style="background-color: #9c27b0"></div>
-                    <div class="task-color-details" id="taskDetails5">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="5">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="5">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="5">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="5">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor5" value="#9c27b0" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="5" title="Click to open/close color picker">🎨</div>
-                        </div>
-
-                        <div class="color-tab-panel active" id="task-vibrant-panel-5">
-                          <div class="color-palette" id="taskPalette5"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-5">
-                          <div class="color-palette" id="taskPastelPalette5"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-5">
-                          <div class="color-palette" id="taskDarkPalette5"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-5">
-                          <div class="color-palette" id="taskCustomPalette5"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="6">
-                    <div class="task-color-preview" id="taskPreview6" style="background-color: #e91e63"></div>
-                    <div class="task-color-details" id="taskDetails6">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="6">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="6">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="6">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="6">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor6" value="#e91e63" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="6" title="Click to open/close color picker">🎨</div>
-                        </div>
-
-                        <div class="color-tab-panel active" id="task-vibrant-panel-6">
-                          <div class="color-palette" id="taskPalette6"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-6">
-                          <div class="color-palette" id="taskPastelPalette6"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-6">
-                          <div class="color-palette" id="taskDarkPalette6"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-6">
-                          <div class="color-palette" id="taskCustomPalette6"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="task-color-item" data-index="7">
-                    <div class="task-color-preview" id="taskPreview7" style="background-color: #00bcd4"></div>
-                    <div class="task-color-details" id="taskDetails7">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-task="7">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-task="7">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-task="7">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-task="7">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input type="color" id="taskColor7" value="#00bcd4" style="width: 100%; height: 36px" />
-                          <div class="color-picker-icon" data-task="7" title="Click to open/close color picker">🎨</div>
-                        </div>
-
-                        <div class="color-tab-panel active" id="task-vibrant-panel-7">
-                          <div class="color-palette" id="taskPalette7"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-pastel-panel-7">
-                          <div class="color-palette" id="taskPastelPalette7"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-dark-panel-7">
-                          <div class="color-palette" id="taskDarkPalette7"></div>
-                        </div>
-
-                        <div class="color-tab-panel" id="task-custom-panel-7">
-                          <div class="color-palette" id="taskCustomPalette7"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div style="font-size: 10px; color: #666; margin-top: 4px; text-align: center">
-                  Click any color above to change it with the advanced color picker
-                </div>
-              </div>
-
-              <!-- Task Templates Coming Soon Section -->
-              <div
-                style="
-                  margin: 16px 0;
-                  padding: 16px;
-                  background: #fafbfc;
-                  border: 1px solid #e5e7eb;
-                  border-radius: 8px;
-                  opacity: 0.7;
-                "
-              >
-                <!-- Header -->
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px">
-                  <div
-                    style="
-                      width: 32px;
-                      height: 32px;
-                      background: #f3f4f6;
-                      border-radius: 6px;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      font-size: 16px;
-                    "
-                  >
-                    📋
-                  </div>
-                  <div style="flex: 1">
-                    <div style="font-size: 14px; font-weight: 600; color: #4b5563; margin-bottom: 2px">
-                      Task Templates
-                    </div>
-                    <div
-                      style="
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 4px;
-                        background: #f9fafb;
-                        color: #6b7280;
-                        font-size: 10px;
-                        font-weight: 500;
-                        padding: 3px 8px;
-                        border-radius: 12px;
-                        border: 1px solid #e5e7eb;
-                      "
-                    >
-                      <span style="font-size: 9px">🚧</span>
-                      <span>Coming Soon</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Features Grid -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px">
-                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
-                      <span style="font-size: 12px">🎨</span>
-                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Color Sets</span>
-                    </div>
-                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Save & reuse combinations</div>
-                  </div>
-
-                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
-                      <span style="font-size: 12px">⭐</span>
-                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Priorities</span>
-                    </div>
-                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Visual indicators</div>
-                  </div>
-
-                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
-                      <span style="font-size: 12px">📝</span>
-                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Templates</span>
-                    </div>
-                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Reuse description templates</div>
-                  </div>
-
-                  <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6">
-                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px">
-                      <span style="font-size: 12px">🏷️</span>
-                      <span style="font-size: 11px; font-weight: 500; color: #6b7280">Tags</span>
-                    </div>
-                    <div style="font-size: 10px; color: #9ca3af; line-height: 1.3">Custom categories</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Task List Default Colors Section -->
-        <div class="section task-list-coloring">
-          <div class="section-header">
-            <h3><span class="section-icon">📋</span>Task List Colors</h3>
-            <div class="toggle">
-              <label>Enable list default colors</label>
-              <div class="switch" id="enableTaskListColoring"></div>
-            </div>
-          </div>
-          <div class="section-content">
-            <div id="taskListColorSettings" style="display: none">
-              <!-- Info box -->
-              <div
-                style="
-                  margin-bottom: 16px;
-                  padding: 12px;
-                  background: #e8f0fe;
-                  border-radius: 6px;
-                  border: 1px solid #d2e3fc;
-                  font-size: 13px;
-                  color: #1967d2;
-                "
-              >
-                <strong>💡 Auto-color tasks by their list</strong><br />
-                Set a default color for each Google Tasks list. New tasks will automatically get their list's color
-                (unless you set a manual color).
-              </div>
-
-              <!-- OAuth Status -->
-              <div id="taskListOAuthStatus" style="margin-bottom: 16px; padding: 12px; border-radius: 6px">
-                <!-- Not granted state -->
-                <div id="oauthNotGranted" style="display: none">
-                  <div style="margin-bottom: 8px; font-weight: 600; color: #ea4335">
-                    ⚠️ Google Tasks Access Required
-                  </div>
-                  <div style="margin-bottom: 12px; font-size: 13px; color: #666">
-                    Grant access to read your Google Tasks lists (read-only). This is required to map tasks to their
-                    lists.
-                  </div>
-                  <button
-                    id="grantOAuthButton"
-                    style="
-                      padding: 8px 16px;
-                      background: #1a73e8;
-                      color: white;
-                      border: none;
-                      border-radius: 4px;
-                      cursor: pointer;
-                      font-size: 14px;
-                      font-weight: 500;
-                    "
-                  >
-                    Grant Access
-                  </button>
-                </div>
-
-                <!-- Granted state -->
-                <div id="oauthGranted" style="display: none">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px">
-                    <div style="font-weight: 600; color: #34a853">✓ Google Tasks Access Granted</div>
-                    <button
-                      id="manualSyncButton"
-                      style="
-                        padding: 6px 12px;
-                        background: #f1f3f4;
-                        color: #5f6368;
-                        border: 1px solid #dadce0;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 13px;
-                      "
-                    >
-                      🔄 Sync Now
-                    </button>
-                  </div>
-                  <div id="syncStatus" style="font-size: 12px; color: #5f6368">Last sync: Never</div>
-                </div>
-              </div>
-
-              <!-- Task Lists Container -->
-              <div id="taskListsContainer">
-                <!-- Loading state -->
-                <div id="taskListsLoading" style="padding: 24px; text-align: center; color: #5f6368; display: none">
-                  <div style="margin-bottom: 8px">⏳</div>
-                  <div>Loading task lists...</div>
-                </div>
-
-                <!-- Empty state -->
-                <div id="taskListsEmpty" style="padding: 24px; text-align: center; color: #5f6368; display: none">
-                  <div style="margin-bottom: 8px">📝</div>
-                  <div>No task lists found.</div>
-                  <div style="font-size: 12px; margin-top: 8px">
-                    Create task lists in Google Calendar to get started.
-                  </div>
-                </div>
-
-                <!-- Task lists grid (populated dynamically) -->
-                <div id="taskListsGrid" style="display: none">
-                  <!-- Grid header -->
-                  <div
-                    style="
-                      display: grid;
-                      grid-template-columns: 1fr auto;
-                      gap: 12px;
-                      padding: 8px 12px;
-                      background: #f8f9fa;
-                      border-radius: 6px 6px 0 0;
-                      border: 1px solid #e8eaed;
-                      border-bottom: none;
-                      font-size: 12px;
-                      font-weight: 600;
-                      color: #5f6368;
-                    "
-                  >
-                    <div>Task List</div>
-                    <div style="text-align: center">Default Color</div>
-                  </div>
-
-                  <!-- Task lists items (populated by JS) -->
-                  <div
-                    id="taskListItems"
-                    style="border: 1px solid #e8eaed; border-radius: 0 0 6px 6px; max-height: 400px; overflow-y: auto"
-                  >
-                    <!-- Items added dynamically -->
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section time-blocking">
-          <div class="section-header">
-            <h3><span class="section-icon">⏰</span>Time Blocking</h3>
-            <div class="toggle">
-              <label>Enable time blocks</label>
-              <div class="switch" id="enableTimeBlocking"></div>
-            </div>
-          </div>
-          <div class="section-content">
-            <div id="timeBlockSettings" style="display: none">
-              <div class="time-block-global-settings">
-                <label style="font-size: 14px; color: #065f46; display: block; margin-bottom: 12px; font-weight: 600"
-                  >Global Settings</label
-                >
-
-                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
-                  <label style="font-size: 11px; color: #666">Default Color:</label>
-                  <div class="time-block-global-color-item" data-type="global">
-                    <div
-                      class="time-block-global-color-preview"
-                      id="globalTimeBlockPreview"
-                      style="background-color: #ffeb3b"
-                    ></div>
-                    <div class="time-block-global-color-details" id="globalTimeBlockDetails">
-                      <div class="color-picker-tabs">
-                        <button class="color-tab active" data-tab="vibrant" data-timeblock="global">Vibrant</button>
-                        <button class="color-tab" data-tab="pastel" data-timeblock="global">Pastel</button>
-                        <button class="color-tab" data-tab="dark" data-timeblock="global">Dark</button>
-                        <button class="color-tab" data-tab="custom" data-timeblock="global">Custom</button>
-                      </div>
-                      <div class="color-tab-content">
-                        <div class="color-picker-container" style="margin-bottom: 8px">
-                          <input
-                            type="color"
-                            id="timeBlockGlobalColor"
-                            value="#FFEB3B"
-                            style="width: 60%; height: 32px"
-                          />
-                          <input
-                            type="text"
-                            id="timeBlockGlobalHex"
-                            value="#FFEB3B"
-                            placeholder="#FF0000"
-                            maxlength="7"
-                            class="hex-input-small"
-                            style="
-                              width: 35%;
-                              height: 28px;
-                              margin-left: 4px;
-                              font-size: 10px;
-                              padding: 2px 4px;
-                              border: 1px solid #ccc;
-                              border-radius: 3px;
-                              text-transform: uppercase;
-                            "
-                          />
-                          <div
-                            class="color-picker-icon"
-                            data-timeblock="global"
-                            title="Click to open/close color picker"
-                          >
-                            🎨
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue0">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="0" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="0" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="0" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="0" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="0" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="0" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill0" style="width: 30%"></div>
+                            <input type="range" id="opacity0" min="0" max="100" value="30" />
                           </div>
                         </div>
-
-                        <div class="color-tab-panel active" id="global-vibrant-panel">
-                          <div class="color-palette" id="globalTimeBlockPalette"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="day-color-item" data-day="1">
+                    <div class="day-label">Mon</div>
+                    <div class="day-color-preview" id="preview1" style="background-color: #e8deff"></div>
+                    <div class="day-details" id="details1">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-day="1">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="1">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="1">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="1">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="color1" value="#e8deff" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="1" title="Click to open/close color picker">🎨</div>
                         </div>
 
-                        <div class="color-tab-panel" id="global-pastel-panel">
-                          <div class="color-palette" id="globalTimeBlockPastelPalette"></div>
+                        <div class="color-tab-panel active" id="vibrant-panel-1">
+                          <div class="color-palette" id="palette1"></div>
                         </div>
 
-                        <div class="color-tab-panel" id="global-dark-panel">
-                          <div class="color-palette" id="globalTimeBlockDarkPalette"></div>
+                        <div class="color-tab-panel" id="pastel-panel-1">
+                          <div class="color-palette" id="pastel-palette1"></div>
                         </div>
 
-                        <div class="color-tab-panel" id="global-custom-panel">
-                          <div class="color-palette" id="globalTimeBlockCustomPalette"></div>
+                        <div class="color-tab-panel" id="dark-panel-1">
+                          <div class="color-palette" id="dark-palette1"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="custom-panel-1">
+                          <div class="color-palette" id="custom-palette1"></div>
+                        </div>
+
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue1">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="1" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="1" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="1" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="1" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="1" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="1" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill1" style="width: 30%"></div>
+                            <input type="range" id="opacity1" min="0" max="100" value="30" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="day-color-item" data-day="2">
+                    <div class="day-label">Tue</div>
+                    <div class="day-color-preview" id="preview2" style="background-color: #d5f5e3"></div>
+                    <div class="day-details" id="details2">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-day="2">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="2">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="2">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="2">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="color2" value="#d5f5e3" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="2" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="vibrant-panel-2">
+                          <div class="color-palette" id="palette2"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="pastel-panel-2">
+                          <div class="color-palette" id="pastel-palette2"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="dark-panel-2">
+                          <div class="color-palette" id="dark-palette2"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="custom-panel-2">
+                          <div class="color-palette" id="custom-palette2"></div>
+                        </div>
+
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue2">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="2" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="2" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="2" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="2" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="2" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="2" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill2" style="width: 30%"></div>
+                            <input type="range" id="opacity2" min="0" max="100" value="30" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="day-color-item" data-day="3">
+                    <div class="day-label">Wed</div>
+                    <div class="day-color-preview" id="preview3" style="background-color: #ffe8d5"></div>
+                    <div class="day-details" id="details3">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-day="3">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="3">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="3">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="3">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="color3" value="#ffe8d5" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="3" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="vibrant-panel-3">
+                          <div class="color-palette" id="palette3"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="pastel-panel-3">
+                          <div class="color-palette" id="pastel-palette3"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="dark-panel-3">
+                          <div class="color-palette" id="dark-palette3"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="custom-panel-3">
+                          <div class="color-palette" id="custom-palette3"></div>
+                        </div>
+
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue3">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="3" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="3" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="3" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="3" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="3" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="3" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill3" style="width: 30%"></div>
+                            <input type="range" id="opacity3" min="0" max="100" value="30" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="day-color-item" data-day="4">
+                    <div class="day-label">Thu</div>
+                    <div class="day-color-preview" id="preview4" style="background-color: #d5f0ff"></div>
+                    <div class="day-details" id="details4">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-day="4">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="4">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="4">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="4">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="color4" value="#d5f0ff" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="4" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="vibrant-panel-4">
+                          <div class="color-palette" id="palette4"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="pastel-panel-4">
+                          <div class="color-palette" id="pastel-palette4"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="dark-panel-4">
+                          <div class="color-palette" id="dark-palette4"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="custom-panel-4">
+                          <div class="color-palette" id="custom-palette4"></div>
+                        </div>
+
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue4">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="4" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="4" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="4" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="4" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="4" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="4" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill4" style="width: 30%"></div>
+                            <input type="range" id="opacity4" min="0" max="100" value="30" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="day-color-item" data-day="5">
+                    <div class="day-label">Fri</div>
+                    <div class="day-color-preview" id="preview5" style="background-color: #fff5d5"></div>
+                    <div class="day-details" id="details5">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-day="5">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="5">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="5">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="5">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="color5" value="#fff5d5" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="5" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="vibrant-panel-5">
+                          <div class="color-palette" id="palette5"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="pastel-panel-5">
+                          <div class="color-palette" id="pastel-palette5"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="dark-panel-5">
+                          <div class="color-palette" id="dark-palette5"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="custom-panel-5">
+                          <div class="color-palette" id="custom-palette5"></div>
+                        </div>
+
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue5">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="5" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="5" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="5" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="5" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="5" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="5" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill5" style="width: 30%"></div>
+                            <input type="range" id="opacity5" min="0" max="100" value="30" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="day-color-item" data-day="6">
+                    <div class="day-label">Sat</div>
+                    <div class="day-color-preview" id="preview6" style="background-color: #f0d5ff"></div>
+                    <div class="day-details" id="details6">
+                      <div class="color-picker-tabs">
+                        <button class="color-tab active" data-tab="vibrant" data-day="6">Vibrant</button>
+                        <button class="color-tab" data-tab="pastel" data-day="6">Pastel</button>
+                        <button class="color-tab" data-tab="dark" data-day="6">Dark</button>
+                        <button class="color-tab" data-tab="custom" data-day="6">Custom</button>
+                      </div>
+                      <div class="color-tab-content">
+                        <div class="color-picker-container" style="margin-bottom: 8px">
+                          <input type="color" id="color6" value="#f0d5ff" style="width: 100%; height: 36px" />
+                          <div class="color-picker-icon" data-day="6" title="Click to open/close color picker">🎨</div>
+                        </div>
+
+                        <div class="color-tab-panel active" id="vibrant-panel-6">
+                          <div class="color-palette" id="palette6"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="pastel-panel-6">
+                          <div class="color-palette" id="pastel-palette6"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="dark-panel-6">
+                          <div class="color-palette" id="dark-palette6"></div>
+                        </div>
+
+                        <div class="color-tab-panel" id="custom-panel-6">
+                          <div class="color-palette" id="custom-palette6"></div>
+                        </div>
+
+                        <div class="enhanced-opacity-control">
+                          <div class="opacity-header">
+                            <div class="opacity-label">🎚️ Opacity</div>
+                            <div class="opacity-value-display" id="opacityValue6">30%</div>
+                          </div>
+                          <div class="opacity-presets">
+                            <button class="opacity-preset-btn" data-day="6" data-opacity="10">10%</button>
+                            <button class="opacity-preset-btn" data-day="6" data-opacity="20">20%</button>
+                            <button class="opacity-preset-btn" data-day="6" data-opacity="30" class="active">
+                              30%
+                            </button>
+                            <button class="opacity-preset-btn" data-day="6" data-opacity="40">40%</button>
+                            <button class="opacity-preset-btn" data-day="6" data-opacity="50">50%</button>
+                            <button class="opacity-preset-btn" data-day="6" data-opacity="100">100%</button>
+                          </div>
+                          <div class="opacity-slider-container">
+                            <div class="slider-track-fill" id="sliderFill6" style="width: 30%"></div>
+                            <input type="range" id="opacity6" min="0" max="100" value="30" />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                <div style="margin-top: 8px; font-size: 11px; color: #666; text-align: center">
+                  Colors will match the actual day order in your calendar
+                </div>
 
-                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
-                  <label style="font-size: 11px; color: #666">Shading Style:</label>
+                <div
+                  style="
+                    margin-top: 16px;
+                    padding: 12px;
+                    background: #f8f9fa;
+                    border-radius: 6px;
+                    border: 1px solid #e8eaed;
+                  "
+                >
+                  <label style="font-size: 12px; color: #333; display: block; margin-bottom: 6px; font-weight: 600"
+                    >Week starts on:</label
+                  >
                   <select
-                    id="timeBlockShadingStyle"
+                    id="weekStart"
                     style="
-                      padding: 4px 8px;
+                      width: 100%;
+                      padding: 8px;
                       border: 1px solid #dadce0;
                       border-radius: 4px;
-                      font-size: 11px;
+                      font-size: 12px;
                       background: white;
                     "
                   >
-                    <option value="solid">Solid</option>
-                    <option value="hashed">Hashed</option>
+                    <option value="0">Sunday</option>
+                    <option value="1">Monday</option>
+                    <option value="6">Saturday</option>
                   </select>
                 </div>
               </div>
-
-              <div class="time-block-schedule-section">
-                <div id="timeBlockSchedule">
-                  <!-- Time blocking schedule will be populated by JavaScript -->
-                </div>
-              </div>
-
-              <!-- Date-specific timeblocks section -->
-              <div class="date-specific-container">
-                <div class="date-specific-separator"></div>
-                <div class="time-block-day-header">
-                  <div class="time-block-day-title">📅 Date-Specific Blocks</div>
-                  <button id="addDateSpecificBlock" class="time-block-add-btn">+ Add Date Block</button>
-                </div>
-                <div id="dateSpecificSchedule" class="date-specific-schedule">
-                  <!-- Date-specific blocks will be populated by JavaScript -->
-                </div>
-                <div class="date-specific-footer">
-                  <button id="removeAllDateSpecificBlocks" class="time-block-remove-all-btn-footer">
-                    🗑️ Remove All Date-Specific Blocks
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
-        </div>
 
-        <div class="section color-lab">
-          <div class="section-header" id="colorLabHeader" style="cursor: pointer">
-            <h3><span class="section-icon">🧪</span>Color Lab</h3>
-            <div class="expand-collapse-arrow" id="colorLabArrow">
-              <span>▼</span>
+          <div class="section task-coloring">
+            <div class="section-header">
+              <h3><span class="section-icon">🏷️</span>Task Management</h3>
             </div>
-          </div>
-          <div class="section-content">
-            <div id="colorLabSettings" style="display: none">
-              <!-- My Custom Colors Panel - Featured at Top -->
-              <div class="my-custom-colors-panel">
-                <div class="custom-colors-header">
-                  <h4 class="custom-colors-title">🎨 My Color Collection</h4>
-                  <div class="colors-stats">
-                    <span class="color-count-badge"><span id="colorCount">0</span> colors</span>
+            <div class="section-content">
+              <!-- Task Colors Subsection -->
+              <div style="margin-bottom: 24px; padding: 16px; background: #fafafa; border-radius: 8px">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px">
+                  <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #333">
+                    <span style="margin-right: 6px">🎨</span>Quick Access Colors
+                  </h4>
+                  <div class="toggle" style="margin: 0">
+                    <label style="font-size: 12px">Enable custom task colors</label>
+                    <div class="switch" id="enableTaskColoring"></div>
                   </div>
                 </div>
-                <div class="custom-colors-main">
-                  <div class="custom-colors-grid" id="allColorsGrid">
-                    <!-- All custom colors will be populated by JavaScript -->
-                  </div>
-                  <div class="custom-colors-empty" id="customColorsEmpty" style="display: none">
-                    <div class="empty-state">
-                      <span class="empty-icon">🎭</span>
-                      <p class="empty-title">No custom colors yet</p>
-                      <p class="empty-subtitle">Add colors using the tools below to build your palette</p>
+                <div id="taskColorSettings" style="display: none">
+                  <div
+                    style="
+                      margin-bottom: 16px;
+                      padding: 12px;
+                      background: white;
+                      border-radius: 6px;
+                      border: 1px solid #e8eaed;
+                    "
+                  >
+                    <label style="font-size: 12px; color: #333; display: block; margin-bottom: 8px; font-weight: 600"
+                      >8 colors shown in task popup:</label
+                    >
+                    <div class="task-colors-grid">
+                      <div class="task-color-item" data-index="0">
+                        <div class="task-color-preview" id="taskPreview0" style="background-color: #4285f4"></div>
+                        <div class="task-color-details" id="taskDetails0">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="0">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="0">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="0">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="0">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor0" value="#4285f4" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="0" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-0">
+                              <div class="color-palette" id="taskPalette0"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-0">
+                              <div class="color-palette" id="taskPastelPalette0"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-0">
+                              <div class="color-palette" id="taskDarkPalette0"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-0">
+                              <div class="color-palette" id="taskCustomPalette0"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="1">
+                        <div class="task-color-preview" id="taskPreview1" style="background-color: #34a853"></div>
+                        <div class="task-color-details" id="taskDetails1">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="1">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="1">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="1">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="1">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor1" value="#34a853" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="1" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-1">
+                              <div class="color-palette" id="taskPalette1"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-1">
+                              <div class="color-palette" id="taskPastelPalette1"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-1">
+                              <div class="color-palette" id="taskDarkPalette1"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-1">
+                              <div class="color-palette" id="taskCustomPalette1"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="2">
+                        <div class="task-color-preview" id="taskPreview2" style="background-color: #ea4335"></div>
+                        <div class="task-color-details" id="taskDetails2">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="2">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="2">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="2">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="2">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor2" value="#ea4335" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="2" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-2">
+                              <div class="color-palette" id="taskPalette2"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-2">
+                              <div class="color-palette" id="taskPastelPalette2"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-2">
+                              <div class="color-palette" id="taskDarkPalette2"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-2">
+                              <div class="color-palette" id="taskCustomPalette2"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="3">
+                        <div class="task-color-preview" id="taskPreview3" style="background-color: #fbbc04"></div>
+                        <div class="task-color-details" id="taskDetails3">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="3">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="3">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="3">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="3">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor3" value="#fbbc04" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="3" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-3">
+                              <div class="color-palette" id="taskPalette3"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-3">
+                              <div class="color-palette" id="taskPastelPalette3"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-3">
+                              <div class="color-palette" id="taskDarkPalette3"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-3">
+                              <div class="color-palette" id="taskCustomPalette3"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="4">
+                        <div class="task-color-preview" id="taskPreview4" style="background-color: #ff6d01"></div>
+                        <div class="task-color-details" id="taskDetails4">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="4">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="4">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="4">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="4">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor4" value="#ff6d01" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="4" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-4">
+                              <div class="color-palette" id="taskPalette4"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-4">
+                              <div class="color-palette" id="taskPastelPalette4"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-4">
+                              <div class="color-palette" id="taskDarkPalette4"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-4">
+                              <div class="color-palette" id="taskCustomPalette4"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="5">
+                        <div class="task-color-preview" id="taskPreview5" style="background-color: #9c27b0"></div>
+                        <div class="task-color-details" id="taskDetails5">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="5">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="5">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="5">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="5">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor5" value="#9c27b0" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="5" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-5">
+                              <div class="color-palette" id="taskPalette5"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-5">
+                              <div class="color-palette" id="taskPastelPalette5"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-5">
+                              <div class="color-palette" id="taskDarkPalette5"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-5">
+                              <div class="color-palette" id="taskCustomPalette5"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="6">
+                        <div class="task-color-preview" id="taskPreview6" style="background-color: #e91e63"></div>
+                        <div class="task-color-details" id="taskDetails6">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="6">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="6">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="6">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="6">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor6" value="#e91e63" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="6" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-6">
+                              <div class="color-palette" id="taskPalette6"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-6">
+                              <div class="color-palette" id="taskPastelPalette6"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-6">
+                              <div class="color-palette" id="taskDarkPalette6"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-6">
+                              <div class="color-palette" id="taskCustomPalette6"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="task-color-item" data-index="7">
+                        <div class="task-color-preview" id="taskPreview7" style="background-color: #00bcd4"></div>
+                        <div class="task-color-details" id="taskDetails7">
+                          <div class="color-picker-tabs">
+                            <button class="color-tab active" data-tab="vibrant" data-task="7">Vibrant</button>
+                            <button class="color-tab" data-tab="pastel" data-task="7">Pastel</button>
+                            <button class="color-tab" data-tab="dark" data-task="7">Dark</button>
+                            <button class="color-tab" data-tab="custom" data-task="7">Custom</button>
+                          </div>
+                          <div class="color-tab-content">
+                            <div class="color-picker-container" style="margin-bottom: 8px">
+                              <input type="color" id="taskColor7" value="#00bcd4" style="width: 100%; height: 36px" />
+                              <div class="color-picker-icon" data-task="7" title="Click to open/close color picker">
+                                🎨
+                              </div>
+                            </div>
+
+                            <div class="color-tab-panel active" id="task-vibrant-panel-7">
+                              <div class="color-palette" id="taskPalette7"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-pastel-panel-7">
+                              <div class="color-palette" id="taskPastelPalette7"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-dark-panel-7">
+                              <div class="color-palette" id="taskDarkPalette7"></div>
+                            </div>
+
+                            <div class="color-tab-panel" id="task-custom-panel-7">
+                              <div class="color-palette" id="taskCustomPalette7"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="font-size: 10px; color: #666; margin-top: 4px; text-align: center">
+                      Click any color above to change it with the advanced color picker
                     </div>
                   </div>
                 </div>
-                <div class="custom-colors-actions">
-                  <div class="primary-actions">
-                    <button class="lab-btn secondary small" id="selectAllColors">Select All</button>
-                    <button class="lab-btn secondary small" id="clearSelectedColors">Clear Selected</button>
-                    <button class="lab-btn secondary small" id="exportColors">📋 Export</button>
-                  </div>
-                  <div class="danger-actions">
-                    <button class="lab-btn danger small" id="clearAllColors">🗑️ Clear All</button>
-                  </div>
-                </div>
               </div>
 
-              <!-- Add Colors Panel -->
-              <div class="color-lab-panel">
-                <h4 class="panel-title">➕ Add Custom Color</h4>
-                <div class="add-color-controls">
-                  <div class="color-input-row">
-                    <input type="color" id="colorLabPicker" value="#ff0000" class="lab-color-picker" />
-                    <input type="text" id="colorLabHex" placeholder="#FF0000" maxlength="7" class="hex-input" />
-                    <button id="addColorBtn" class="lab-btn primary">Add Color</button>
+              <!-- Task List Colors Subsection -->
+              <div style="padding: 16px; background: #fafafa; border-radius: 8px">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px">
+                  <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #333">
+                    <span style="margin-right: 6px">📋</span>Task List Colors
+                  </h4>
+                  <div class="toggle" style="margin: 0">
+                    <label style="font-size: 12px">Enable list default colors</label>
+                    <div class="switch" id="enableTaskListColoring"></div>
                   </div>
                 </div>
-              </div>
-
-              <!-- Quick Add from Color Tabs Panel -->
-              <div class="color-lab-panel">
-                <h4 class="panel-title">⚡ Quick Add from Palettes</h4>
-                <div class="quick-add-section">
-                  <div class="palette-tabs">
-                    <button class="palette-tab active" data-palette="vibrant">Vibrant</button>
-                    <button class="palette-tab" data-palette="pastel">Pastel</button>
-                    <button class="palette-tab" data-palette="dark">Dark</button>
+                <div id="taskListColorSettings" style="display: none">
+                  <!-- Info box -->
+                  <div
+                    style="
+                      margin-bottom: 16px;
+                      padding: 12px;
+                      background: #e8f0fe;
+                      border-radius: 6px;
+                      border: 1px solid #d2e3fc;
+                      font-size: 13px;
+                      color: #1967d2;
+                    "
+                  >
+                    <strong>💡 Auto-color tasks by their list</strong><br />
+                    Set a default color for each Google Tasks list. New tasks will automatically get their list's color
+                    (unless you set a manual color).
                   </div>
-                  <div class="quick-add-content">
-                    <div class="quick-add-grid" id="quickAddGrid">
-                      <!-- Colors will be populated by JavaScript based on active tab -->
+
+                  <!-- OAuth Status -->
+                  <div id="taskListOAuthStatus" style="margin-bottom: 16px; padding: 12px; border-radius: 6px">
+                    <!-- Not granted state -->
+                    <div id="oauthNotGranted" style="display: none">
+                      <div style="margin-bottom: 8px; font-weight: 600; color: #ea4335">
+                        ⚠️ Google Tasks Access Required
+                      </div>
+                      <div style="margin-bottom: 12px; font-size: 13px; color: #666">
+                        Grant access to read your Google Tasks lists (read-only). This is required to map tasks to their
+                        lists.
+                      </div>
+                      <button
+                        id="grantOAuthButton"
+                        style="
+                          padding: 8px 16px;
+                          background: #1a73e8;
+                          color: white;
+                          border: none;
+                          border-radius: 4px;
+                          cursor: pointer;
+                          font-size: 14px;
+                          font-weight: 500;
+                        "
+                      >
+                        Grant Access
+                      </button>
+                    </div>
+
+                    <!-- Granted state -->
+                    <div id="oauthGranted" style="display: none">
+                      <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px"
+                      >
+                        <div style="font-weight: 600; color: #34a853">✓ Google Tasks Access Granted</div>
+                        <button
+                          id="manualSyncButton"
+                          style="
+                            padding: 6px 12px;
+                            background: #f1f3f4;
+                            color: #5f6368;
+                            border: 1px solid #dadce0;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 13px;
+                          "
+                        >
+                          🔄 Sync Now
+                        </button>
+                      </div>
+                      <div id="syncStatus" style="font-size: 12px; color: #5f6368">Last sync: Never</div>
+                    </div>
+                  </div>
+
+                  <!-- Task Lists Container -->
+                  <div id="taskListsContainer">
+                    <!-- Loading state -->
+                    <div id="taskListsLoading" style="padding: 24px; text-align: center; color: #5f6368; display: none">
+                      <div style="margin-bottom: 8px">⏳</div>
+                      <div>Loading task lists...</div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="taskListsEmpty" style="padding: 24px; text-align: center; color: #5f6368; display: none">
+                      <div style="margin-bottom: 8px">📝</div>
+                      <div>No task lists found.</div>
+                      <div style="font-size: 12px; margin-top: 8px">
+                        Create task lists in Google Calendar to get started.
+                      </div>
+                    </div>
+
+                    <!-- Task lists grid (populated dynamically) -->
+                    <div id="taskListsGrid" style="display: none">
+                      <!-- Grid header -->
+                      <div
+                        style="
+                          display: grid;
+                          grid-template-columns: 1fr auto;
+                          gap: 12px;
+                          padding: 8px 12px;
+                          background: #f8f9fa;
+                          border-radius: 6px 6px 0 0;
+                          border: 1px solid #e8eaed;
+                          border-bottom: none;
+                          font-size: 12px;
+                          font-weight: 600;
+                          color: #5f6368;
+                        "
+                      >
+                        <div>Task List</div>
+                        <div style="text-align: center">Default Color</div>
+                      </div>
+
+                      <!-- Task lists items (populated by JS) -->
+                      <div
+                        id="taskListItems"
+                        style="
+                          border: 1px solid #e8eaed;
+                          border-radius: 0 0 6px 6px;
+                          max-height: 400px;
+                          overflow-y: auto;
+                        "
+                      >
+                        <!-- Items added dynamically -->
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <!-- Community Templates Panel (Coming Soon) -->
-              <div class="color-lab-panel" style="opacity: 0.5; pointer-events: none">
-                <h4 class="panel-title">🌍 Community Templates</h4>
-                <div class="coming-soon-section" style="text-align: center; padding: 20px">
-                  <div style="font-size: 24px; margin-bottom: 8px">🚧</div>
-                  <div style="font-weight: 600; color: #666; margin-bottom: 4px">Coming Soon</div>
-                  <div style="font-size: 12px; color: #888">Browse and share color templates with the community</div>
-                  <button class="btn btn-outline" disabled style="margin-top: 12px; cursor: not-allowed">
-                    🔗 Browse Templates
-                  </button>
-                </div>
+          <div class="section time-blocking">
+            <div class="section-header">
+              <h3><span class="section-icon">⏰</span>Time Blocking</h3>
+              <div class="toggle">
+                <label>Enable time blocks</label>
+                <div class="switch" id="enableTimeBlocking"></div>
               </div>
             </div>
-          </div>
-        </div>
+            <div class="section-content">
+              <div id="timeBlockSettings" style="display: none">
+                <div class="time-block-global-settings">
+                  <label style="font-size: 14px; color: #065f46; display: block; margin-bottom: 12px; font-weight: 600"
+                    >Global Settings</label
+                  >
 
-        <div class="section reset-section">
-          <div class="section-header">
-            <h3><span class="section-icon">🔄</span>Reset Settings</h3>
-          </div>
-          <div class="section-content">
-            <div
-              style="
-                margin-bottom: 12px;
-                padding: 12px;
-                background: #fef3c7;
-                border: 1px solid #f59e0b;
-                border-radius: 6px;
-              "
-            >
-              <p style="margin: 0; font-size: 12px; color: #92400e; font-weight: 500">
-                ⚠️ This will reset ALL settings to their default values including colors, opacity, time blocks, and task
-                settings.
-              </p>
-            </div>
-            <div style="text-align: center">
-              <button
-                class="btn btn-secondary"
-                id="resetBtn"
-                style="background: #dc2626; color: white; border-color: #dc2626"
-              >
-                Reset All Settings
-              </button>
+                  <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
+                    <label style="font-size: 11px; color: #666">Default Color:</label>
+                    <div class="time-block-global-color-item" data-type="global">
+                      <div
+                        class="time-block-global-color-preview"
+                        id="globalTimeBlockPreview"
+                        style="background-color: #ffeb3b"
+                      ></div>
+                      <div class="time-block-global-color-details" id="globalTimeBlockDetails">
+                        <div class="color-picker-tabs">
+                          <button class="color-tab active" data-tab="vibrant" data-timeblock="global">Vibrant</button>
+                          <button class="color-tab" data-tab="pastel" data-timeblock="global">Pastel</button>
+                          <button class="color-tab" data-tab="dark" data-timeblock="global">Dark</button>
+                          <button class="color-tab" data-tab="custom" data-timeblock="global">Custom</button>
+                        </div>
+                        <div class="color-tab-content">
+                          <div class="color-picker-container" style="margin-bottom: 8px">
+                            <input
+                              type="color"
+                              id="timeBlockGlobalColor"
+                              value="#FFEB3B"
+                              style="width: 60%; height: 32px"
+                            />
+                            <input
+                              type="text"
+                              id="timeBlockGlobalHex"
+                              value="#FFEB3B"
+                              placeholder="#FF0000"
+                              maxlength="7"
+                              class="hex-input-small"
+                              style="
+                                width: 35%;
+                                height: 28px;
+                                margin-left: 4px;
+                                font-size: 10px;
+                                padding: 2px 4px;
+                                border: 1px solid #ccc;
+                                border-radius: 3px;
+                                text-transform: uppercase;
+                              "
+                            />
+                            <div
+                              class="color-picker-icon"
+                              data-timeblock="global"
+                              title="Click to open/close color picker"
+                            >
+                              🎨
+                            </div>
+                          </div>
+
+                          <div class="color-tab-panel active" id="global-vibrant-panel">
+                            <div class="color-palette" id="globalTimeBlockPalette"></div>
+                          </div>
+
+                          <div class="color-tab-panel" id="global-pastel-panel">
+                            <div class="color-palette" id="globalTimeBlockPastelPalette"></div>
+                          </div>
+
+                          <div class="color-tab-panel" id="global-dark-panel">
+                            <div class="color-palette" id="globalTimeBlockDarkPalette"></div>
+                          </div>
+
+                          <div class="color-tab-panel" id="global-custom-panel">
+                            <div class="color-palette" id="globalTimeBlockCustomPalette"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
+                    <label style="font-size: 11px; color: #666">Shading Style:</label>
+                    <select
+                      id="timeBlockShadingStyle"
+                      style="
+                        padding: 4px 8px;
+                        border: 1px solid #dadce0;
+                        border-radius: 4px;
+                        font-size: 11px;
+                        background: white;
+                      "
+                    >
+                      <option value="solid">Solid</option>
+                      <option value="hashed">Hashed</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="time-block-schedule-section">
+                  <div id="timeBlockSchedule">
+                    <!-- Time blocking schedule will be populated by JavaScript -->
+                  </div>
+                </div>
+
+                <!-- Date-specific timeblocks section -->
+                <div class="date-specific-container">
+                  <div class="date-specific-separator"></div>
+                  <div class="time-block-day-header">
+                    <div class="time-block-day-title">📅 Date-Specific Blocks</div>
+                    <button id="addDateSpecificBlock" class="time-block-add-btn">+ Add Date Block</button>
+                  </div>
+                  <div id="dateSpecificSchedule" class="date-specific-schedule">
+                    <!-- Date-specific blocks will be populated by JavaScript -->
+                  </div>
+                  <div class="date-specific-footer">
+                    <button id="removeAllDateSpecificBlocks" class="time-block-remove-all-btn-footer">
+                      🗑️ Remove All Date-Specific Blocks
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- End Dashboard Tab Content -->
+
+      <!-- Preferences Tab Content -->
+      <div class="tab-content" id="preferencesContent">
+        <div class="content-wrapper">
+          <div class="section color-lab">
+            <div class="section-header" id="colorLabHeader" style="cursor: pointer">
+              <h3><span class="section-icon">🧪</span>Color Lab</h3>
+              <div class="expand-collapse-arrow" id="colorLabArrow">
+                <span>▼</span>
+              </div>
+            </div>
+            <div class="section-content">
+              <div id="colorLabSettings" style="display: none">
+                <!-- My Custom Colors Panel - Featured at Top -->
+                <div class="my-custom-colors-panel">
+                  <div class="custom-colors-header">
+                    <h4 class="custom-colors-title">🎨 My Color Collection</h4>
+                    <div class="colors-stats">
+                      <span class="color-count-badge"><span id="colorCount">0</span> colors</span>
+                    </div>
+                  </div>
+                  <div class="custom-colors-main">
+                    <div class="custom-colors-grid" id="allColorsGrid">
+                      <!-- All custom colors will be populated by JavaScript -->
+                    </div>
+                    <div class="custom-colors-empty" id="customColorsEmpty" style="display: none">
+                      <div class="empty-state">
+                        <span class="empty-icon">🎭</span>
+                        <p class="empty-title">No custom colors yet</p>
+                        <p class="empty-subtitle">Add colors using the tools below to build your palette</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="custom-colors-actions">
+                    <div class="primary-actions">
+                      <button class="lab-btn secondary small" id="selectAllColors">Select All</button>
+                      <button class="lab-btn secondary small" id="clearSelectedColors">Clear Selected</button>
+                      <button class="lab-btn secondary small" id="exportColors">📋 Export</button>
+                    </div>
+                    <div class="danger-actions">
+                      <button class="lab-btn danger small" id="clearAllColors">🗑️ Clear All</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add Colors Panel -->
+                <div class="color-lab-panel">
+                  <h4 class="panel-title">➕ Add Custom Color</h4>
+                  <div class="add-color-controls">
+                    <div class="color-input-row">
+                      <input type="color" id="colorLabPicker" value="#ff0000" class="lab-color-picker" />
+                      <input type="text" id="colorLabHex" placeholder="#FF0000" maxlength="7" class="hex-input" />
+                      <button id="addColorBtn" class="lab-btn primary">Add Color</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Add from Color Tabs Panel -->
+                <div class="color-lab-panel">
+                  <h4 class="panel-title">⚡ Quick Add from Palettes</h4>
+                  <div class="quick-add-section">
+                    <div class="palette-tabs">
+                      <button class="palette-tab active" data-palette="vibrant">Vibrant</button>
+                      <button class="palette-tab" data-palette="pastel">Pastel</button>
+                      <button class="palette-tab" data-palette="dark">Dark</button>
+                    </div>
+                    <div class="quick-add-content">
+                      <div class="quick-add-grid" id="quickAddGrid">
+                        <!-- Colors will be populated by JavaScript based on active tab -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Community Templates Panel (Coming Soon) -->
+                <div class="color-lab-panel" style="opacity: 0.5; pointer-events: none">
+                  <h4 class="panel-title">🌍 Community Templates</h4>
+                  <div class="coming-soon-section" style="text-align: center; padding: 20px">
+                    <div style="font-size: 24px; margin-bottom: 8px">🚧</div>
+                    <div style="font-weight: 600; color: #666; margin-bottom: 4px">Coming Soon</div>
+                    <div style="font-size: 12px; color: #888">Browse and share color templates with the community</div>
+                    <button class="btn btn-outline" disabled style="margin-top: 12px; cursor: not-allowed">
+                      🔗 Browse Templates
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section reset-section">
+            <div class="section-header">
+              <h3><span class="section-icon">🔄</span>Reset Settings</h3>
+            </div>
+            <div class="section-content">
+              <div
+                style="
+                  margin-bottom: 12px;
+                  padding: 12px;
+                  background: #fef3c7;
+                  border: 1px solid #f59e0b;
+                  border-radius: 6px;
+                "
+              >
+                <p style="margin: 0; font-size: 12px; color: #92400e; font-weight: 500">
+                  ⚠️ This will reset ALL settings to their default values including colors, opacity, time blocks, and
+                  task settings.
+                </p>
+              </div>
+              <div style="text-align: center">
+                <button
+                  class="btn btn-secondary"
+                  id="resetBtn"
+                  style="background: #dc2626; color: white; border-color: #dc2626"
+                >
+                  Reset All Settings
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Preferences Tab Content -->
 
       <script src="../lib/storage.js"></script>
       <script type="module" src="popup.js"></script>
