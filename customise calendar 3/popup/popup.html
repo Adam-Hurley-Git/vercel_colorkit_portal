@@ -1582,6 +1582,45 @@
         cursor: not-allowed;
       }
 
+      /* Task List Color Details Panel */
+      .task-list-color-details {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 10000;
+        min-width: 320px;
+        max-width: 90vw;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .task-list-color-details.expanded {
+        display: block;
+      }
+
+      /* Backdrop for task list color picker */
+      .task-list-color-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+      }
+
+      .task-list-color-backdrop.active {
+        display: block;
+      }
+
       /* Time Block Global Color Picker */
       .time-block-global-color-item {
         display: flex;

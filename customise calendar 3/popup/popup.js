@@ -1278,32 +1278,112 @@ checkAuthAndSubscription();
     // Color picker container
     const pickerDiv = document.createElement('div');
     pickerDiv.className = 'task-list-color-picker';
+    pickerDiv.style.cssText = `
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    `;
 
     // Color preview button
     const preview = document.createElement('div');
     preview.className = 'task-list-color-preview';
+    preview.id = `taskListPreview-${list.id}`;
     if (currentColor) {
       preview.style.backgroundColor = currentColor;
       preview.classList.add('has-color');
     }
     preview.title = 'Click to set color';
 
-    // Create hidden color input
+    // Create hidden color input for direct color value storage
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
+    colorInput.id = `taskListColor-${list.id}`;
     colorInput.value = currentColor || '#4285f4';
     colorInput.style.display = 'none';
 
-    // Color picker click handler
-    preview.onclick = () => {
-      colorInput.click();
+    // Create color details panel (similar to day colors)
+    const colorDetails = document.createElement('div');
+    colorDetails.className = 'task-list-color-details';
+    colorDetails.id = `taskListDetails-${list.id}`;
+    colorDetails.innerHTML = `
+      <div class="color-picker-tabs">
+        <button class="color-tab active" data-tab="vibrant" data-list="${list.id}">Vibrant</button>
+        <button class="color-tab" data-tab="pastel" data-list="${list.id}">Pastel</button>
+        <button class="color-tab" data-tab="dark" data-list="${list.id}">Dark</button>
+        <button class="color-tab" data-tab="custom" data-list="${list.id}">Custom</button>
+      </div>
+      <div class="color-tab-content">
+        <div class="color-picker-container" style="margin-bottom: 8px;">
+          <input type="color" id="taskListColorDirect-${list.id}" value="${currentColor || '#4285f4'}" style="width: 60%; height: 28px;">
+          <input type="text" id="taskListHex-${list.id}" value="${(currentColor || '#4285f4').toUpperCase()}" placeholder="#FF0000" maxlength="7" class="hex-input-small" style="width: 35%; height: 24px; margin-left: 4px; font-size: 10px; padding: 2px 4px; border: 1px solid #ccc; border-radius: 3px; text-transform: uppercase;">
+        </div>
+        <div class="color-tab-panel active" id="taskList-${list.id}-vibrant-panel">
+          <div class="color-palette" id="taskListPalette-${list.id}"></div>
+        </div>
+        <div class="color-tab-panel" id="taskList-${list.id}-pastel-panel">
+          <div class="color-palette" id="taskListPastelPalette-${list.id}"></div>
+        </div>
+        <div class="color-tab-panel" id="taskList-${list.id}-dark-panel">
+          <div class="color-palette" id="taskListDarkPalette-${list.id}"></div>
+        </div>
+        <div class="color-tab-panel" id="taskList-${list.id}-custom-panel">
+          <div class="color-palette" id="taskListCustomPalette-${list.id}"></div>
+        </div>
+      </div>
+    `;
+
+    // Create or get backdrop
+    let backdrop = document.getElementById('task-list-color-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'task-list-color-backdrop';
+      backdrop.className = 'task-list-color-backdrop';
+      document.body.appendChild(backdrop);
+
+      // Close modal when clicking backdrop
+      backdrop.onclick = () => {
+        document.querySelectorAll('.task-list-color-details.expanded').forEach((details) => {
+          details.classList.remove('expanded');
+        });
+        backdrop.classList.remove('active');
+      };
+    }
+
+    // Color picker click handler to toggle the details panel
+    preview.onclick = (e) => {
+      e.stopPropagation();
+
+      // Close all other expanded panels
+      document
+        .querySelectorAll(
+          '.task-list-color-details.expanded, .day-details.expanded, .time-block-color-details.expanded, .time-block-global-color-details.expanded',
+        )
+        .forEach((details) => {
+          if (details !== colorDetails) {
+            details.classList.remove('expanded');
+          }
+        });
+
+      // Toggle current panel
+      const isExpanding = !colorDetails.classList.contains('expanded');
+      colorDetails.classList.toggle('expanded');
+
+      // Show/hide backdrop
+      if (isExpanding) {
+        backdrop.classList.add('active');
+      } else {
+        backdrop.classList.remove('active');
+      }
     };
 
-    // Color change handler
-    colorInput.onchange = async (e) => {
-      const newColor = e.target.value;
+    // Color change handler for direct color input and hex input
+    const updateColor = async (newColor) => {
+      if (!newColor || !/^#[0-9A-Fa-f]{6}$/.test(newColor)) return;
+
       preview.style.backgroundColor = newColor;
       preview.classList.add('has-color');
+      colorInput.value = newColor;
 
       // Save color
       await window.cc3Storage.setTaskListDefaultColor(list.id, newColor);
@@ -1323,7 +1403,47 @@ checkAuthAndSubscription();
           });
         });
       });
+
+      // Close modal and backdrop after color change
+      colorDetails.classList.remove('expanded');
+      const backdrop = document.getElementById('task-list-color-backdrop');
+      if (backdrop) backdrop.classList.remove('active');
     };
+
+    // Set up color input sync after DOM is ready
+    setTimeout(() => {
+      const directColorInput = qs(`taskListColorDirect-${list.id}`);
+      const hexInput = qs(`taskListHex-${list.id}`);
+
+      if (directColorInput && hexInput) {
+        // Sync hex input when color picker changes
+        directColorInput.oninput = () => {
+          hexInput.value = directColorInput.value.toUpperCase();
+        };
+        directColorInput.onchange = () => {
+          updateColor(directColorInput.value);
+        };
+
+        // Sync color picker when hex input changes
+        hexInput.oninput = () => {
+          const hex = hexInput.value.trim();
+          const normalized = hex.startsWith('#') ? hex : '#' + hex;
+          if (/^#[0-9A-Fa-f]{6}$/.test(normalized)) {
+            directColorInput.value = normalized;
+            hexInput.style.borderColor = '#1a73e8';
+          } else {
+            hexInput.style.borderColor = '#dc2626';
+          }
+        };
+        hexInput.onchange = () => {
+          const hex = hexInput.value.trim();
+          const normalized = hex.startsWith('#') ? hex : '#' + hex;
+          if (/^#[0-9A-Fa-f]{6}$/.test(normalized)) {
+            updateColor(normalized);
+          }
+        };
+      }
+    }, 50);
 
     // Clear button
     const clearBtn = document.createElement('button');
@@ -1355,13 +1475,142 @@ checkAuthAndSubscription();
     };
 
     pickerDiv.appendChild(preview);
+    pickerDiv.appendChild(colorDetails);
     pickerDiv.appendChild(colorInput);
     pickerDiv.appendChild(clearBtn);
 
     item.appendChild(nameDiv);
     item.appendChild(pickerDiv);
 
+    // Create palettes for this task list after element is created
+    requestAnimationFrame(() => {
+      createTaskListColorPalettes(list.id);
+    });
+
     return item;
+  }
+
+  // Create task list color palettes
+  function createTaskListColorPalettes(listId) {
+    const colorInput = qs(`taskListColor-${listId}`);
+    const preview = qs(`taskListPreview-${listId}`);
+
+    if (!colorInput || !preview) {
+      setTimeout(() => createTaskListColorPalettes(listId), 50);
+      return;
+    }
+
+    const listRef = { colorInput, preview, listId };
+
+    // Vibrant palette
+    const vibrantPalette = qs(`taskListPalette-${listId}`);
+    if (vibrantPalette) {
+      vibrantPalette.innerHTML = '';
+      colorPickerPalette.forEach((color) => {
+        vibrantPalette.appendChild(createTaskListColorSwatch(color, listRef, vibrantPalette));
+      });
+    }
+
+    // Pastel palette
+    const pastelPaletteEl = qs(`taskListPastelPalette-${listId}`);
+    if (pastelPaletteEl) {
+      pastelPaletteEl.innerHTML = '';
+      pastelPalette.forEach((color) => {
+        pastelPaletteEl.appendChild(createTaskListColorSwatch(color, listRef, pastelPaletteEl));
+      });
+    }
+
+    // Dark palette
+    const darkPaletteEl = qs(`taskListDarkPalette-${listId}`);
+    if (darkPaletteEl) {
+      darkPaletteEl.innerHTML = '';
+      darkPalette.forEach((color) => {
+        darkPaletteEl.appendChild(createTaskListColorSwatch(color, listRef, darkPaletteEl));
+      });
+    }
+
+    // Custom palette
+    const customPalette = qs(`taskListCustomPalette-${listId}`);
+    if (customPalette) {
+      customPalette.innerHTML = '';
+      customColors.forEach((color) => {
+        customPalette.appendChild(createTaskListColorSwatch(color, listRef, customPalette, true));
+      });
+    }
+  }
+
+  // Create task list color swatch
+  function createTaskListColorSwatch(color, listRef, palette, isCustom = false) {
+    const swatch = document.createElement('div');
+    swatch.className = isCustom ? 'color-swatch custom-color-swatch' : 'color-swatch';
+    swatch.style.backgroundColor = color;
+    swatch.title = color;
+    swatch.dataset.color = color;
+
+    swatch.onclick = async (e) => {
+      e.stopPropagation();
+
+      // Remove selected class from all swatches in this task list's palettes
+      const detailsId = `taskListDetails-${listRef.listId}`;
+      document.querySelectorAll(`#${detailsId} .color-swatch`).forEach((s) => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+
+      // Update color input and preview
+      listRef.colorInput.value = color;
+      listRef.preview.style.backgroundColor = color;
+      listRef.preview.classList.add('has-color');
+
+      // Also update the direct color input and hex input
+      const directColorInput = qs(`taskListColorDirect-${listRef.listId}`);
+      const hexInput = qs(`taskListHex-${listRef.listId}`);
+      if (directColorInput) directColorInput.value = color;
+      if (hexInput) hexInput.value = color.toUpperCase();
+
+      // Save color to storage
+      await window.cc3Storage.setTaskListDefaultColor(listRef.listId, color);
+      settings = await window.cc3Storage.getSettings();
+      await saveSettings();
+
+      // Show toast notification
+      const taskListItem = document.querySelector(`[data-list-id="${listRef.listId}"]`);
+      const listName = taskListItem ? taskListItem.querySelector('.task-list-name')?.textContent : 'task list';
+      showToast(`Color set for "${listName}"`);
+
+      // Trigger repaint in content script
+      chrome.tabs.query({ url: 'https://calendar.google.com/*' }, (tabs) => {
+        tabs.forEach((tab) => {
+          chrome.tabs.sendMessage(tab.id, {
+            type: 'TASK_LIST_COLOR_UPDATED',
+            listId: listRef.listId,
+            color: color,
+          });
+        });
+      });
+
+      // Enable clear button
+      const clearBtn = taskListItem?.querySelector('.task-list-clear-button');
+      if (clearBtn) clearBtn.disabled = false;
+
+      // Close modal and backdrop after color selection
+      const detailsPanel = document.getElementById(`taskListDetails-${listRef.listId}`);
+      if (detailsPanel) detailsPanel.classList.remove('expanded');
+      const backdrop = document.getElementById('task-list-color-backdrop');
+      if (backdrop) backdrop.classList.remove('active');
+    };
+
+    // Add remove button for custom colors
+    if (isCustom) {
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'custom-color-remove';
+      removeBtn.innerHTML = '×';
+      removeBtn.onclick = (e) => {
+        e.stopPropagation();
+        removeCustomColor(color);
+      };
+      swatch.appendChild(removeBtn);
+    }
+
+    return swatch;
   }
 
   function showToast(message) {
@@ -1633,14 +1882,71 @@ checkAuthAndSubscription();
 		`;
     saveButton.title = 'Save changes';
 
-    // Add hover effects
+    // Track original values for change detection
+    const originalValues = {
+      startTime: block.timeRange[0],
+      endTime: block.timeRange[1],
+      color: block.color || settings.timeBlocking?.globalColor || '#FFEB3B',
+      label: block.label || '',
+    };
+
+    // Function to disable save button (greyed out)
+    const disableSaveButton = () => {
+      saveButton.disabled = true;
+      saveButton.style.background = 'linear-gradient(135deg, #9e9e9e, #757575)';
+      saveButton.style.cursor = 'not-allowed';
+      saveButton.style.opacity = '0.5';
+      saveButton.title = 'No changes to save';
+    };
+
+    // Function to enable save button
+    const enableSaveButton = () => {
+      saveButton.disabled = false;
+      saveButton.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+      saveButton.style.cursor = 'pointer';
+      saveButton.style.opacity = '1';
+      saveButton.title = 'Save changes';
+    };
+
+    // Function to check if there are changes
+    const checkForChanges = () => {
+      const hasChanges =
+        startTimePicker.getValue() !== originalValues.startTime ||
+        endTimePicker.getValue() !== originalValues.endTime ||
+        colorInput.value.toUpperCase() !== originalValues.color.toUpperCase() ||
+        labelInput.getValue() !== originalValues.label;
+
+      if (hasChanges) {
+        enableSaveButton();
+      } else {
+        disableSaveButton();
+      }
+    };
+
+    // Initially disable save button (no changes yet)
+    disableSaveButton();
+
+    // Add change listeners to all inputs
+    startTimePicker.addEventListener('change', checkForChanges);
+    endTimePicker.addEventListener('change', checkForChanges);
+    colorInput.addEventListener('change', checkForChanges);
+    colorInput.addEventListener('input', checkForChanges);
+    hexInput.addEventListener('change', checkForChanges);
+    hexInput.addEventListener('input', checkForChanges);
+    labelInput.addEventListener('input', checkForChanges);
+
+    // Add hover effects (only when enabled)
     saveButton.addEventListener('mouseenter', () => {
-      saveButton.style.transform = 'translateY(-1px)';
-      saveButton.style.boxShadow = '0 3px 6px rgba(76, 175, 80, 0.4)';
+      if (!saveButton.disabled) {
+        saveButton.style.transform = 'translateY(-1px)';
+        saveButton.style.boxShadow = '0 3px 6px rgba(76, 175, 80, 0.4)';
+      }
     });
     saveButton.addEventListener('mouseleave', () => {
-      saveButton.style.transform = 'translateY(0)';
-      saveButton.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
+      if (!saveButton.disabled) {
+        saveButton.style.transform = 'translateY(0)';
+        saveButton.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
+      }
     });
 
     // Remove button
@@ -1691,6 +1997,13 @@ checkAuthAndSubscription();
         await window.cc3Storage.updateTimeBlock(dayKey, index, newBlock);
         settings = await window.cc3Storage.getSettings();
         notifyTimeBlockingChange();
+
+        // Update original values and disable save button after successful save
+        originalValues.startTime = startTime;
+        originalValues.endTime = endTime;
+        originalValues.color = colorInput.value;
+        originalValues.label = labelInput.getValue();
+        disableSaveButton();
       } else {
         // Invalid time range - show error indicator instead of alert
         errorIndicator.style.display = 'block';
@@ -2164,14 +2477,71 @@ checkAuthAndSubscription();
 		`;
     saveButton.title = 'Save changes';
 
-    // Add hover effects
+    // Track original values for change detection
+    const originalValues = {
+      startTime: block.timeRange[0],
+      endTime: block.timeRange[1],
+      color: block.color || settings.timeBlocking?.globalColor || '#FFEB3B',
+      label: block.label || '',
+    };
+
+    // Function to disable save button (greyed out)
+    const disableSaveButton = () => {
+      saveButton.disabled = true;
+      saveButton.style.background = 'linear-gradient(135deg, #9e9e9e, #757575)';
+      saveButton.style.cursor = 'not-allowed';
+      saveButton.style.opacity = '0.5';
+      saveButton.title = 'No changes to save';
+    };
+
+    // Function to enable save button
+    const enableSaveButton = () => {
+      saveButton.disabled = false;
+      saveButton.style.background = 'linear-gradient(135deg, #4caf50, #45a049)';
+      saveButton.style.cursor = 'pointer';
+      saveButton.style.opacity = '1';
+      saveButton.title = 'Save changes';
+    };
+
+    // Function to check if there are changes
+    const checkForChanges = () => {
+      const hasChanges =
+        startTimePicker.getValue() !== originalValues.startTime ||
+        endTimePicker.getValue() !== originalValues.endTime ||
+        colorInput.value.toUpperCase() !== originalValues.color.toUpperCase() ||
+        labelInput.getValue() !== originalValues.label;
+
+      if (hasChanges) {
+        enableSaveButton();
+      } else {
+        disableSaveButton();
+      }
+    };
+
+    // Initially disable save button (no changes yet)
+    disableSaveButton();
+
+    // Add change listeners to all inputs
+    startTimePicker.addEventListener('change', checkForChanges);
+    endTimePicker.addEventListener('change', checkForChanges);
+    colorInput.addEventListener('change', checkForChanges);
+    colorInput.addEventListener('input', checkForChanges);
+    hexInput.addEventListener('change', checkForChanges);
+    hexInput.addEventListener('input', checkForChanges);
+    labelInput.addEventListener('input', checkForChanges);
+
+    // Add hover effects (only when enabled)
     saveButton.addEventListener('mouseenter', () => {
-      saveButton.style.transform = 'translateY(-1px)';
-      saveButton.style.boxShadow = '0 3px 6px rgba(76, 175, 80, 0.4)';
+      if (!saveButton.disabled) {
+        saveButton.style.transform = 'translateY(-1px)';
+        saveButton.style.boxShadow = '0 3px 6px rgba(76, 175, 80, 0.4)';
+      }
     });
     saveButton.addEventListener('mouseleave', () => {
-      saveButton.style.transform = 'translateY(0)';
-      saveButton.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
+      if (!saveButton.disabled) {
+        saveButton.style.transform = 'translateY(0)';
+        saveButton.style.boxShadow = '0 2px 4px rgba(76, 175, 80, 0.3)';
+      }
     });
 
     // Remove button
@@ -2222,6 +2592,13 @@ checkAuthAndSubscription();
         await window.cc3Storage.updateDateSpecificTimeBlock(dateKey, index, newBlock);
         settings = await window.cc3Storage.getSettings();
         notifyTimeBlockingChange();
+
+        // Update original values and disable save button after successful save
+        originalValues.startTime = startTime;
+        originalValues.endTime = endTime;
+        originalValues.color = colorInput.value;
+        originalValues.label = labelInput.getValue();
+        disableSaveButton();
       } else {
         // Invalid time range - show error indicator instead of alert
         errorIndicator.style.display = 'block';
@@ -2300,7 +2677,7 @@ checkAuthAndSubscription();
   }
 
   async function addDateSpecificBlock() {
-    // Create improved date picker modal
+    // Create improved date picker modal with time selection
     const modal = createDatePickerModal();
     document.body.appendChild(modal);
 
@@ -2315,11 +2692,11 @@ checkAuthAndSubscription();
         resolve(null);
       };
 
-      // Handle date selection
-      const handleDateSelect = async (selectedDate) => {
+      // Handle date selection with time range
+      const handleDateSelect = async (selectedDate, timeRange, isAllDay) => {
         if (selectedDate) {
           const newBlock = {
-            timeRange: ['09:00', '17:00'],
+            timeRange: isAllDay ? ['00:00', '23:59'] : timeRange,
             color: settings.timeBlocking?.globalColor || '#FFEB3B',
             label: '',
           };
@@ -2514,6 +2891,151 @@ checkAuthAndSubscription();
     customSection.appendChild(customTitle);
     customSection.appendChild(dateInput);
 
+    // Time selection section
+    const timeSection = document.createElement('div');
+    timeSection.style.cssText = `
+			margin-bottom: 24px;
+		`;
+
+    const timeTitle = document.createElement('div');
+    timeTitle.textContent = 'Time:';
+    timeTitle.style.cssText = `
+			font-size: 12px;
+			font-weight: 600;
+			color: #5f6368;
+			margin-bottom: 8px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		`;
+
+    // All-day checkbox
+    const allDayContainer = document.createElement('div');
+    allDayContainer.style.cssText = `
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 12px;
+		`;
+
+    const allDayCheckbox = document.createElement('input');
+    allDayCheckbox.type = 'checkbox';
+    allDayCheckbox.id = 'cc3-all-day-checkbox';
+    allDayCheckbox.className = 'cc3-all-day-checkbox';
+    allDayCheckbox.style.cssText = `
+			width: 18px;
+			height: 18px;
+			cursor: pointer;
+		`;
+
+    const allDayLabel = document.createElement('label');
+    allDayLabel.setAttribute('for', 'cc3-all-day-checkbox');
+    allDayLabel.textContent = 'All day';
+    allDayLabel.style.cssText = `
+			font-size: 14px;
+			color: #202124;
+			cursor: pointer;
+		`;
+
+    allDayContainer.appendChild(allDayCheckbox);
+    allDayContainer.appendChild(allDayLabel);
+
+    // Time inputs container
+    const timeInputsContainer = document.createElement('div');
+    timeInputsContainer.className = 'cc3-time-inputs';
+    timeInputsContainer.style.cssText = `
+			display: flex;
+			gap: 12px;
+			align-items: center;
+		`;
+
+    // Start time input
+    const startTimeContainer = document.createElement('div');
+    startTimeContainer.style.cssText = `
+			flex: 1;
+		`;
+
+    const startTimeLabel = document.createElement('label');
+    startTimeLabel.textContent = 'Start';
+    startTimeLabel.style.cssText = `
+			display: block;
+			font-size: 11px;
+			color: #5f6368;
+			margin-bottom: 4px;
+			font-weight: 500;
+		`;
+
+    const startTimeInput = document.createElement('input');
+    startTimeInput.type = 'time';
+    startTimeInput.className = 'cc3-start-time';
+    startTimeInput.value = '09:00';
+    startTimeInput.style.cssText = `
+			width: 100%;
+			padding: 10px 12px;
+			border: 2px solid #dadce0;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #202124;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    startTimeInput.onfocus = () => (startTimeInput.style.borderColor = '#1a73e8');
+    startTimeInput.onblur = () => (startTimeInput.style.borderColor = '#dadce0');
+
+    startTimeContainer.appendChild(startTimeLabel);
+    startTimeContainer.appendChild(startTimeInput);
+
+    // End time input
+    const endTimeContainer = document.createElement('div');
+    endTimeContainer.style.cssText = `
+			flex: 1;
+		`;
+
+    const endTimeLabel = document.createElement('label');
+    endTimeLabel.textContent = 'End';
+    endTimeLabel.style.cssText = `
+			display: block;
+			font-size: 11px;
+			color: #5f6368;
+			margin-bottom: 4px;
+			font-weight: 500;
+		`;
+
+    const endTimeInput = document.createElement('input');
+    endTimeInput.type = 'time';
+    endTimeInput.className = 'cc3-end-time';
+    endTimeInput.value = '17:00';
+    endTimeInput.style.cssText = `
+			width: 100%;
+			padding: 10px 12px;
+			border: 2px solid #dadce0;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #202124;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    endTimeInput.onfocus = () => (endTimeInput.style.borderColor = '#1a73e8');
+    endTimeInput.onblur = () => (endTimeInput.style.borderColor = '#dadce0');
+
+    endTimeContainer.appendChild(endTimeLabel);
+    endTimeContainer.appendChild(endTimeInput);
+
+    timeInputsContainer.appendChild(startTimeContainer);
+    timeInputsContainer.appendChild(endTimeContainer);
+
+    timeSection.appendChild(timeTitle);
+    timeSection.appendChild(allDayContainer);
+    timeSection.appendChild(timeInputsContainer);
+
+    // Handle all-day checkbox toggle
+    allDayCheckbox.onchange = () => {
+      const isAllDay = allDayCheckbox.checked;
+      startTimeInput.disabled = isAllDay;
+      endTimeInput.disabled = isAllDay;
+      timeInputsContainer.style.opacity = isAllDay ? '0.5' : '1';
+      timeInputsContainer.style.pointerEvents = isAllDay ? 'none' : 'auto';
+    };
+
     // Action buttons
     const actions = document.createElement('div');
     actions.style.cssText = `
@@ -2568,6 +3090,7 @@ checkAuthAndSubscription();
     picker.appendChild(header);
     picker.appendChild(presets);
     picker.appendChild(customSection);
+    picker.appendChild(timeSection);
     picker.appendChild(actions);
     modal.appendChild(picker);
 
@@ -2586,6 +3109,16 @@ checkAuthAndSubscription();
     const confirmBtn = modal.querySelector('.cc3-confirm-btn');
     const dateInput = modal.querySelector('.cc3-date-input');
     const presetBtns = modal.querySelectorAll('.cc3-preset-btn');
+    const startTimeInput = modal.querySelector('.cc3-start-time');
+    const endTimeInput = modal.querySelector('.cc3-end-time');
+    const allDayCheckbox = modal.querySelector('.cc3-all-day-checkbox');
+
+    // Helper to get time values
+    const getTimeValues = () => {
+      const isAllDay = allDayCheckbox.checked;
+      const timeRange = [startTimeInput.value || '09:00', endTimeInput.value || '17:00'];
+      return { timeRange, isAllDay };
+    };
 
     // Close handlers
     const handleClose = () => onCancel();
@@ -2594,13 +3127,17 @@ checkAuthAndSubscription();
 
     // Preset button handlers
     presetBtns.forEach((btn) => {
-      btn.onclick = () => onDateSelect(btn.dataset.date);
+      btn.onclick = () => {
+        const { timeRange, isAllDay } = getTimeValues();
+        onDateSelect(btn.dataset.date, timeRange, isAllDay);
+      };
     });
 
     // Confirm button handler
     confirmBtn.onclick = () => {
       if (dateInput.value) {
-        onDateSelect(dateInput.value);
+        const { timeRange, isAllDay } = getTimeValues();
+        onDateSelect(dateInput.value, timeRange, isAllDay);
       }
     };
 
@@ -2617,7 +3154,8 @@ checkAuthAndSubscription();
         handleClose();
       } else if (e.key === 'Enter') {
         if (dateInput.value) {
-          onDateSelect(dateInput.value);
+          const { timeRange, isAllDay } = getTimeValues();
+          onDateSelect(dateInput.value, timeRange, isAllDay);
         }
       }
     };
@@ -2980,6 +3518,35 @@ checkAuthAndSubscription();
     });
   }
 
+  // Handle task list color tab switching
+  function switchTaskListColorTab(listId, tabName) {
+    // Update tab buttons
+    const tabs = document.querySelectorAll(`[data-list="${listId}"][data-tab]`);
+    tabs.forEach((tab) => {
+      tab.classList.remove('active');
+      if (tab.dataset.tab === tabName) {
+        tab.classList.add('active');
+      }
+    });
+
+    // Update tab panels
+    const panels = [
+      `taskList-${listId}-vibrant-panel`,
+      `taskList-${listId}-pastel-panel`,
+      `taskList-${listId}-dark-panel`,
+      `taskList-${listId}-custom-panel`,
+    ];
+    panels.forEach((panelId) => {
+      const panel = qs(panelId);
+      if (panel) {
+        panel.classList.remove('active');
+        if (panelId === `taskList-${listId}-${tabName}-panel`) {
+          panel.classList.add('active');
+        }
+      }
+    });
+  }
+
   // Create individual time block color palettes
   function createIndividualTimeBlockPalettes(blockColorId) {
     // Get references to elements
@@ -3190,6 +3757,43 @@ checkAuthAndSubscription();
     const weekStartSelect = qs('weekStart');
     if (weekStartSelect && settings.weekStart !== undefined) {
       weekStartSelect.value = String(settings.weekStart);
+    }
+
+    // Reorganize day color row based on week start
+    reorganizeWeekdaysDisplay();
+  }
+
+  // Reorganize the weekdays display based on week start setting
+  function reorganizeWeekdaysDisplay() {
+    const weekStart = settings.weekStart !== undefined ? settings.weekStart : 0; // 0=Sunday, 1=Monday, 6=Saturday
+    const weekdaysContainer = document.querySelector('.weekdays');
+
+    if (!weekdaysContainer) return;
+
+    // Get all day color items
+    const dayItems = Array.from(weekdaysContainer.querySelectorAll('.day-color-item'));
+
+    if (dayItems.length !== 7) return;
+
+    // Create a map of day index to element
+    const dayMap = {};
+    dayItems.forEach((item) => {
+      const dayIndex = parseInt(item.getAttribute('data-day'));
+      dayMap[dayIndex] = item;
+    });
+
+    // Clear the container
+    weekdaysContainer.innerHTML = '';
+
+    // Reorganize based on week start
+    // If week starts on Sunday (0), order is: 0,1,2,3,4,5,6
+    // If week starts on Monday (1), order is: 1,2,3,4,5,6,0
+    // If week starts on Saturday (6), order is: 6,0,1,2,3,4,5
+    for (let i = 0; i < 7; i++) {
+      const dayIndex = (i + weekStart) % 7;
+      if (dayMap[dayIndex]) {
+        weekdaysContainer.appendChild(dayMap[dayIndex]);
+      }
     }
   }
 
@@ -3438,6 +4042,8 @@ checkAuthAndSubscription();
       weekStartSelect.onchange = async (e) => {
         settings = await window.cc3Storage.setWeekStart(parseInt(e.target.value, 10));
         await saveSettings();
+        // Reorganize day color row to match new week start
+        reorganizeWeekdaysDisplay();
       };
     }
 
@@ -3960,13 +4566,26 @@ checkAuthAndSubscription();
         switchTimeBlockColorTab(blockId, tabName);
       }
 
+      // Handle task list color tab switching
+      else if (e.target.matches('[data-list][data-tab]')) {
+        const listId = e.target.dataset.list;
+        const tabName = e.target.dataset.tab;
+        switchTaskListColorTab(listId, tabName);
+      }
+
       // Prevent clicks inside time block details from bubbling up
       else if (e.target.closest('.time-block-color-details, .time-block-global-color-details')) {
         e.stopPropagation();
       }
 
-      // Close time block color pickers when clicking outside
-      else if (!e.target.closest('.time-block-color-item, .time-block-global-color-item')) {
+      // Prevent clicks inside task list details from bubbling up
+      else if (e.target.closest('.task-list-color-details')) {
+        e.stopPropagation();
+      }
+
+      // Close color pickers when clicking outside
+      else if (!e.target.closest('.time-block-color-item, .time-block-global-color-item, .task-list-color-picker')) {
+        // Close time block color pickers
         document
           .querySelectorAll('.time-block-color-details.expanded, .time-block-global-color-details.expanded')
           .forEach((details) => {
@@ -3980,6 +4599,14 @@ checkAuthAndSubscription();
           });
         const scheduleSection = document.querySelector('.time-block-schedule-section');
         if (scheduleSection) scheduleSection.classList.remove('tb-picker-open');
+
+        // Close task list color pickers
+        document.querySelectorAll('.task-list-color-details.expanded').forEach((details) => {
+          details.classList.remove('expanded');
+        });
+        // Hide backdrop
+        const backdrop = document.getElementById('task-list-color-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
       }
     });
   }
