@@ -244,7 +244,7 @@ export default function CompletePage() {
                     <span className="text-xs text-slate-700">
                       I agree to the{' '}
                       <a
-                        href="https://www.calendarextension.com/refund"
+                        href="https://www.calendarextension.com/refund-policy"
                         target="_blank"
                         className="text-blue-600 hover:underline"
                       >
