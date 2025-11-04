@@ -153,44 +153,15 @@ export default function CompletePage() {
                 </div>
               </div>
 
-              {/* 7-Day Trial + 7-Day Money-Back Guarantee Explanation */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6 max-w-xl mx-auto">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="flex-shrink-0 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-slate-900 mb-2">14 Days Risk-Free</h3>
-                    <div className="space-y-2 text-sm text-slate-700">
-                      <p className="flex items-center gap-2">
-                        <span className="font-semibold text-blue-600">✓ Days 1-7:</span>
-                        <span>Free trial - No charge</span>
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span className="font-semibold text-purple-600">✓ Day 7:</span>
-                        <span>First payment charged</span>
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span className="font-semibold text-green-600">✓ Days 8-14:</span>
-                        <span>7-day money-back guarantee - Full refund if not satisfied</span>
-                      </p>
-                      <p className="flex items-center gap-2">
-                        <span className="font-semibold text-slate-600">✓ Day 15+:</span>
-                        <span>Subscription continues until you cancel</span>
-                      </p>
-                    </div>
-                  </div>
+              {/* Trial & Refund Badges */}
+              <div className="flex items-center justify-center gap-3 max-w-xl mx-auto">
+                <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2">
+                  <span className="text-lg">🎁</span>
+                  <span className="text-sm font-semibold text-blue-900">7-Day Free Trial</span>
                 </div>
-                <div className="bg-white/80 rounded-md p-3 text-xs text-slate-600">
-                  <strong>Note:</strong> 7-day money-back guarantee applies to first payment only. Renewal charges
-                  (month 2+) are non-refundable.
+                <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2">
+                  <span className="text-lg">💰</span>
+                  <span className="text-sm font-semibold text-green-900">7-Day Refund</span>
                 </div>
               </div>
 
