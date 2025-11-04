@@ -24,8 +24,17 @@ export function ExtensionNotifier({ message }: ExtensionNotifierProps) {
 
     // Get extension ID from environment variable
     const extensionId = process.env.NEXT_PUBLIC_EXTENSION_ID;
+
+    console.log('='.repeat(60));
+    console.log('🔔 [ExtensionNotifier] Attempting to send message to extension');
+    console.log('   Message type:', message.type);
+    console.log('   Target Extension ID:', extensionId || 'NOT SET');
+    console.log('='.repeat(60));
+
     if (!extensionId) {
-      console.warn('[ExtensionNotifier] NEXT_PUBLIC_EXTENSION_ID not configured - skipping extension notification');
+      console.error('❌ [ExtensionNotifier] NEXT_PUBLIC_EXTENSION_ID not configured!');
+      console.error('   Extension will NOT receive unlock messages');
+      console.error('   → Check Vercel environment variables');
       return;
     }
 
@@ -48,20 +57,26 @@ export function ExtensionNotifier({ message }: ExtensionNotifierProps) {
       }
     ).chrome;
 
-    console.log('[ExtensionNotifier] Sending message to extension:', message.type);
-    console.log('[ExtensionNotifier] Extension ID:', extensionId);
-
     try {
       chromeApi.runtime.sendMessage(extensionId, message, (response: unknown) => {
         // Check for errors
         if (chromeApi.runtime.lastError) {
-          // This is normal if extension isn't installed - don't treat as error
-          console.log(
-            '[ExtensionNotifier] Extension not installed or not responding:',
-            chromeApi.runtime.lastError.message,
-          );
+          console.log('='.repeat(60));
+          console.error('❌ [ExtensionNotifier] Extension not responding!');
+          console.error('   Error:', chromeApi.runtime.lastError.message);
+          console.error('   Extension ID used:', extensionId);
+          console.error('');
+          console.error('   Possible causes:');
+          console.error('   1. Extension not installed');
+          console.error('   2. Wrong extension ID (check manifest.json)');
+          console.error('   3. Extension disabled/crashed');
+          console.error('   4. Build has old NEXT_PUBLIC_EXTENSION_ID (need hard refresh)');
+          console.log('='.repeat(60));
         } else {
-          console.log('[ExtensionNotifier] ✅ Extension response:', response);
+          console.log('='.repeat(60));
+          console.log('✅ [ExtensionNotifier] Message sent successfully!');
+          console.log('   Extension response:', response);
+          console.log('='.repeat(60));
         }
       });
 
