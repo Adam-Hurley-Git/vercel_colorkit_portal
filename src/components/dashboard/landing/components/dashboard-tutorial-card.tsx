@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowUpRight } from 'lucide-react';
@@ -13,7 +15,12 @@ export function DashboardTutorialCard() {
           Learn how to get the most out of AeroEdit tools and discover your inner artist.
         </div>
         <div>
-          <Button size={'sm'} variant={'outline'} className={'flex gap-2 text-sm rounded-sm border-border'}>
+          <Button
+            size={'sm'}
+            variant={'outline'}
+            className={'flex gap-2 text-sm rounded-sm border-border'}
+            onClick={() => window.open('https://www.calendarextension.com/help', '_blank')}
+          >
             Tutorials
             <ArrowUpRight size={16} className={'text-slate-700'} />
           </Button>
