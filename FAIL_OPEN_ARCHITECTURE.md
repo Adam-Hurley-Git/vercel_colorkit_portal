@@ -1,6 +1,8 @@
 # Fail-Open Architecture - Subscription Validation
 
 **Date**: January 2025
+**Version**: 2.0
+**Extension Version**: 0.0.2
 **Status**: ✅ Production Ready
 **Priority**: CRITICAL - Prevents paying users from being locked out
 

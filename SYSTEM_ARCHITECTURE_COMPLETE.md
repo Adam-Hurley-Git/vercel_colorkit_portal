@@ -1,7 +1,9 @@
 # ColorKit System Architecture - Complete Technical Reference
 
-**Last Updated:** 2025-10-28
-**Version:** 2.1 (Lapsed Subscriber Flow)
+**Last Updated:** 2025-01-04
+**Version:** 2.2 (Fail-Open Architecture v2.0)
+**Extension Version:** 0.0.2
+**Backend Version:** Next.js 15.5.3
 **Status:** Production Ready
 
 ---
