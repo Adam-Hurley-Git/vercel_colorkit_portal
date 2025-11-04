@@ -284,6 +284,18 @@ document.addEventListener('DOMContentLoaded', () => {
       accountMenuBtn.classList.remove('active');
     });
   }
+
+  // Handle "Tutorials" menu item
+  const menuTutorials = document.getElementById('menuTutorials');
+  if (menuTutorials) {
+    menuTutorials.addEventListener('click', (e) => {
+      e.preventDefault();
+      debugLog('Tutorials clicked, opening in new tab...');
+      chrome.tabs.create({ url: 'https://www.calendarextension.com/help' });
+      accountDropdownMenu.style.display = 'none';
+      accountMenuBtn.classList.remove('active');
+    });
+  }
 });
 
 // Listen for auth updates from background script
@@ -2040,15 +2052,429 @@ checkAuthAndSubscription();
   }
 
   async function addTimeBlock(dayKey) {
-    const newBlock = {
-      timeRange: ['09:00', '17:00'],
-      color: settings.timeBlocking?.globalColor || '#FFEB3B',
-      label: '',
+    // Create time block modal for recurring weekly blocks
+    const modal = createRecurringTimeBlockModal(dayKey);
+    document.body.appendChild(modal);
+
+    // Focus the modal for keyboard navigation
+    modal.focus();
+
+    return new Promise((resolve) => {
+      const cleanup = () => {
+        if (modal.parentNode) {
+          document.body.removeChild(modal);
+        }
+        resolve(null);
+      };
+
+      // Handle time block creation
+      const handleBlockCreate = async (timeRange, isAllDay, label, color) => {
+        const newBlock = {
+          timeRange: isAllDay ? ['00:00', '23:59'] : timeRange,
+          color: color || settings.timeBlocking?.globalColor || '#FFEB3B',
+          label: label || '',
+        };
+        await window.cc3Storage.addTimeBlock(dayKey, newBlock);
+        settings = await window.cc3Storage.getSettings();
+        updateTimeBlockingSchedule();
+        notifyTimeBlockingChange();
+        cleanup();
+        resolve(newBlock);
+      };
+
+      // Set up event handlers
+      setupRecurringTimeBlockEvents(modal, handleBlockCreate, cleanup);
+    });
+  }
+
+  function createRecurringTimeBlockModal(dayKey) {
+    const dayNames = {
+      sun: 'Sunday',
+      mon: 'Monday',
+      tue: 'Tuesday',
+      wed: 'Wednesday',
+      thu: 'Thursday',
+      fri: 'Friday',
+      sat: 'Saturday',
     };
-    await window.cc3Storage.addTimeBlock(dayKey, newBlock);
-    settings = await window.cc3Storage.getSettings();
-    updateTimeBlockingSchedule();
-    notifyTimeBlockingChange();
+
+    const modal = document.createElement('div');
+    modal.className = 'cc3-time-block-modal';
+    modal.tabIndex = -1;
+    modal.style.cssText = `
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.5);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 10000;
+			opacity: 0;
+			transition: opacity 0.2s ease;
+		`;
+
+    const picker = document.createElement('div');
+    picker.className = 'cc3-time-block-picker';
+    picker.style.cssText = `
+			background: white;
+			border-radius: 12px;
+			padding: 24px;
+			box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+			max-width: 400px;
+			width: 90%;
+			max-height: 90vh;
+			overflow-y: auto;
+			transform: translateY(-20px);
+			transition: transform 0.2s ease;
+		`;
+
+    // Header with close button
+    const header = document.createElement('div');
+    header.style.cssText = `
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+		`;
+
+    const title = document.createElement('h3');
+    title.textContent = `Add Time Block - ${dayNames[dayKey]}`;
+    title.style.cssText = `
+			margin: 0;
+			font-size: 18px;
+			font-weight: 600;
+			color: #202124;
+		`;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'cc3-close-btn';
+    closeBtn.innerHTML = '×';
+    closeBtn.style.cssText = `
+			background: none;
+			border: none;
+			font-size: 28px;
+			color: #5f6368;
+			cursor: pointer;
+			padding: 0;
+			width: 32px;
+			height: 32px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			transition: background-color 0.2s ease;
+		`;
+    closeBtn.onmouseover = () => (closeBtn.style.backgroundColor = '#f1f3f4');
+    closeBtn.onmouseout = () => (closeBtn.style.backgroundColor = 'transparent');
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    // Time section
+    const timeSection = document.createElement('div');
+    timeSection.style.cssText = `
+			margin-bottom: 24px;
+		`;
+
+    const timeTitle = document.createElement('div');
+    timeTitle.textContent = 'Time:';
+    timeTitle.style.cssText = `
+			font-size: 12px;
+			font-weight: 600;
+			color: #5f6368;
+			margin-bottom: 8px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		`;
+
+    // All-day checkbox
+    const allDayContainer = document.createElement('div');
+    allDayContainer.style.cssText = `
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 12px;
+		`;
+
+    const allDayCheckbox = document.createElement('input');
+    allDayCheckbox.type = 'checkbox';
+    allDayCheckbox.id = 'cc3-recurring-all-day-checkbox';
+    allDayCheckbox.className = 'cc3-all-day-checkbox';
+    allDayCheckbox.style.cssText = `
+			width: 18px;
+			height: 18px;
+			cursor: pointer;
+		`;
+
+    const allDayLabel = document.createElement('label');
+    allDayLabel.setAttribute('for', 'cc3-recurring-all-day-checkbox');
+    allDayLabel.textContent = 'All day';
+    allDayLabel.style.cssText = `
+			font-size: 14px;
+			color: #202124;
+			cursor: pointer;
+		`;
+
+    allDayContainer.appendChild(allDayCheckbox);
+    allDayContainer.appendChild(allDayLabel);
+
+    // Time inputs container
+    const timeInputsContainer = document.createElement('div');
+    timeInputsContainer.className = 'cc3-time-inputs';
+    timeInputsContainer.style.cssText = `
+			display: flex;
+			gap: 12px;
+			align-items: center;
+		`;
+
+    // Start time input
+    const startTimeContainer = document.createElement('div');
+    startTimeContainer.style.cssText = `
+			flex: 1;
+		`;
+
+    const startTimeLabel = document.createElement('label');
+    startTimeLabel.textContent = 'Start';
+    startTimeLabel.style.cssText = `
+			display: block;
+			font-size: 11px;
+			color: #5f6368;
+			margin-bottom: 4px;
+			font-weight: 500;
+		`;
+
+    const startTimeInput = document.createElement('input');
+    startTimeInput.type = 'time';
+    startTimeInput.className = 'cc3-start-time';
+    startTimeInput.value = '09:00';
+    startTimeInput.style.cssText = `
+			width: 100%;
+			padding: 10px 12px;
+			border: 2px solid #dadce0;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #202124;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    startTimeInput.onfocus = () => (startTimeInput.style.borderColor = '#1a73e8');
+    startTimeInput.onblur = () => (startTimeInput.style.borderColor = '#dadce0');
+
+    startTimeContainer.appendChild(startTimeLabel);
+    startTimeContainer.appendChild(startTimeInput);
+
+    // End time input
+    const endTimeContainer = document.createElement('div');
+    endTimeContainer.style.cssText = `
+			flex: 1;
+		`;
+
+    const endTimeLabel = document.createElement('label');
+    endTimeLabel.textContent = 'End';
+    endTimeLabel.style.cssText = `
+			display: block;
+			font-size: 11px;
+			color: #5f6368;
+			margin-bottom: 4px;
+			font-weight: 500;
+		`;
+
+    const endTimeInput = document.createElement('input');
+    endTimeInput.type = 'time';
+    endTimeInput.className = 'cc3-end-time';
+    endTimeInput.value = '17:00';
+    endTimeInput.style.cssText = `
+			width: 100%;
+			padding: 10px 12px;
+			border: 2px solid #dadce0;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #202124;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    endTimeInput.onfocus = () => (endTimeInput.style.borderColor = '#1a73e8');
+    endTimeInput.onblur = () => (endTimeInput.style.borderColor = '#dadce0');
+
+    endTimeContainer.appendChild(endTimeLabel);
+    endTimeContainer.appendChild(endTimeInput);
+
+    timeInputsContainer.appendChild(startTimeContainer);
+    timeInputsContainer.appendChild(endTimeContainer);
+
+    timeSection.appendChild(timeTitle);
+    timeSection.appendChild(allDayContainer);
+    timeSection.appendChild(timeInputsContainer);
+
+    // Handle all-day checkbox toggle
+    allDayCheckbox.onchange = () => {
+      const isAllDay = allDayCheckbox.checked;
+      startTimeInput.disabled = isAllDay;
+      endTimeInput.disabled = isAllDay;
+      timeInputsContainer.style.opacity = isAllDay ? '0.5' : '1';
+      timeInputsContainer.style.pointerEvents = isAllDay ? 'none' : 'auto';
+    };
+
+    // Label section
+    const labelSection = document.createElement('div');
+    labelSection.style.cssText = `
+			margin-bottom: 24px;
+		`;
+
+    const labelTitle = document.createElement('div');
+    labelTitle.textContent = 'Label (optional):';
+    labelTitle.style.cssText = `
+			font-size: 12px;
+			font-weight: 600;
+			color: #5f6368;
+			margin-bottom: 8px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		`;
+
+    const labelInput = document.createElement('input');
+    labelInput.type = 'text';
+    labelInput.className = 'cc3-label-input';
+    labelInput.placeholder = 'e.g., Focus Time, Meeting, Break';
+    labelInput.style.cssText = `
+			width: 100%;
+			padding: 12px 16px;
+			border: 2px solid #dadce0;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #202124;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    labelInput.onfocus = () => (labelInput.style.borderColor = '#1a73e8');
+    labelInput.onblur = () => (labelInput.style.borderColor = '#dadce0');
+
+    labelSection.appendChild(labelTitle);
+    labelSection.appendChild(labelInput);
+
+    // Color picker section
+    const defaultColor = settings.timeBlocking?.globalColor || '#FFEB3B';
+    const colorSection = createTimeBlockColorPicker('recurring', defaultColor);
+
+    // Action buttons
+    const actions = document.createElement('div');
+    actions.style.cssText = `
+			display: flex;
+			gap: 12px;
+			justify-content: flex-end;
+		`;
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className = 'cc3-cancel-btn';
+    cancelBtn.style.cssText = `
+			background: none;
+			border: 1px solid #dadce0;
+			border-radius: 6px;
+			padding: 10px 20px;
+			font-size: 14px;
+			color: #5f6368;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		`;
+    cancelBtn.onmouseover = () => {
+      cancelBtn.style.backgroundColor = '#f8f9fa';
+      cancelBtn.style.borderColor = '#5f6368';
+    };
+    cancelBtn.onmouseout = () => {
+      cancelBtn.style.backgroundColor = 'transparent';
+      cancelBtn.style.borderColor = '#dadce0';
+    };
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = 'Add Time Block';
+    confirmBtn.className = 'cc3-confirm-btn';
+    confirmBtn.style.cssText = `
+			background: #1a73e8;
+			border: none;
+			border-radius: 6px;
+			padding: 10px 20px;
+			font-size: 14px;
+			color: white;
+			cursor: pointer;
+			font-weight: 500;
+			transition: background-color 0.2s ease;
+		`;
+    confirmBtn.onmouseover = () => (confirmBtn.style.backgroundColor = '#1557b0');
+    confirmBtn.onmouseout = () => (confirmBtn.style.backgroundColor = '#1a73e8');
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+
+    // Assemble the picker
+    picker.appendChild(header);
+    picker.appendChild(timeSection);
+    picker.appendChild(labelSection);
+    picker.appendChild(colorSection);
+    picker.appendChild(actions);
+    modal.appendChild(picker);
+
+    // Trigger entrance animation
+    requestAnimationFrame(() => {
+      modal.style.opacity = '1';
+      picker.style.transform = 'translateY(0)';
+    });
+
+    return modal;
+  }
+
+  function setupRecurringTimeBlockEvents(modal, onBlockCreate, onCancel) {
+    const closeBtn = modal.querySelector('.cc3-close-btn');
+    const cancelBtn = modal.querySelector('.cc3-cancel-btn');
+    const confirmBtn = modal.querySelector('.cc3-confirm-btn');
+    const startTimeInput = modal.querySelector('.cc3-start-time');
+    const endTimeInput = modal.querySelector('.cc3-end-time');
+    const allDayCheckbox = modal.querySelector('.cc3-all-day-checkbox');
+    const labelInput = modal.querySelector('.cc3-label-input');
+    const colorInput = modal.querySelector('.cc3-color-input');
+
+    // Helper to get values
+    const getValues = () => {
+      const isAllDay = allDayCheckbox.checked;
+      const timeRange = [startTimeInput.value || '09:00', endTimeInput.value || '17:00'];
+      const label = labelInput.value.trim();
+      const color = colorInput.value;
+      return { timeRange, isAllDay, label, color };
+    };
+
+    // Close handlers
+    const handleClose = () => onCancel();
+    closeBtn.onclick = handleClose;
+    cancelBtn.onclick = handleClose;
+
+    // Confirm button handler
+    confirmBtn.onclick = () => {
+      const { timeRange, isAllDay, label, color } = getValues();
+      onBlockCreate(timeRange, isAllDay, label, color);
+    };
+
+    // Click outside to close
+    modal.onclick = (e) => {
+      if (e.target === modal) {
+        handleClose();
+      }
+    };
+
+    // Keyboard navigation
+    modal.onkeydown = (e) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      } else if (e.key === 'Enter') {
+        const { timeRange, isAllDay, label, color } = getValues();
+        onBlockCreate(timeRange, isAllDay, label, color);
+      }
+    };
+
+    // Focus the start time input initially
+    setTimeout(() => startTimeInput.focus(), 100);
   }
 
   // Custom Time Picker Helper Function
@@ -2693,12 +3119,12 @@ checkAuthAndSubscription();
       };
 
       // Handle date selection with time range
-      const handleDateSelect = async (selectedDate, timeRange, isAllDay) => {
+      const handleDateSelect = async (selectedDate, timeRange, isAllDay, label, color) => {
         if (selectedDate) {
           const newBlock = {
             timeRange: isAllDay ? ['00:00', '23:59'] : timeRange,
-            color: settings.timeBlocking?.globalColor || '#FFEB3B',
-            label: '',
+            color: color || settings.timeBlocking?.globalColor || '#FFEB3B',
+            label: label || '',
           };
           await window.cc3Storage.addDateSpecificTimeBlock(selectedDate, newBlock);
           settings = await window.cc3Storage.getSettings();
@@ -3036,6 +3462,47 @@ checkAuthAndSubscription();
       timeInputsContainer.style.pointerEvents = isAllDay ? 'none' : 'auto';
     };
 
+    // Label section
+    const labelSection = document.createElement('div');
+    labelSection.style.cssText = `
+			margin-bottom: 24px;
+		`;
+
+    const labelTitle = document.createElement('div');
+    labelTitle.textContent = 'Label (optional):';
+    labelTitle.style.cssText = `
+			font-size: 12px;
+			font-weight: 600;
+			color: #5f6368;
+			margin-bottom: 8px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		`;
+
+    const labelInput = document.createElement('input');
+    labelInput.type = 'text';
+    labelInput.className = 'cc3-label-input';
+    labelInput.placeholder = 'e.g., Focus Time, Meeting, Break';
+    labelInput.style.cssText = `
+			width: 100%;
+			padding: 12px 16px;
+			border: 2px solid #dadce0;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #202124;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    labelInput.onfocus = () => (labelInput.style.borderColor = '#1a73e8');
+    labelInput.onblur = () => (labelInput.style.borderColor = '#dadce0');
+
+    labelSection.appendChild(labelTitle);
+    labelSection.appendChild(labelInput);
+
+    // Color picker section
+    const defaultColor = settings.timeBlocking?.globalColor || '#FFEB3B';
+    const colorSection = createTimeBlockColorPicker('datespecific', defaultColor);
+
     // Action buttons
     const actions = document.createElement('div');
     actions.style.cssText = `
@@ -3091,6 +3558,8 @@ checkAuthAndSubscription();
     picker.appendChild(presets);
     picker.appendChild(customSection);
     picker.appendChild(timeSection);
+    picker.appendChild(labelSection);
+    picker.appendChild(colorSection);
     picker.appendChild(actions);
     modal.appendChild(picker);
 
@@ -3112,12 +3581,16 @@ checkAuthAndSubscription();
     const startTimeInput = modal.querySelector('.cc3-start-time');
     const endTimeInput = modal.querySelector('.cc3-end-time');
     const allDayCheckbox = modal.querySelector('.cc3-all-day-checkbox');
+    const labelInput = modal.querySelector('.cc3-label-input');
+    const colorInput = modal.querySelector('.cc3-color-input');
 
     // Helper to get time values
     const getTimeValues = () => {
       const isAllDay = allDayCheckbox.checked;
       const timeRange = [startTimeInput.value || '09:00', endTimeInput.value || '17:00'];
-      return { timeRange, isAllDay };
+      const label = labelInput.value.trim();
+      const color = colorInput.value;
+      return { timeRange, isAllDay, label, color };
     };
 
     // Close handlers
@@ -3125,19 +3598,18 @@ checkAuthAndSubscription();
     closeBtn.onclick = handleClose;
     cancelBtn.onclick = handleClose;
 
-    // Preset button handlers
+    // Preset button handlers - just update date input, don't save yet
     presetBtns.forEach((btn) => {
       btn.onclick = () => {
-        const { timeRange, isAllDay } = getTimeValues();
-        onDateSelect(btn.dataset.date, timeRange, isAllDay);
+        dateInput.value = btn.dataset.date;
       };
     });
 
     // Confirm button handler
     confirmBtn.onclick = () => {
       if (dateInput.value) {
-        const { timeRange, isAllDay } = getTimeValues();
-        onDateSelect(dateInput.value, timeRange, isAllDay);
+        const { timeRange, isAllDay, label, color } = getTimeValues();
+        onDateSelect(dateInput.value, timeRange, isAllDay, label, color);
       }
     };
 
@@ -3154,8 +3626,8 @@ checkAuthAndSubscription();
         handleClose();
       } else if (e.key === 'Enter') {
         if (dateInput.value) {
-          const { timeRange, isAllDay } = getTimeValues();
-          onDateSelect(dateInput.value, timeRange, isAllDay);
+          const { timeRange, isAllDay, label, color } = getTimeValues();
+          onDateSelect(dateInput.value, timeRange, isAllDay, label, color);
         }
       }
     };
@@ -3172,6 +3644,227 @@ checkAuthAndSubscription();
       '-' +
       String(date.getDate()).padStart(2, '0')
     );
+  }
+
+  // Create color picker section for time block modals
+  function createTimeBlockColorPicker(modalId, defaultColor) {
+    const colorSection = document.createElement('div');
+    colorSection.style.cssText = `
+			margin-bottom: 20px;
+		`;
+
+    const colorTitle = document.createElement('div');
+    colorTitle.textContent = 'Color:';
+    colorTitle.style.cssText = `
+			font-size: 12px;
+			font-weight: 600;
+			color: #5f6368;
+			margin-bottom: 6px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		`;
+
+    // Color preview and inputs container
+    const colorInputContainer = document.createElement('div');
+    colorInputContainer.style.cssText = `
+			display: flex;
+			gap: 6px;
+			align-items: center;
+			margin-bottom: 8px;
+		`;
+
+    // Color preview box
+    const colorPreview = document.createElement('div');
+    colorPreview.className = 'cc3-color-preview';
+    colorPreview.style.cssText = `
+			width: 28px;
+			height: 28px;
+			border-radius: 6px;
+			background-color: ${defaultColor};
+			border: 2px solid #dadce0;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			flex-shrink: 0;
+		`;
+
+    // Color input (hidden)
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.className = 'cc3-color-input';
+    colorInput.value = defaultColor;
+    colorInput.style.cssText = `
+			width: 0;
+			height: 0;
+			opacity: 0;
+			position: absolute;
+		`;
+
+    // Hex input
+    const hexInput = document.createElement('input');
+    hexInput.type = 'text';
+    hexInput.className = 'cc3-hex-input';
+    hexInput.value = defaultColor.toUpperCase();
+    hexInput.placeholder = '#000000';
+    hexInput.maxLength = 7;
+    hexInput.style.cssText = `
+			flex: 1;
+			padding: 6px 10px;
+			border: 2px solid #dadce0;
+			border-radius: 6px;
+			font-size: 12px;
+			color: #202124;
+			font-family: 'Courier New', monospace;
+			text-transform: uppercase;
+			transition: border-color 0.2s ease;
+			box-sizing: border-box;
+		`;
+    hexInput.onfocus = () => (hexInput.style.borderColor = '#1a73e8');
+    hexInput.onblur = () => (hexInput.style.borderColor = '#dadce0');
+
+    // Color preview click opens color input
+    colorPreview.onclick = () => colorInput.click();
+
+    // Sync color input with preview and hex
+    colorInput.oninput = () => {
+      const color = colorInput.value;
+      colorPreview.style.backgroundColor = color;
+      hexInput.value = color.toUpperCase();
+    };
+
+    // Sync hex input with preview and color input
+    hexInput.oninput = () => {
+      const hex = hexInput.value;
+      if (/^#[0-9A-F]{6}$/i.test(hex)) {
+        colorInput.value = hex;
+        colorPreview.style.backgroundColor = hex;
+      }
+    };
+
+    colorInputContainer.appendChild(colorPreview);
+    colorInputContainer.appendChild(colorInput);
+    colorInputContainer.appendChild(hexInput);
+
+    // Palette tabs
+    const paletteTabs = document.createElement('div');
+    paletteTabs.style.cssText = `
+			display: flex;
+			gap: 6px;
+			margin-bottom: 12px;
+			margin-top: 8px;
+			border-bottom: 1px solid #dadce0;
+			padding-bottom: 8px;
+		`;
+
+    const tabs = [
+      { id: 'vibrant', label: 'Vibrant' },
+      { id: 'pastel', label: 'Pastel' },
+      { id: 'dark', label: 'Dark' },
+      { id: 'custom', label: 'Custom' },
+    ];
+
+    tabs.forEach((tab, index) => {
+      const tabBtn = document.createElement('button');
+      tabBtn.textContent = tab.label;
+      tabBtn.className = `cc3-palette-tab ${index === 0 ? 'active' : ''}`;
+      tabBtn.dataset.tab = tab.id;
+      tabBtn.style.cssText = `
+				background: ${index === 0 ? '#e8f0fe' : 'transparent'};
+				border: none;
+				padding: 5px 10px;
+				font-size: 11px;
+				color: ${index === 0 ? '#1a73e8' : '#5f6368'};
+				cursor: pointer;
+				border-radius: 4px;
+				font-weight: ${index === 0 ? '600' : '500'};
+				transition: all 0.2s ease;
+			`;
+      tabBtn.onclick = () => {
+        // Update tab states
+        paletteTabs.querySelectorAll('.cc3-palette-tab').forEach((btn) => {
+          btn.style.backgroundColor = 'transparent';
+          btn.style.color = '#5f6368';
+          btn.style.fontWeight = '500';
+          btn.classList.remove('active');
+        });
+        tabBtn.style.backgroundColor = '#e8f0fe';
+        tabBtn.style.color = '#1a73e8';
+        tabBtn.style.fontWeight = '600';
+        tabBtn.classList.add('active');
+
+        // Update panel visibility
+        paletteContainer.querySelectorAll('.cc3-palette-panel').forEach((panel) => {
+          panel.style.display = 'none';
+        });
+        paletteContainer.querySelector(`[data-palette="${tab.id}"]`).style.display = 'grid';
+      };
+      paletteTabs.appendChild(tabBtn);
+    });
+
+    // Palette container
+    const paletteContainer = document.createElement('div');
+    paletteContainer.className = 'cc3-palette-container';
+    paletteContainer.style.cssText = `
+			width: 100%;
+		`;
+
+    // Create palette panels
+    const createPalette = (colors, paletteId) => {
+      const panel = document.createElement('div');
+      panel.className = 'cc3-palette-panel';
+      panel.dataset.palette = paletteId;
+      panel.style.cssText = `
+				display: ${paletteId === 'vibrant' ? 'grid' : 'none'};
+				grid-template-columns: repeat(10, 1fr);
+				gap: 10px;
+				padding: 8px 0;
+			`;
+
+      colors.forEach((color) => {
+        const swatch = document.createElement('div');
+        swatch.className = 'cc3-color-swatch';
+        swatch.style.cssText = `
+					width: 100%;
+					height: 0;
+					padding-bottom: 100%;
+					border-radius: 4px;
+					background-color: ${color};
+					cursor: pointer;
+					border: 2px solid transparent;
+					transition: all 0.2s ease;
+					position: relative;
+				`;
+        swatch.onmouseover = () => {
+          swatch.style.transform = 'scale(1.15)';
+          swatch.style.borderColor = '#1a73e8';
+        };
+        swatch.onmouseout = () => {
+          swatch.style.transform = 'scale(1)';
+          swatch.style.borderColor = 'transparent';
+        };
+        swatch.onclick = () => {
+          colorInput.value = color;
+          colorPreview.style.backgroundColor = color;
+          hexInput.value = color.toUpperCase();
+        };
+        panel.appendChild(swatch);
+      });
+
+      return panel;
+    };
+
+    // Add palettes
+    paletteContainer.appendChild(createPalette(colorPickerPalette, 'vibrant'));
+    paletteContainer.appendChild(createPalette(pastelPalette, 'pastel'));
+    paletteContainer.appendChild(createPalette(darkPalette, 'dark'));
+    paletteContainer.appendChild(createPalette(customColors, 'custom'));
+
+    // Assemble color section
+    colorSection.appendChild(colorTitle);
+    colorSection.appendChild(colorInputContainer);
+    colorSection.appendChild(paletteTabs);
+    colorSection.appendChild(paletteContainer);
+
+    return colorSection;
   }
 
   // Function to notify content script of time blocking changes
@@ -3874,6 +4567,220 @@ checkAuthAndSubscription();
           console.error('[Task List Colors] OAuth grant error:', error);
           showToast('Error granting access. Please try again.');
         }
+      };
+    }
+
+    // Task list info card toggle
+    const taskListInfoToggle = qs('taskListInfoToggle');
+    const taskListInfoExpanded = qs('taskListInfoExpanded');
+    if (taskListInfoToggle && taskListInfoExpanded) {
+      taskListInfoToggle.onclick = (e) => {
+        e.preventDefault();
+        const isExpanded = taskListInfoExpanded.style.display !== 'none';
+
+        if (isExpanded) {
+          // Collapse
+          taskListInfoExpanded.style.display = 'none';
+          taskListInfoToggle.innerHTML = `
+            See how to use
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        } else {
+          // Expand
+          taskListInfoExpanded.style.display = 'block';
+          taskListInfoToggle.innerHTML = `
+            Hide
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg); transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        }
+      };
+    }
+
+    // Task list video tutorial button
+    const taskListVideoTutorialBtn = qs('taskListVideoTutorialBtn');
+    if (taskListVideoTutorialBtn) {
+      taskListVideoTutorialBtn.onclick = (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'https://www.calendarextension.com/help#task-list-coloring' });
+      };
+    }
+
+    // Day Coloring info card toggle
+    const dayColoringInfoToggle = qs('dayColoringInfoToggle');
+    const dayColoringInfoExpanded = qs('dayColoringInfoExpanded');
+    if (dayColoringInfoToggle && dayColoringInfoExpanded) {
+      dayColoringInfoToggle.onclick = (e) => {
+        e.preventDefault();
+        const isExpanded = dayColoringInfoExpanded.style.display !== 'none';
+        if (isExpanded) {
+          dayColoringInfoExpanded.style.display = 'none';
+          dayColoringInfoToggle.innerHTML = `
+            See how to use
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        } else {
+          dayColoringInfoExpanded.style.display = 'block';
+          dayColoringInfoToggle.innerHTML = `
+            Hide
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg); transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        }
+      };
+    }
+
+    const dayColoringVideoTutorialBtn = qs('dayColoringVideoTutorialBtn');
+    if (dayColoringVideoTutorialBtn) {
+      dayColoringVideoTutorialBtn.onclick = (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'https://www.calendarextension.com/help#day-coloring' });
+      };
+    }
+
+    // Quick Access Colors info card toggle
+    const quickAccessColorsInfoToggle = qs('quickAccessColorsInfoToggle');
+    const quickAccessColorsInfoExpanded = qs('quickAccessColorsInfoExpanded');
+    if (quickAccessColorsInfoToggle && quickAccessColorsInfoExpanded) {
+      quickAccessColorsInfoToggle.onclick = (e) => {
+        e.preventDefault();
+        const isExpanded = quickAccessColorsInfoExpanded.style.display !== 'none';
+        if (isExpanded) {
+          quickAccessColorsInfoExpanded.style.display = 'none';
+          quickAccessColorsInfoToggle.innerHTML = `
+            See how to use
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        } else {
+          quickAccessColorsInfoExpanded.style.display = 'block';
+          quickAccessColorsInfoToggle.innerHTML = `
+            Hide
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg); transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        }
+      };
+    }
+
+    const quickAccessColorsVideoTutorialBtn = qs('quickAccessColorsVideoTutorialBtn');
+    if (quickAccessColorsVideoTutorialBtn) {
+      quickAccessColorsVideoTutorialBtn.onclick = (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'https://www.calendarextension.com/help#quick-access-colors' });
+      };
+    }
+
+    // Time Blocking info card toggle
+    const timeBlockingInfoToggle = qs('timeBlockingInfoToggle');
+    const timeBlockingInfoExpanded = qs('timeBlockingInfoExpanded');
+    if (timeBlockingInfoToggle && timeBlockingInfoExpanded) {
+      timeBlockingInfoToggle.onclick = (e) => {
+        e.preventDefault();
+        const isExpanded = timeBlockingInfoExpanded.style.display !== 'none';
+        if (isExpanded) {
+          timeBlockingInfoExpanded.style.display = 'none';
+          timeBlockingInfoToggle.innerHTML = `
+            See how to use
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        } else {
+          timeBlockingInfoExpanded.style.display = 'block';
+          timeBlockingInfoToggle.innerHTML = `
+            Hide
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg); transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        }
+      };
+    }
+
+    const timeBlockingVideoTutorialBtn = qs('timeBlockingVideoTutorialBtn');
+    if (timeBlockingVideoTutorialBtn) {
+      timeBlockingVideoTutorialBtn.onclick = (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'https://www.calendarextension.com/help#time-blocking' });
+      };
+    }
+
+    // Color Lab info card toggle
+    const colorLabInfoToggle = qs('colorLabInfoToggle');
+    const colorLabInfoExpanded = qs('colorLabInfoExpanded');
+    if (colorLabInfoToggle && colorLabInfoExpanded) {
+      colorLabInfoToggle.onclick = (e) => {
+        e.preventDefault();
+        const isExpanded = colorLabInfoExpanded.style.display !== 'none';
+        if (isExpanded) {
+          colorLabInfoExpanded.style.display = 'none';
+          colorLabInfoToggle.innerHTML = `
+            See how to use
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        } else {
+          colorLabInfoExpanded.style.display = 'block';
+          colorLabInfoToggle.innerHTML = `
+            Hide
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg); transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        }
+      };
+    }
+
+    const colorLabVideoTutorialBtn = qs('colorLabVideoTutorialBtn');
+    if (colorLabVideoTutorialBtn) {
+      colorLabVideoTutorialBtn.onclick = (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'https://www.calendarextension.com/help#color-lab' });
+      };
+    }
+
+    // Date-Specific Blocks info card toggle
+    const dateSpecificBlocksInfoToggle = qs('dateSpecificBlocksInfoToggle');
+    const dateSpecificBlocksInfoExpanded = qs('dateSpecificBlocksInfoExpanded');
+    if (dateSpecificBlocksInfoToggle && dateSpecificBlocksInfoExpanded) {
+      dateSpecificBlocksInfoToggle.onclick = (e) => {
+        e.preventDefault();
+        const isExpanded = dateSpecificBlocksInfoExpanded.style.display !== 'none';
+        if (isExpanded) {
+          dateSpecificBlocksInfoExpanded.style.display = 'none';
+          dateSpecificBlocksInfoToggle.innerHTML = `
+            See how to use
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        } else {
+          dateSpecificBlocksInfoExpanded.style.display = 'block';
+          dateSpecificBlocksInfoToggle.innerHTML = `
+            Hide
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="transform: rotate(180deg); transition: transform 0.2s ease;">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          `;
+        }
+      };
+    }
+
+    const dateSpecificBlocksVideoTutorialBtn = qs('dateSpecificBlocksVideoTutorialBtn');
+    if (dateSpecificBlocksVideoTutorialBtn) {
+      dateSpecificBlocksVideoTutorialBtn.onclick = (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'https://www.calendarextension.com/help#date-specific-blocks' });
       };
     }
 
