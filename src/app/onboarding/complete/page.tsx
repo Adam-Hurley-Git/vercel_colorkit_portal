@@ -153,18 +153,6 @@ export default function CompletePage() {
                 </div>
               </div>
 
-              {/* Trial & Refund Badges */}
-              <div className="flex items-center justify-center gap-3 max-w-xl mx-auto">
-                <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2">
-                  <span className="text-lg">🎁</span>
-                  <span className="text-sm font-semibold text-blue-900">7-Day Free Trial</span>
-                </div>
-                <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2">
-                  <span className="text-lg">💰</span>
-                  <span className="text-sm font-semibold text-green-900">7-Day Refund</span>
-                </div>
-              </div>
-
               {/* Agreements Section */}
               <div className="space-y-2 max-w-xl mx-auto">
                 {/* Accept All Checkbox - Prominent */}
@@ -283,7 +271,7 @@ export default function CompletePage() {
 
               {/* Trust Indicator */}
               <div className="pt-4 border-t border-slate-200">
-                <p className="text-sm text-slate-500">🔒 Privacy First • ✨ 7 Day Free Trial</p>
+                <p className="text-sm text-slate-500">🔒 Privacy First • ✨ 7 Day Free Trial • 💰 7 Day Refund</p>
               </div>
             </div>
           </div>
