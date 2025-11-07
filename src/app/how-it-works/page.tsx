@@ -1,7 +1,20 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Calendar, MousePointerClick, Palette, ExternalLink, ArrowRight, Chrome, Settings } from 'lucide-react';
+import {
+  Calendar,
+  MousePointerClick,
+  Palette,
+  ExternalLink,
+  ArrowRight,
+  Chrome,
+  Settings,
+  Clock,
+  ListChecks,
+  ToggleLeft,
+  CheckSquare,
+  Lightbulb,
+} from 'lucide-react';
 
 export default function HowItWorksPage() {
   const router = useRouter();
@@ -104,24 +117,291 @@ export default function HowItWorksPage() {
             </div>
           </div>
 
-          {/* Quick Features Overview */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 mb-6 border border-blue-200">
-            <h3 className="font-display font-bold text-slate-900 mb-4 text-center">What You Can Do</h3>
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg p-4 text-center">
-                <Palette className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                <p className="font-semibold text-slate-900 text-sm mb-1">Day Coloring</p>
-                <p className="text-xs text-slate-600">Color-code weekdays and special dates</p>
+          {/* Important Note: Settings are OFF by default */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 mb-6 border border-amber-200">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="font-display font-bold text-slate-900 mb-2">Important: Turn On Features First!</h3>
+                <p className="text-sm text-slate-700 mb-2">
+                  All features are turned <span className="font-bold text-amber-700">OFF by default</span>. You need to
+                  enable each feature in the extension settings before using it.
+                </p>
+                <div className="flex items-center gap-2 bg-white rounded-lg p-2 border border-amber-200">
+                  <ToggleLeft className="w-5 h-5 text-slate-400" />
+                  <span className="text-xs text-slate-600">
+                    Click the toggle switches in settings to turn features ON
+                  </span>
+                </div>
               </div>
-              <div className="bg-white rounded-lg p-4 text-center">
-                <Settings className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                <p className="font-semibold text-slate-900 text-sm mb-1">Task Colors</p>
-                <p className="text-xs text-slate-600">Auto-color tasks by list or manually</p>
+            </div>
+          </div>
+
+          {/* Feature 1: Day Coloring */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-blue-200">
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-200">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Palette className="w-6 h-6 text-white" />
               </div>
-              <div className="bg-white rounded-lg p-4 text-center">
-                <Calendar className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                <p className="font-semibold text-slate-900 text-sm mb-1">Time Blocking</p>
-                <p className="text-xs text-slate-600">Protect focus time with visual blocks</p>
+              <div>
+                <h3 className="font-display font-bold text-slate-900">Day Coloring</h3>
+                <p className="text-xs text-slate-600">Add background colors to calendar columns</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <p className="text-sm font-semibold text-slate-900 mb-2">When to use:</p>
+                <ul className="text-xs text-slate-700 space-y-1 ml-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 flex-shrink-0">•</span>
+                    <span>Color-code weekdays vs weekends to quickly see work days</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 flex-shrink-0">•</span>
+                    <span>Highlight important dates (deadlines, meetings, special events)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-600 flex-shrink-0">•</span>
+                    <span>Make your calendar easier to scan at a glance</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-sm font-semibold text-slate-900 mb-3">How to set it up:</p>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      1
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Open Google Calendar, then click the ColorKit extension icon in your toolbar
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      2
+                    </span>
+                    <p className="text-xs text-slate-700">Find the &quot;Day Coloring&quot; section and toggle it ON</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      3
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Choose colors for each weekday (Monday-Sunday) by clicking the color boxes
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      4
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Optionally, add specific dates with custom colors (holidays, birthdays, etc.)
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      5
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Your calendar columns will instantly show the background colors you chose!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature 2: Task List Coloring */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-purple-200">
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-200">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                <ListChecks className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-slate-900">Task List Coloring</h3>
+                <p className="text-xs text-slate-600">Organize tasks with automatic or manual colors</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                <p className="text-sm font-semibold text-slate-900 mb-2">When to use:</p>
+                <ul className="text-xs text-slate-700 space-y-1 ml-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 flex-shrink-0">•</span>
+                    <span>Visually separate work tasks from personal tasks</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 flex-shrink-0">•</span>
+                    <span>Color-code tasks by priority or category</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-600 flex-shrink-0">•</span>
+                    <span>Make important tasks stand out in your calendar</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-sm font-semibold text-slate-900 mb-3">Option 1: Auto-Color by Task List</p>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      1
+                    </span>
+                    <p className="text-xs text-slate-700">Open the extension settings on Google Calendar</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      2
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Toggle ON &quot;Task List Coloring&quot; and connect your Google Tasks
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      3
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Assign a color to each task list (e.g., &quot;Work&quot; = blue, &quot;Personal&quot; = green)
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      4
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      All tasks from each list will automatically show with that color!
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-sm font-semibold text-slate-900 mb-3">Option 2: Manually Color Individual Tasks</p>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      1
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      In Google Calendar, click on any <span className="font-semibold">already created task</span>
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      2
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      The task modal will open - look for the color picker added by ColorKit
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      3
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Click your preferred color - the task will update with that unique color
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckSquare className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-slate-600 italic">
+                      Note: You must click on an existing task to change its color - new tasks inherit list colors
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feature 3: Time Blocking */}
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-green-200">
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-200">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-slate-900">Time Blocking</h3>
+                <p className="text-xs text-slate-600">Visual background blocks for focus periods</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <p className="text-sm font-semibold text-slate-900 mb-2">When to use:</p>
+                <ul className="text-xs text-slate-700 space-y-1 ml-4">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 flex-shrink-0">•</span>
+                    <span>Block out focus time for deep work (e.g., 9 AM - 12 PM every weekday)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 flex-shrink-0">•</span>
+                    <span>Mark regular break times or lunch hours</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 flex-shrink-0">•</span>
+                    <span>Show recurring activities (gym time, family time, etc.)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 flex-shrink-0">•</span>
+                    <span>Protect time slots from being accidentally booked</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 border border-slate-200">
+                <p className="text-sm font-semibold text-slate-900 mb-3">How to set it up:</p>
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      1
+                    </span>
+                    <p className="text-xs text-slate-700">Open the extension settings on Google Calendar</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      2
+                    </span>
+                    <p className="text-xs text-slate-700">Toggle ON &quot;Time Blocking&quot;</p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      3
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Create a new time block by setting start time, end time, and color
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      4
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      Choose when it repeats: Daily, Weekdays only, Weekends only, or specific days
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="flex-shrink-0 w-5 h-5 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      5
+                    </span>
+                    <p className="text-xs text-slate-700">
+                      The time block will appear as a colored background behind your events
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                <p className="text-xs text-slate-600 flex items-start gap-2">
+                  <Lightbulb className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <span>
+                    <span className="font-semibold">Pro tip:</span> Use subtle colors for time blocks so your actual
+                    events remain visible and easy to read
+                  </span>
+                </p>
               </div>
             </div>
           </div>
