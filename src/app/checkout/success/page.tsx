@@ -59,7 +59,7 @@ export default async function SuccessPage() {
                   <p className="text-base font-semibold text-slate-900">ColorKit Activated</p>
                 </div>
                 <p className="text-sm text-slate-700 mb-1">Your calendar extension is now active</p>
-                <p className="text-xs text-slate-600">Install the extension and customize your colors</p>
+                <p className="text-xs text-slate-600">Next: Learn how to use ColorKit with Google Calendar</p>
               </div>
 
               {/* What's Next */}
@@ -116,8 +116,8 @@ export default async function SuccessPage() {
 
               {/* CTA Button */}
               <div className="flex items-center justify-center">
-                <Link href="/dashboard" className="btn btn-primary btn-lg group w-full sm:w-auto">
-                  Go to Dashboard
+                <Link href="/onboarding/how-it-works" className="btn btn-primary btn-lg group w-full sm:w-auto">
+                  Continue
                   <svg
                     className="w-5 h-5 transition-transform group-hover:translate-x-1"
                     fill="none"

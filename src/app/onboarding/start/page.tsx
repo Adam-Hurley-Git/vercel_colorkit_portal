@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Rocket, CheckCircle, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function OnboardingStartPage() {
   const router = useRouter();
@@ -24,86 +24,64 @@ export default function OnboardingStartPage() {
         ></div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 flex flex-col justify-center min-h-screen">
-        <div className="max-w-4xl mx-auto w-full">
+      <div className="container mx-auto px-4 flex flex-col justify-center min-h-screen py-8">
+        <div className="max-w-3xl mx-auto w-full">
           {/* Back Button */}
           <button
             onClick={() => router.push('/onboarding')}
-            className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+            className="mb-3 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
           </button>
 
           {/* Introduction Card */}
-          <div className="relative overflow-hidden rounded-3xl bg-white shadow-2xl animate-fade-in-up">
+          <div className="relative overflow-hidden rounded-2xl bg-white shadow-xl">
             {/* Gradient Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-60"></div>
 
-            <div className="relative px-8 py-12 sm:px-12 sm:py-16">
-              <div className="text-center space-y-8">
-                {/* Icon with Animation */}
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl shadow-2xl relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl animate-pulse opacity-75"></div>
-                  <Rocket className="w-10 h-10 text-white relative z-10" />
-                </div>
-
+            <div className="relative px-6 py-8 sm:px-8 sm:py-10">
+              <div className="text-center space-y-5">
                 {/* Main Heading */}
-                <div className="space-y-4">
-                  <h1 className="text-4xl sm:text-5xl font-display font-bold text-slate-900 tracking-tight">
-                    Welcome to{' '}
-                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                      ColorKit
-                    </span>
+                <div className="space-y-2">
+                  <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 tracking-tight">
+                    Before We Begin
                   </h1>
-                  <p className="text-xl sm:text-2xl text-slate-600 max-w-2xl mx-auto font-medium">
-                    Transform your Google Calendar in just a few steps
+                  <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto">
+                    Complete these quick steps to activate your ColorKit extension
                   </p>
                 </div>
 
-                {/* Instructions Box */}
-                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 border-2 border-blue-200 max-w-2xl mx-auto">
-                  <div className="flex items-center justify-center gap-3 mb-6">
-                    <Sparkles className="w-6 h-6 text-blue-600" />
-                    <h2 className="text-2xl font-display font-bold text-slate-900">Getting Started</h2>
-                  </div>
-
-                  <div className="text-left space-y-4">
-                    <p className="text-base text-slate-700 leading-relaxed">
-                      Before you can use the ColorKit extension, you&apos;ll need to complete a quick setup process:
-                    </p>
-
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm mt-0.5">
-                          1
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900">Explore Features</p>
-                          <p className="text-sm text-slate-600">
-                            Learn about ColorKit&apos;s powerful customization options
-                          </p>
-                        </div>
+                {/* Instructions Grid - Compact */}
+                <div className="bg-white rounded-xl p-5 border border-slate-200 max-w-xl mx-auto">
+                  <div className="grid gap-3 text-left">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        1
                       </div>
-
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm mt-0.5">
-                          2
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900">Personalize Your Experience</p>
-                          <p className="text-sm text-slate-600">Tell us what you need and see interactive demos</p>
-                        </div>
+                      <div className="flex-1 pt-0.5">
+                        <p className="font-semibold text-slate-900 text-sm">Personalize Your Experience</p>
+                        <p className="text-xs text-slate-600">Tell us what features matter most to you</p>
                       </div>
+                    </div>
 
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-sm mt-0.5">
-                          3
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900">Start Your Free Trial</p>
-                          <p className="text-sm text-slate-600">Activate all features with a 7-day free trial</p>
-                        </div>
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        2
+                      </div>
+                      <div className="flex-1 pt-0.5">
+                        <p className="font-semibold text-slate-900 text-sm">See Feature Demos</p>
+                        <p className="text-xs text-slate-600">Quick interactive preview of key features</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
+                        3
+                      </div>
+                      <div className="flex-1 pt-0.5">
+                        <p className="font-semibold text-slate-900 text-sm">Start Your Free Trial</p>
+                        <p className="text-xs text-slate-600">7-day trial with full access to all features</p>
                       </div>
                     </div>
                   </div>
@@ -111,42 +89,38 @@ export default function OnboardingStartPage() {
 
                 {/* Time Estimate */}
                 <div className="flex items-center justify-center gap-2 text-slate-600">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <p className="text-base font-medium">Takes less than 60 seconds</p>
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <p className="text-sm font-medium">Takes less than 60 seconds</p>
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="pt-4 space-y-4">
+                <div className="pt-2 space-y-2">
                   <button
                     onClick={handleNext}
-                    className="btn btn-primary btn-lg group shadow-xl hover:shadow-2xl px-10 py-4 text-lg"
+                    className="btn btn-primary btn-lg group shadow-xl hover:shadow-2xl px-8 py-3 w-full sm:w-auto"
                   >
-                    <span className="font-semibold">Let&apos;s Get Started</span>
-                    <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-1" />
+                    <span className="font-semibold">Continue</span>
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </button>
 
-                  <div className="pt-2">
+                  <div>
                     <button
                       onClick={handleSkip}
                       className="text-slate-600 hover:text-slate-900 text-sm font-medium underline transition-colors"
                     >
-                      Skip onboarding and go straight to trial signup
+                      Skip to trial signup
                     </button>
                   </div>
                 </div>
 
-                {/* Trust Indicators */}
-                <div className="flex items-center justify-center gap-8 text-sm border-t border-slate-200 pt-6 mt-6">
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                {/* Trust Indicators - Compact */}
+                <div className="flex items-center justify-center gap-6 text-xs border-t border-slate-200 pt-4 mt-4">
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                     <span className="font-medium">7-Day Free Trial</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="font-medium">No Credit Card Required</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
                     <span className="font-medium">Cancel Anytime</span>
                   </div>
                 </div>
