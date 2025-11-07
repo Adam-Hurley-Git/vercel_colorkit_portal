@@ -116,7 +116,7 @@ export default async function SuccessPage() {
 
               {/* CTA Button */}
               <div className="flex items-center justify-center">
-                <Link href="/onboarding/how-it-works" className="btn btn-primary btn-lg group w-full sm:w-auto">
+                <Link href="/how-it-works" className="btn btn-primary btn-lg group w-full sm:w-auto">
                   Continue
                   <svg
                     className="w-5 h-5 transition-transform group-hover:translate-x-1"
