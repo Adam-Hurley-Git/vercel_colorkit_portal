@@ -61,7 +61,7 @@ export default function PersonalizePage() {
         <div className="max-w-4xl mx-auto w-full">
           {/* Back Button */}
           <button
-            onClick={() => router.push('/onboarding')}
+            onClick={() => router.push('/onboarding/start')}
             className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

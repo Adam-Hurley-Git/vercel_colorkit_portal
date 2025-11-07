@@ -54,7 +54,7 @@ export default function DemoPage() {
   };
 
   const currentFeature = features[currentStep];
-  const progress = ((currentStep + 1) / features.length) * 50 + 50; // 50-100%
+  const progress = ((currentStep + 1) / features.length) * 30 + 55; // 65-85%
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">

@@ -12,7 +12,7 @@ export default function OnboardingPage() {
       <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 z-50">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
-          style={{ width: '25%' }}
+          style={{ width: '20%' }}
         ></div>
       </div>
 
@@ -90,7 +90,7 @@ export default function OnboardingPage() {
                 {/* CTA Button */}
                 <div className="pt-2">
                   <button
-                    onClick={() => router.push('/onboarding/personalize')}
+                    onClick={() => router.push('/onboarding/start')}
                     className="btn btn-primary btn-lg group shadow-xl hover:shadow-2xl px-8 py-3"
                   >
                     Let&apos;s Get Started
