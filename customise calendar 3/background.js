@@ -224,6 +224,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       applyListColorToExistingTasks(message.listId, message.color).then(sendResponse);
       return true;
 
+    case 'SUBSCRIPTION_UPDATED':
+      // Notify all calendar tabs about subscription status change
+      broadcastToCalendarTabs({ type: 'SUBSCRIPTION_UPDATED' }).then(() => {
+        debugLog('Subscription update broadcasted to calendar tabs');
+        sendResponse({ broadcasted: true });
+      });
+      return true;
+
     default:
       sendResponse({ error: 'Unknown message type' });
   }
@@ -523,43 +531,19 @@ async function ensureWebPushSubscription() {
       debugLog('No stored push subscription found, will subscribe fresh');
     }
 
-    // Subscribe to push notifications
+    // Subscribe to push notifications (silent mode - Chrome 121+)
     debugLog('Subscribing to Web Push with VAPID public key...');
 
     const applicationServerKey = urlBase64ToUint8Array(CONFIG.VAPID_PUBLIC_KEY);
 
-    let subscription;
-    let subscriptionType = 'silent';
+    // Silent push (Chrome 121+) - no visible notifications required
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: false,
+      applicationServerKey: applicationServerKey,
+    });
 
-    try {
-      // Try silent push first (Chrome 121+)
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: false, // Silent push - no notifications required (Chrome 121+)
-        applicationServerKey: applicationServerKey,
-      });
-      debugLog('✅ Web Push subscription successful (silent mode)!');
-    } catch (silentPushError) {
-      debugLog('⚠️ Silent push not supported, falling back to visible notifications...');
-      debugLog('   Error:', silentPushError?.message || silentPushError);
-
-      // Fall back to visible notifications (Chrome < 121)
-      try {
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true, // Visible notifications - fallback for older Chrome
-          applicationServerKey: applicationServerKey,
-        });
-        subscriptionType = 'visible';
-        debugLog('✅ Web Push subscription successful (visible mode - fallback)');
-
-        // Store flag to show Chrome update notice later
-        await chrome.storage.local.set({ shouldShowChromeUpdateNotice: true });
-      } catch (visiblePushError) {
-        throw new Error(`Both silent and visible push failed: ${visiblePushError?.message || visiblePushError}`);
-      }
-    }
-
+    debugLog('✅ Web Push subscription successful (silent mode)!');
     debugLog('   Subscription endpoint:', subscription.endpoint);
-    debugLog('   Subscription type:', subscriptionType);
 
     // Convert subscription to JSON format for storage/transmission
     const subscriptionJson = subscription.toJSON();
@@ -734,10 +718,37 @@ async function syncTaskLists(fullSync = false) {
 }
 
 // Check OAuth status
+// IMPORTANT: Check our storage flag first (source of truth), then Chrome cache
 async function checkOAuthStatus() {
   try {
-    const granted = await GoogleTasksAPI.isAuthGranted();
-    return { granted };
+    // First, check our storage flag (set when user clicks "Grant Access")
+    const { settings } = await chrome.storage.sync.get('settings');
+    const oauthGrantedInStorage = settings?.taskListColoring?.oauthGranted || false;
+
+    // If storage says not granted, don't check Chrome cache (prevents false positives after clear storage)
+    if (!oauthGrantedInStorage) {
+      debugLog('OAuth not granted in storage, returning false');
+      return { granted: false };
+    }
+
+    // Storage says granted - verify Chrome still has the token
+    const hasToken = await GoogleTasksAPI.isAuthGranted();
+    if (!hasToken) {
+      debugLog('Storage says granted but Chrome token missing, clearing storage flag');
+      // Token was revoked - update storage
+      await chrome.storage.sync.set({
+        settings: {
+          ...(settings || {}),
+          taskListColoring: {
+            ...(settings?.taskListColoring || {}),
+            oauthGranted: false,
+          },
+        },
+      });
+      return { granted: false };
+    }
+
+    return { granted: true };
   } catch (error) {
     console.error('Error checking OAuth status:', error);
     return { granted: false };

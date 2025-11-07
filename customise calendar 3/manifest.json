@@ -8,13 +8,11 @@
     "48": "images/icon-48.png",
     "128": "images/icon-128.png"
   },
-  "permissions": ["identity", "storage", "tabs", "cookies", "notifications", "alarms"],
+  "minimum_chrome_version": "121",
+  "permissions": ["identity", "storage", "tabs", "alarms"],
   "host_permissions": [
     "https://calendar.google.com/*",
     "https://*.supabase.co/*",
-    "http://localhost:3000/*",
-    "http://127.0.0.1:3000/*",
-    "https://*.vercel.app/*",
     "https://portal.calendarextension.com/*"
   ],
   "background": {
@@ -60,11 +58,6 @@
     }
   ],
   "externally_connectable": {
-    "matches": [
-      "http://localhost:3000/*",
-      "http://127.0.0.1:3000/*",
-      "https://*.vercel.app/*",
-      "https://portal.calendarextension.com/*"
-    ]
+    "matches": ["https://portal.calendarextension.com/*"]
   }
 }

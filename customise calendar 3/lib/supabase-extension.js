@@ -38,9 +38,7 @@ const chromeStorageAdapter = {
 //    Import from https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm
 // 2. Bundle Supabase with your extension (recommended for production)
 
-// For now, we'll create a minimal client that handles auth via cookies
-// The actual Supabase JS client can be added later if needed
-
+// Minimal client for managing Supabase auth sessions via chrome.storage
 export const supabaseClient = {
   url: CONFIG.SUPABASE_URL,
   anonKey: CONFIG.SUPABASE_ANON_KEY,
@@ -58,40 +56,6 @@ export const supabaseClient = {
       await chromeStorageAdapter.setItem('supabase.auth.token', JSON.stringify(session));
     } else {
       await chromeStorageAdapter.removeItem('supabase.auth.token');
-    }
-  },
-
-  // Check if user is authenticated via cookies
-  async isAuthenticated() {
-    try {
-      // Try to get Supabase auth cookies
-      const cookies = await chrome.cookies.getAll({
-        url: CONFIG.SUPABASE_URL,
-      });
-
-      debugLog('Supabase cookies found:', cookies.length);
-
-      // Look for auth token cookie
-      const authCookie = cookies.find(
-        (c) => c.name.includes('auth-token') || (c.name.includes('sb-') && c.name.includes('-auth-token')),
-      );
-
-      if (authCookie) {
-        debugLog('Auth cookie found:', authCookie.name);
-        return true;
-      }
-
-      // Fallback: check storage
-      const session = await this.getSession();
-      if (session) {
-        debugLog('Session found in storage');
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Error checking authentication:', error);
-      return false;
     }
   },
 

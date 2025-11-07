@@ -123,6 +123,7 @@
       openDirection = 'down', // 'up' or 'down'
       position = 'popup', // 'popup' or 'modal'
       enableTabs = true,
+      inlineColors = null, // Custom inline colors from settings
       onColorChange = () => {},
       onApply = () => {},
       onClear = () => {},
@@ -776,7 +777,17 @@
 			align-items: center;
 		`;
 
-    const quickColors = ['#4285f4', '#34a853', '#ea4335', '#fbbc04', '#ff6d01', '#9c27b0', '#e91e63', '#00bcd4'];
+    // Use custom inline colors from settings, or fall back to defaults
+    const quickColors = inlineColors || [
+      '#4285f4',
+      '#34a853',
+      '#ea4335',
+      '#fbbc04',
+      '#ff6d01',
+      '#9c27b0',
+      '#e91e63',
+      '#00bcd4',
+    ];
     quickColors.forEach((color) => {
       const quickBtn = document.createElement('button');
       quickBtn.style.cssText = `

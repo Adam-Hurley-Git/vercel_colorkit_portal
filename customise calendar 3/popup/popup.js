@@ -168,35 +168,6 @@ function showCancellationBanner(cancellationDate) {
   }
 }
 
-// Check and show Chrome update notice if needed
-async function checkAndShowChromeNotice() {
-  const { shouldShowChromeUpdateNotice, chromeNoticeDismissed } = await chrome.storage.local.get([
-    'shouldShowChromeUpdateNotice',
-    'chromeNoticeDismissed',
-  ]);
-
-  if (shouldShowChromeUpdateNotice && !chromeNoticeDismissed) {
-    const notice = document.getElementById('chromeUpdateNotice');
-    if (notice) {
-      notice.classList.add('visible');
-      debugLog('Chrome update notice shown');
-    }
-  }
-}
-
-// Dismiss Chrome update notice
-function dismissChromeNotice() {
-  const notice = document.getElementById('chromeUpdateNotice');
-  if (notice) {
-    notice.classList.remove('visible');
-    chrome.storage.local.set({ chromeNoticeDismissed: true });
-    debugLog('Chrome update notice dismissed');
-  }
-}
-
-// Make dismissChromeNotice globally available for onclick handler
-window.dismissChromeNotice = dismissChromeNotice;
-
 // Handle "Get Started" button click
 document.addEventListener('DOMContentLoaded', () => {
   const getStartedBtn = document.getElementById('getStartedBtn');
@@ -4550,20 +4521,43 @@ checkAuthAndSubscription();
     if (grantOAuthButton) {
       grantOAuthButton.onclick = async () => {
         try {
-          const response = await chrome.runtime.sendMessage({ type: 'GOOGLE_OAUTH_REQUEST', interactive: true });
-          if (response?.success) {
-            showToast('Access granted! Syncing task lists...');
+          // Show loading state
+          const originalText = grantOAuthButton.textContent;
+          grantOAuthButton.textContent = 'Granting access...';
+          grantOAuthButton.disabled = true;
 
-            // Trigger initial sync
-            await chrome.runtime.sendMessage({ type: 'SYNC_TASK_LISTS', fullSync: true });
+          const response = await chrome.runtime.sendMessage({ type: 'GOOGLE_OAUTH_REQUEST', interactive: true });
+
+          // Restore button state
+          grantOAuthButton.textContent = originalText;
+          grantOAuthButton.disabled = false;
+
+          if (response?.success) {
+            showToast('Access granted! Task lists synced successfully.');
+
+            // Note: No need to trigger sync here - handleOAuthRequest() already syncs
+            // This prevents duplicate API calls
 
             // Reload the UI
             settings = await window.cc3Storage.getSettings();
             await initTaskListColoring();
           } else {
-            showToast('Failed to grant access. Please try again.');
+            // Show specific error messages based on error type
+            if (response?.error === 'USER_DENIED') {
+              showToast('Access denied. ColorKit needs read-only access to your task lists.');
+            } else if (response?.error === 'RATE_LIMIT') {
+              showToast('Too many requests. Please wait a minute and try again.');
+            } else if (response?.error === 'NO_TOKEN') {
+              showToast('Failed to obtain access token. Please try again.');
+            } else {
+              showToast('Failed to grant access. Please try again.');
+            }
           }
         } catch (error) {
+          // Restore button state on error
+          grantOAuthButton.textContent = 'Grant Access';
+          grantOAuthButton.disabled = false;
+
           console.error('[Task List Colors] OAuth grant error:', error);
           showToast('Error granting access. Please try again.');
         }
@@ -5544,9 +5538,6 @@ checkAuthAndSubscription();
   async function init() {
     // Check auth and subscription first
     await checkAuthAndSubscription();
-
-    // Check if Chrome update notice should be shown
-    await checkAndShowChromeNotice();
 
     await loadSettings();
     await loadCustomColors();

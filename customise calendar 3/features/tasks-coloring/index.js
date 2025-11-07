@@ -187,6 +187,17 @@ async function buildInlineTaskColorRow(initial) {
     return buildFallbackColorRow(initialColor);
   }
 
+  // Load inline colors from settings
+  let inlineColors = null;
+  try {
+    if (window.cc3Storage) {
+      const settings = await window.cc3Storage.getSettings();
+      inlineColors = settings?.taskColoring?.inlineColors;
+    }
+  } catch (error) {
+    console.warn('Could not load inline colors from settings:', error);
+  }
+
   let currentColor = initialColor;
 
   // Create the custom color picker with modal-specific configuration
@@ -195,6 +206,7 @@ async function buildInlineTaskColorRow(initial) {
     openDirection: 'up', // Open upward in modals
     position: 'modal', // Modal positioning mode
     enableTabs: true,
+    inlineColors: inlineColors, // Pass inline colors from settings
     onColorChange: (color) => {
       currentColor = color;
     },
