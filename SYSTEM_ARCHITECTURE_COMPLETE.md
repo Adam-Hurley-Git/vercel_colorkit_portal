@@ -1,10 +1,10 @@
 # ColorKit System Architecture - Complete Technical Reference
 
-**Last Updated:** 2025-01-04
-**Version:** 2.2 (Fail-Open Architecture v2.0)
+**Last Updated:** 2025-01-07
+**Version:** 2.3 (Chrome Web Store Ready)
 **Extension Version:** 0.0.2
 **Backend Version:** Next.js 15.5.3
-**Status:** Production Ready
+**Status:** Production Ready - Chrome Web Store Submission
 
 ---
 
@@ -22,6 +22,37 @@
 10. [Database Schema](#database-schema)
 11. [Common Issues & Solutions](#common-issues--solutions)
 12. [Debugging Guide](#debugging-guide)
+
+---
+
+## Recent Changes (Version 0.0.2 - January 2025)
+
+### Chrome Web Store Compliance Updates
+
+**Permissions Removed:**
+
+- ❌ `cookies` - Unused permission removed (Chrome Web Store requirement)
+- ❌ `notifications` - Removed in favor of Web Push API (userVisibleOnly: false)
+- ❌ Development host permissions (`localhost`, `vercel.app`) removed from production manifest
+
+**Permissions Added:**
+
+- ✅ `identity` - Google OAuth for Tasks API integration
+- ✅ `minimum_chrome_version: "121"` - Required for silent push notifications
+
+**New Features:**
+
+1. **Improved OAuth State Management** - Storage flag is now source of truth, auto-detects external token revocation
+2. **Custom Inline Colors** - Support for custom quick-access colors in task modal via settings
+3. **Enhanced OAuth Button UX** - Loading states, specific error messages (USER_DENIED, RATE_LIMIT, NO_TOKEN)
+4. **Subscription Broadcasting** - New SUBSCRIPTION_UPDATED message handler for real-time updates
+
+**Code Cleanup:**
+
+- Removed Chrome < 121 fallback code for visible push notifications
+- Removed unused `isAuthenticated()` function from supabase-extension.js
+- Removed broken Chrome update notice HTML element
+- Simplified push notification subscription (silent mode only)
 
 ---
 
@@ -1077,19 +1108,19 @@ customise calendar 3/
 {
   "manifest_version": 3,
   "name": "ColorKit for Google Calendar",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "minimum_chrome_version": "121", // Silent push notifications
 
   "permissions": [
-    "storage", // chrome.storage.local
+    "identity", // Google OAuth for Tasks API
+    "storage", // chrome.storage.sync + chrome.storage.local
     "tabs", // Query/send messages to tabs
-    "cookies", // Read Supabase cookies (not used currently)
-    "notifications", // Web Push notifications
     "alarms" // Periodic validation (3-day alarm)
   ],
 
   "host_permissions": [
     "https://calendar.google.com/*", // Inject content scripts
-    "https://*.supabase.co/*", // API calls
+    "https://*.supabase.co/*", // Auth API + token refresh
     "https://portal.calendarextension.com/*" // Web app API
   ],
 
@@ -1100,12 +1131,7 @@ customise calendar 3/
 
   "externally_connectable": {
     // ⚠️ CRITICAL: Allows web app to send messages
-    "matches": [
-      "http://localhost:3000/*",
-      "http://127.0.0.1:3000/*",
-      "https://*.vercel.app/*",
-      "https://portal.calendarextension.com/*"
-    ]
+    "matches": ["https://portal.calendarextension.com/*"]
   },
 
   "content_scripts": [

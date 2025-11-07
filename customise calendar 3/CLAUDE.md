@@ -1,10 +1,37 @@
 # ColorKit Chrome Extension - Full Codebase Reference
 
 **Last Updated**: January 2025
-**Extension Version**: 2.0 (Fail-Open Architecture)
+**Extension Version**: 0.0.2 (Chrome Web Store Ready)
 **Manifest Version**: 3
+**Minimum Chrome Version**: 121
 
 This document provides comprehensive context about the ColorKit Chrome extension codebase for AI assistants and developers.
+
+---
+
+## Recent Changes (v0.0.2 - January 2025)
+
+### Chrome Web Store Compliance
+
+- ❌ Removed `cookies` permission (unused, causing Chrome Web Store rejection)
+- ❌ Removed `notifications` permission (using Web Push API instead)
+- ❌ Removed development host permissions from production manifest
+- ✅ Added `identity` permission for Google OAuth (Tasks API)
+- ✅ Added `minimum_chrome_version: "121"` for silent push support
+
+### New Features
+
+1. **Improved OAuth State Management** - Storage flag as source of truth
+2. **Custom Inline Colors** - User-customizable quick-access colors in task modal
+3. **Enhanced OAuth Button UX** - Loading states & specific error messages
+4. **Subscription Broadcasting** - Real-time updates to calendar tabs
+
+### Code Cleanup
+
+- Removed Chrome < 121 fallback code
+- Removed unused `isAuthenticated()` function
+- Removed broken Chrome update notice element
+- Simplified push notification subscription (silent mode only)
 
 ---
 
