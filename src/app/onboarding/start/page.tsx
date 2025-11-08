@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { CheckCircle, ArrowRight, ArrowLeft, Chrome, Calendar, Sparkles, Pin, Puzzle } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft, Chrome, Calendar, Sparkles, Pin } from 'lucide-react';
+import Image from 'next/image';
 
 export default function OnboardingStartPage() {
   const router = useRouter();
@@ -113,7 +114,12 @@ export default function OnboardingStartPage() {
                         <div className="flex-1">
                           <p className="text-xs mb-2">Click the puzzle piece icon (Extensions menu)</p>
                           <div className="bg-slate-100 rounded-lg p-2 border border-slate-300 flex items-center justify-center">
-                            <Puzzle className="w-5 h-5 text-slate-600" />
+                            <Image
+                              src="/chrome-extension-icon.svg"
+                              alt="Chrome extensions menu icon"
+                              width={20}
+                              height={20}
+                            />
                           </div>
                         </div>
                       </div>
@@ -121,11 +127,18 @@ export default function OnboardingStartPage() {
                         <span className="font-semibold text-blue-600 flex-shrink-0">3.</span>
                         <div className="flex-1">
                           <p className="text-xs mb-2">
-                            Find &quot;ColorKit&quot; in the list and click the pin icon next to it
+                            Find &quot;ColorKit for Google Calendar&quot; in the list and click the pin icon next to it
                           </p>
                           <div className="bg-slate-100 rounded-lg p-2 border border-slate-300 flex items-center justify-center gap-2">
-                            <span className="text-xs font-semibold text-slate-700">ColorKit</span>
-                            <Pin className="w-4 h-4 text-slate-600" />
+                            <Image
+                              src="/colorkit-logo.png"
+                              alt="ColorKit logo"
+                              width={16}
+                              height={16}
+                              className="flex-shrink-0"
+                            />
+                            <span className="text-xs font-semibold text-slate-700">ColorKit for Google Calendar</span>
+                            <Pin className="w-4 h-4 text-slate-600 flex-shrink-0" />
                           </div>
                         </div>
                       </div>
