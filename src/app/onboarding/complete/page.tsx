@@ -108,8 +108,8 @@ export default function CompletePage() {
 
               {/* Heading */}
               <div className="space-y-2">
-                <h1 className="text-3xl font-display font-bold text-slate-900">You&apos;re All Set! 🎉</h1>
-                <p className="text-lg text-slate-600">Your ColorKit extension is ready to go</p>
+                <h1 className="text-3xl font-display font-bold text-slate-900">Ready to Transform Your Calendar! 🎉</h1>
+                <p className="text-lg text-slate-600">Start your free trial and unlock all features</p>
               </div>
 
               {/* Welcome Box */}

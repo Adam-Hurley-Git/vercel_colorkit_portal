@@ -211,6 +211,72 @@ export default function HowItWorksPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Visual Demo - Before/After */}
+              <div className="bg-white rounded-xl p-4 shadow-lg border-2 border-blue-300">
+                <div className="flex gap-6 justify-center items-start">
+                  {/* Before - Plain gray days */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-slate-600 text-center uppercase tracking-wide mb-1">
+                      Before
+                    </p>
+                    <p className="text-xs font-bold text-slate-600 text-center mb-3">All Look the Same</p>
+                    <div className="flex gap-2 justify-center min-w-[200px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold text-slate-500">Mon</span>
+                        <div className="w-8 h-24 bg-slate-50 rounded border-2 border-slate-300 shadow-sm"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold text-slate-500">Tue</span>
+                        <div className="w-8 h-24 bg-slate-50 rounded border-2 border-slate-300 shadow-sm"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold text-slate-500">Wed</span>
+                        <div className="w-8 h-24 bg-slate-50 rounded border-2 border-slate-300 shadow-sm"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-semibold text-slate-500">Thu</span>
+                        <div className="w-8 h-24 bg-slate-50 rounded border-2 border-slate-300 shadow-sm"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-px h-32 bg-slate-300 self-center"></div>
+
+                  {/* After - Colored days */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-blue-600 text-center uppercase tracking-wide mb-1">
+                      After ✨
+                    </p>
+                    <p className="text-xs font-bold text-green-600 text-center mb-3">Each Day Unique!</p>
+                    <div className="flex gap-2 justify-center min-w-[200px]">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-bold text-blue-600">Mon</span>
+                        <div className="w-8 h-24 bg-gradient-to-b from-blue-200 to-blue-300 rounded border-2 border-blue-400 shadow-md"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-bold text-purple-600">Tue</span>
+                        <div className="w-8 h-24 bg-gradient-to-b from-purple-200 to-purple-300 rounded border-2 border-purple-400 shadow-md"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-bold text-pink-600">Wed</span>
+                        <div className="w-8 h-24 bg-gradient-to-b from-pink-200 to-pink-300 rounded border-2 border-pink-400 shadow-md"></div>
+                      </div>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="text-xs font-bold text-green-600">Thu</span>
+                        <div className="w-8 h-24 bg-gradient-to-b from-green-200 to-green-300 rounded border-2 border-green-400 shadow-md"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Benefit Callout */}
+                <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-lg px-4 py-3 text-center">
+                  <p className="text-sm font-bold text-blue-900">
+                    💙 Give Monday a Mood and Friday a Vibe - scan your week 3x faster!
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -314,6 +380,121 @@ export default function HowItWorksPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Visual Demo - Before/After */}
+              <div className="bg-white rounded-xl p-4 shadow-lg border-2 border-green-300">
+                <div className="flex gap-6 justify-center items-start">
+                  {/* Before - Standard blue tasks */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-slate-600 text-center uppercase tracking-wide mb-1">
+                      Google Tasks
+                    </p>
+                    <p className="text-xs font-bold text-red-600 text-center mb-3">Only 1 Color</p>
+                    <div className="space-y-2 min-w-[200px]">
+                      <div className="h-8 bg-blue-100 rounded border-l-4 border-blue-500 px-2 flex items-center gap-2 shadow-sm">
+                        <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs text-blue-900">Team Meeting</span>
+                      </div>
+                      <div className="h-8 bg-blue-100 rounded border-l-4 border-blue-500 px-2 flex items-center gap-2 shadow-sm">
+                        <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs text-blue-900">Review Docs</span>
+                      </div>
+                      <div className="h-8 bg-blue-100 rounded border-l-4 border-blue-500 px-2 flex items-center gap-2 shadow-sm">
+                        <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs text-blue-900">Send Email</span>
+                      </div>
+                      <div className="h-8 bg-blue-100 rounded border-l-4 border-blue-500 px-2 flex items-center gap-2 shadow-sm">
+                        <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs text-blue-900">Call Client</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-px h-32 bg-slate-300 self-center"></div>
+
+                  {/* After - Priority colored tasks */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-blue-600 text-center uppercase tracking-wide mb-1">
+                      ColorKit Power
+                    </p>
+                    <p className="text-xs font-bold text-green-600 text-center mb-3">∞ Unlimited Colors! ✨</p>
+                    <div className="space-y-2 min-w-[200px]">
+                      <div className="h-8 bg-red-100 rounded border-l-4 border-red-500 px-2 flex items-center gap-2 shadow-md">
+                        <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-red-900">Team Meeting</span>
+                      </div>
+                      <div className="h-8 bg-amber-100 rounded border-l-4 border-amber-500 px-2 flex items-center gap-2 shadow-md">
+                        <svg className="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-amber-900">Review Docs</span>
+                      </div>
+                      <div className="h-8 bg-green-100 rounded border-l-4 border-green-500 px-2 flex items-center gap-2 shadow-md">
+                        <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-green-900">Send Email</span>
+                      </div>
+                      <div className="h-8 bg-blue-100 rounded border-l-4 border-blue-500 px-2 flex items-center gap-2 shadow-md">
+                        <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z"
+                            opacity="0.3"
+                          />
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                        </svg>
+                        <span className="text-xs font-semibold text-blue-900">Call Client</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Benefit Callout */}
+                <div className="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg px-4 py-3 text-center">
+                  <p className="text-sm font-bold text-green-900">
+                    💡 Pick the <span className="underline">perfect color</span> for every task - not stuck with just
+                    one color like Google Tasks!
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -402,6 +583,78 @@ export default function HowItWorksPage() {
                     events remain visible and easy to read
                   </span>
                 </p>
+              </div>
+
+              {/* Visual Demo - Before/After */}
+              <div className="bg-white rounded-xl p-4 shadow-lg border-2 border-green-300">
+                <div className="flex gap-6 justify-center items-start">
+                  {/* Before - Plain calendar grid */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-slate-600 text-center uppercase tracking-wide mb-3">
+                      Before
+                    </p>
+                    <div className="space-y-1 min-w-[200px]">
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">8:30 AM</span>
+                        <div className="flex-1 h-6 bg-white border border-slate-200 rounded"></div>
+                      </div>
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">10:15 AM</span>
+                        <div className="flex-1 h-6 bg-white border border-slate-200 rounded"></div>
+                      </div>
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">1:00 PM</span>
+                        <div className="flex-1 h-6 bg-white border border-slate-200 rounded"></div>
+                      </div>
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">3:45 PM</span>
+                        <div className="flex-1 h-6 bg-white border border-slate-200 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="w-px h-36 bg-slate-300 self-center"></div>
+
+                  {/* After - Time blocks with labels */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-green-600 text-center uppercase tracking-wide mb-3">
+                      After ✨
+                    </p>
+                    <div className="space-y-1 min-w-[200px]">
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">8:30 AM</span>
+                        <div className="flex-1 h-6 bg-gradient-to-r from-purple-200 to-purple-300 border-2 border-purple-400 rounded px-2 flex items-center shadow-md">
+                          <span className="text-xs font-bold text-purple-700">🎯 Deep Work</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">10:15 AM</span>
+                        <div className="flex-1 h-6 bg-gradient-to-r from-teal-200 to-teal-300 border-2 border-teal-400 rounded px-2 flex items-center shadow-md">
+                          <span className="text-xs font-bold text-teal-700">💬 Meetings</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">1:00 PM</span>
+                        <div className="flex-1 h-6 bg-gradient-to-r from-amber-200 to-amber-300 border-2 border-amber-400 rounded px-2 flex items-center shadow-md">
+                          <span className="text-xs font-bold text-amber-700">🍽️ Lunch Break</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 h-10 bg-slate-50 rounded border border-slate-200 px-2">
+                        <span className="text-xs text-slate-400 font-mono">3:45 PM</span>
+                        <div className="flex-1 h-6 bg-gradient-to-r from-blue-200 to-blue-300 border-2 border-blue-400 rounded px-2 flex items-center shadow-md">
+                          <span className="text-xs font-bold text-blue-700">📧 Admin Time</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* Benefit Callout */}
+                <div className="mt-4 bg-gradient-to-r from-purple-50 to-violet-50 border-2 border-purple-300 rounded-lg px-4 py-3 text-center">
+                  <p className="text-sm font-bold text-purple-900">
+                    🎯 Protect deep work time without cluttering your calendar with fake events!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
