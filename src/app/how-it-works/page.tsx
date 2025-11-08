@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
                 <p className="text-sm text-slate-600 mb-3 flex-1">
                   Look for the ColorKit icon in your Chrome toolbar (top-right corner, next to the address bar)
                 </p>
-                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 min-h-[64px] flex items-center justify-center">
                   <p className="text-xs text-slate-500 italic">
                     💡 If you don&apos;t see it, click the puzzle icon to pin ColorKit
                   </p>
@@ -91,7 +91,7 @@ export default function HowItWorksPage() {
                   </a>{' '}
                   in your browser
                 </p>
-                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 min-h-[64px] flex items-center justify-center">
                   <p className="text-xs text-blue-700 font-medium">
                     ✨ The extension only works on Google Calendar pages
                   </p>
@@ -110,7 +110,7 @@ export default function HowItWorksPage() {
                 <p className="text-sm text-slate-600 mb-3 flex-1">
                   Click the ColorKit extension icon to open settings and start customizing your calendar
                 </p>
-                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                <div className="bg-green-50 rounded-lg p-3 border border-green-200 min-h-[64px] flex items-center justify-center">
                   <p className="text-xs text-green-700 font-medium">🎨 Customize colors, tasks & time blocks!</p>
                 </div>
               </div>
