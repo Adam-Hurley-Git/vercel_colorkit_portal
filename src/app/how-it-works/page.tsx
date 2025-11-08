@@ -50,9 +50,9 @@ export default function HowItWorksPage() {
 
           {/* How It Works Steps */}
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-8 md:items-stretch">
               {/* Step 1 */}
-              <div className="flex flex-col text-center">
+              <div className="flex flex-col text-center h-full">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative mx-auto">
                   <Chrome className="w-7 h-7 text-white" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
@@ -71,7 +71,7 @@ export default function HowItWorksPage() {
               </div>
 
               {/* Step 2 */}
-              <div className="flex flex-col text-center">
+              <div className="flex flex-col text-center h-full">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative mx-auto">
                   <Calendar className="w-7 h-7 text-white" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
@@ -99,7 +99,7 @@ export default function HowItWorksPage() {
               </div>
 
               {/* Step 3 */}
-              <div className="flex flex-col text-center">
+              <div className="flex flex-col text-center h-full">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative mx-auto">
                   <MousePointerClick className="w-7 h-7 text-white" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
