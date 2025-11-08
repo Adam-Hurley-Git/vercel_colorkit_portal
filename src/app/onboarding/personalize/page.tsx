@@ -2,54 +2,30 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Eye, Sparkles, Lock, Palette, ArrowRight, ArrowLeft, Lightbulb, CheckCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Lightbulb, Sparkles } from 'lucide-react';
 
 export default function PersonalizePage() {
-  const [selected, setSelected] = useState<string | null>(null);
   const [featureSuggestion, setFeatureSuggestion] = useState('');
   const router = useRouter();
 
-  const painPoints = [
-    {
-      id: 'visualClarity',
-      icon: <Eye className="w-8 h-8" />,
-      title: 'My calendar days blend together',
-      description: 'Hard to distinguish between different days at a glance—need visual clarity',
-      gradient: 'from-blue-500 to-purple-500',
-    },
-    {
-      id: 'taskPriority',
-      icon: <Sparkles className="w-8 h-8" />,
-      title: 'Important tasks get buried',
-      description: 'Need a way to make Google tasks stand out with custom colors',
-      gradient: 'from-red-500 to-orange-500',
-    },
-    {
-      id: 'timeProtection',
-      icon: <Lock className="w-8 h-8" />,
-      title: 'Need to block time for deep work',
-      description: 'Want to protect focus time without cluttering calendar with fake events',
-      gradient: 'from-green-500 to-teal-500',
-    },
-    {
-      id: 'allFeatures',
-      icon: <Palette className="w-8 h-8" />,
-      title: 'Want complete calendar control',
-      description: 'Need day coloring, custom task colors, and time blocks all in one',
-      gradient: 'from-purple-500 to-pink-500',
-    },
-  ];
+  const handleSubmit = async () => {
+    // TODO: Send feature suggestion to backend if user provided one
+    if (featureSuggestion.trim()) {
+      console.log('Feature suggestion:', featureSuggestion);
+      // Could save to database here
+    }
 
-  const handleContinue = async () => {
-    if (!selected) return;
+    // Navigate to complete page
+    router.push('/onboarding/complete');
+  };
 
-    // Navigate to demo page with context
-    router.push(`/onboarding/demo?painPoint=${selected}`);
+  const handleSkip = () => {
+    router.push('/onboarding/complete');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      {/* Progress Bar */}
+      {/* Progress Bar - 50% (third page) */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-slate-200 z-50">
         <div
           className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
@@ -57,121 +33,101 @@ export default function PersonalizePage() {
         ></div>
       </div>
 
-      <div className="container mx-auto px-4 h-screen flex flex-col justify-center">
-        <div className="max-w-4xl mx-auto w-full">
+      <div className="container mx-auto px-4 flex flex-col justify-center min-h-screen py-8">
+        <div className="max-w-2xl mx-auto w-full">
           {/* Back Button */}
           <button
             onClick={() => router.push('/onboarding/start')}
-            className="mb-4 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+            className="mb-3 flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
           </button>
 
-          {/* Main Content */}
-          <div className="text-center mb-6">
-            <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 mb-3">
-              What&apos;s your biggest challenge?
-            </h1>
-            <p className="text-lg text-slate-600">We&apos;ll personalize your experience</p>
-          </div>
+          {/* Main Content Card */}
+          <div className="relative overflow-hidden rounded-2xl bg-white shadow-xl">
+            {/* Gradient Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 opacity-60"></div>
 
-          {/* Pain Point Cards */}
-          <div className="grid sm:grid-cols-2 gap-4 mb-6">
-            {painPoints.map((point) => (
-              <button
-                key={point.id}
-                onClick={() => setSelected(point.id)}
-                className={`group relative overflow-hidden rounded-2xl p-4 text-left transition-all duration-300 ${
-                  selected === point.id
-                    ? 'ring-2 ring-offset-2 ring-blue-500 shadow-xl scale-[1.02]'
-                    : 'bg-white border border-slate-200 hover:border-blue-300 hover:shadow-lg'
-                }`}
-              >
-                {/* Gradient Background (when selected) */}
-                {selected === point.id && (
-                  <div className={`absolute inset-0 bg-gradient-to-br ${point.gradient} opacity-5`}></div>
-                )}
-
-                <div className="relative flex items-start gap-3">
-                  {/* Icon */}
-                  <div
-                    className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                      selected === point.id
-                        ? `bg-gradient-to-br ${point.gradient} text-white shadow-lg`
-                        : 'bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 group-hover:from-blue-50 group-hover:to-purple-50 group-hover:text-blue-600'
-                    }`}
-                  >
-                    <div className="scale-75">{point.icon}</div>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3
-                      className={`font-display font-bold text-base mb-1 transition-colors ${
-                        selected === point.id ? 'text-slate-900' : 'text-slate-800 group-hover:text-slate-900'
-                      }`}
-                    >
-                      {point.title}
-                    </h3>
-                    <p className="text-xs text-slate-600 leading-relaxed">{point.description}</p>
-                  </div>
-
-                  {/* Checkmark */}
-                  {selected === point.id && (
-                    <div className="flex-shrink-0 animate-scale-in">
-                      <div
-                        className={`w-6 h-6 bg-gradient-to-br ${point.gradient} rounded-full flex items-center justify-center shadow-lg`}
-                      >
-                        <CheckCircle className="w-4 h-4 text-white" fill="currentColor" />
-                      </div>
-                    </div>
-                  )}
+            <div className="relative px-6 py-8 sm:px-8 sm:py-10">
+              <div className="text-center space-y-6">
+                {/* Optional Badge */}
+                <div className="flex justify-center">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                    <Sparkles className="w-3 h-3" />
+                    Optional Step
+                  </span>
                 </div>
-              </button>
-            ))}
-          </div>
 
-          {/* Feature Suggestion Input */}
-          <div className="mb-6">
-            <div className="bg-white rounded-2xl p-5 border-2 border-slate-200 shadow-lg">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-200 rounded-lg flex items-center justify-center">
-                  <Lightbulb className="w-5 h-5 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-display font-bold text-slate-900 text-base mb-1">
-                    Got a feature idea? <span className="text-slate-500 font-normal text-sm">(Optional)</span>
-                  </h3>
-                  <p className="text-xs text-slate-600 mb-3">
-                    Share any feature you&apos;d like to see - we&apos;re always building based on your feedback!
+                {/* Main Heading */}
+                <div className="space-y-2">
+                  <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 tracking-tight">
+                    Help Us Build What You Need
+                  </h1>
+                  <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto">
+                    Have ideas for features or changes you&apos;d like to see in your Google Calendar experience?
                   </p>
+                </div>
+
+                {/* Feature Suggestion Input */}
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-200 max-w-xl mx-auto">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <Lightbulb className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="font-display font-semibold text-slate-900 text-base mb-1">Share Your Ideas</h3>
+                      <p className="text-xs text-slate-600 mb-3">
+                        Tell us about any features or improvements you&apos;d like to see. We actively build based on
+                        user feedback!
+                      </p>
+                    </div>
+                  </div>
+
                   <textarea
                     value={featureSuggestion}
                     onChange={(e) => setFeatureSuggestion(e.target.value)}
-                    placeholder="e.g., I wish I could color-code by event type..."
-                    rows={3}
+                    placeholder="e.g., I wish I could automatically color-code events by type, or sync my calendar theme across devices..."
+                    rows={4}
                     maxLength={500}
-                    className="w-full px-3 py-2 text-sm border-2 border-slate-200 rounded-lg focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all resize-none text-slate-800 placeholder-slate-400"
+                    className="w-full px-4 py-3 text-sm border-2 border-blue-200 rounded-lg focus:border-blue-400 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all resize-none text-slate-800 placeholder-slate-400 bg-white"
                   />
-                  <div className="flex justify-between items-center mt-1">
-                    <p className="text-xs text-slate-500">Help us build what you need</p>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xs text-slate-500">Your feedback shapes our roadmap</p>
                     <p className="text-xs text-slate-400">{featureSuggestion.length}/500</p>
                   </div>
                 </div>
+
+                {/* CTA Buttons */}
+                <div className="pt-2 space-y-3">
+                  {/* Skip Button - Very Prominent */}
+                  <button
+                    onClick={handleSkip}
+                    className="w-full sm:w-auto px-8 py-3 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 hover:border-slate-400 transition-all shadow-sm hover:shadow-md"
+                  >
+                    Skip for Now
+                  </button>
+
+                  {/* Submit Button - Only if they typed something */}
+                  {featureSuggestion.trim() && (
+                    <div>
+                      <button
+                        onClick={handleSubmit}
+                        className="btn btn-primary btn-lg group shadow-xl hover:shadow-2xl px-8 py-3 w-full sm:w-auto"
+                      >
+                        <span className="font-semibold">Submit Feedback</span>
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Help Text */}
+                <p className="text-xs text-slate-500 max-w-md mx-auto pt-2">
+                  This is completely optional. You can skip this step and start your free trial right away.
+                </p>
               </div>
             </div>
-          </div>
-
-          {/* Continue Button */}
-          <div className="text-center">
-            <button
-              onClick={handleContinue}
-              disabled={!selected}
-              className="btn btn-primary btn-xl group disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Continue
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-            </button>
           </div>
         </div>
       </div>
