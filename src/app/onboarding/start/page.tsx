@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { CheckCircle, ArrowRight, ArrowLeft, Chrome, Calendar, Sparkles, Pin } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft, Chrome, Calendar, Sparkles, Pin, Puzzle } from 'lucide-react';
 
 export default function OnboardingStartPage() {
   const router = useRouter();
@@ -45,7 +45,7 @@ export default function OnboardingStartPage() {
                 {/* Main Heading */}
                 <div className="space-y-2">
                   <h1 className="text-3xl sm:text-4xl font-display font-bold text-slate-900 tracking-tight">
-                    Welcome to ColorKit!
+                    How to Get Started with ColorKit
                   </h1>
                   <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
                     Let&apos;s get you set up in under 60 seconds. Here&apos;s what to expect:
@@ -72,9 +72,9 @@ export default function OnboardingStartPage() {
                         2
                       </div>
                       <div className="flex-1 pt-0.5">
-                        <p className="font-semibold text-slate-900 text-sm">See Feature Demos</p>
+                        <p className="font-semibold text-slate-900 text-sm">See Features</p>
                         <p className="text-xs text-slate-600">
-                          Quick interactive preview showing how each feature works with your calendar
+                          Quick preview showing how each feature works with your calendar
                         </p>
                       </div>
                     </div>
@@ -86,7 +86,7 @@ export default function OnboardingStartPage() {
                       <div className="flex-1 pt-0.5">
                         <p className="font-semibold text-slate-900 text-sm">Start Your Free Trial</p>
                         <p className="text-xs text-slate-600">
-                          Get 7 days of full access to all premium features, no credit card required upfront
+                          Get 7 days of full access to all premium features, cancel anytime during trial
                         </p>
                       </div>
                     </div>
@@ -103,20 +103,31 @@ export default function OnboardingStartPage() {
                     <p className="text-xs text-slate-600 text-center mb-3">
                       After setup, you&apos;ll need to access the extension from your Chrome toolbar:
                     </p>
-                    <div className="bg-white rounded-lg p-3 space-y-2">
+                    <div className="bg-white rounded-lg p-3 space-y-3">
                       <div className="flex items-start gap-2">
                         <span className="font-semibold text-blue-600 flex-shrink-0">1.</span>
                         <p className="text-xs">Look in the top-right corner of Chrome, next to the address bar</p>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="font-semibold text-blue-600 flex-shrink-0">2.</span>
-                        <p className="text-xs">Click the puzzle piece icon (Extensions menu)</p>
+                        <div className="flex-1">
+                          <p className="text-xs mb-2">Click the puzzle piece icon (Extensions menu)</p>
+                          <div className="bg-slate-100 rounded-lg p-2 border border-slate-300 flex items-center justify-center">
+                            <Puzzle className="w-5 h-5 text-slate-600" />
+                          </div>
+                        </div>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="font-semibold text-blue-600 flex-shrink-0">3.</span>
-                        <p className="text-xs">
-                          Find &quot;ColorKit&quot; in the list and click the pin icon next to it
-                        </p>
+                        <div className="flex-1">
+                          <p className="text-xs mb-2">
+                            Find &quot;ColorKit&quot; in the list and click the pin icon next to it
+                          </p>
+                          <div className="bg-slate-100 rounded-lg p-2 border border-slate-300 flex items-center justify-center gap-2">
+                            <span className="text-xs font-semibold text-slate-700">ColorKit</span>
+                            <Pin className="w-4 h-4 text-slate-600" />
+                          </div>
+                        </div>
                       </div>
                       <div className="flex items-start gap-2">
                         <span className="font-semibold text-blue-600 flex-shrink-0">4.</span>
