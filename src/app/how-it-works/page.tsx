@@ -52,15 +52,15 @@ export default function HowItWorksPage() {
           <div className="bg-white rounded-2xl shadow-xl p-8 mb-6">
             <div className="grid md:grid-cols-3 gap-8">
               {/* Step 1 */}
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative">
+              <div className="flex flex-col text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative mx-auto">
                   <Chrome className="w-7 h-7 text-white" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
                     1
                   </div>
                 </div>
                 <h3 className="font-display font-bold text-slate-900 mb-2">Find the Extension</h3>
-                <p className="text-sm text-slate-600 mb-3">
+                <p className="text-sm text-slate-600 mb-3 flex-1">
                   Look for the ColorKit icon in your Chrome toolbar (top-right corner, next to the address bar)
                 </p>
                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-200">
@@ -71,15 +71,15 @@ export default function HowItWorksPage() {
               </div>
 
               {/* Step 2 */}
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative">
+              <div className="flex flex-col text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative mx-auto">
                   <Calendar className="w-7 h-7 text-white" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
                     2
                   </div>
                 </div>
                 <h3 className="font-display font-bold text-slate-900 mb-2">Open Google Calendar</h3>
-                <p className="text-sm text-slate-600 mb-3">
+                <p className="text-sm text-slate-600 mb-3 flex-1">
                   Navigate to{' '}
                   <a
                     href="https://calendar.google.com"
@@ -99,15 +99,15 @@ export default function HowItWorksPage() {
               </div>
 
               {/* Step 3 */}
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative">
+              <div className="flex flex-col text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 relative mx-auto">
                   <MousePointerClick className="w-7 h-7 text-white" />
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xs">
                     3
                   </div>
                 </div>
                 <h3 className="font-display font-bold text-slate-900 mb-2">Click the Icon</h3>
-                <p className="text-sm text-slate-600 mb-3">
+                <p className="text-sm text-slate-600 mb-3 flex-1">
                   Click the ColorKit extension icon to open settings and start customizing your calendar
                 </p>
                 <div className="bg-green-50 rounded-lg p-3 border border-green-200">
