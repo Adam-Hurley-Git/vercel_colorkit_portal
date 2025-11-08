@@ -61,9 +61,9 @@ export default function OnboardingStartPage() {
                         1
                       </div>
                       <div className="flex-1 pt-0.5">
-                        <p className="font-semibold text-slate-900 text-sm">Personalize Your Experience</p>
+                        <p className="font-semibold text-slate-900 text-sm">Pin the Extension</p>
                         <p className="text-xs text-slate-600">
-                          Choose which features you&apos;d like to use (day coloring, task organization, time blocking)
+                          Add ColorKit to your Chrome toolbar for easy access to settings and features
                         </p>
                       </div>
                     </div>
@@ -97,8 +97,10 @@ export default function OnboardingStartPage() {
                 {/* How to Pin Extension */}
                 <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 border border-blue-200 max-w-2xl mx-auto">
                   <div className="flex items-center justify-center gap-2 mb-3">
-                    <Pin className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-display font-semibold text-slate-900">First: Pin Your Extension</h3>
+                    <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      1
+                    </div>
+                    <h3 className="font-display font-semibold text-slate-900">Pin Your Extension</h3>
                   </div>
                   <div className="text-left space-y-2 text-sm text-slate-700">
                     <p className="text-xs text-slate-600 text-center mb-3">
@@ -150,38 +152,53 @@ export default function OnboardingStartPage() {
                   </div>
                 </div>
 
-                {/* How It Works with Calendar */}
+                {/* How the Extension Works */}
                 <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-5 border border-green-200 max-w-2xl mx-auto">
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <Calendar className="w-5 h-5 text-green-600" />
-                    <h3 className="font-display font-semibold text-slate-900">How It Works with Google Calendar</h3>
+                    <h3 className="font-display font-semibold text-slate-900">How the Extension Works</h3>
                   </div>
-                  <div className="text-left space-y-2">
-                    <div className="bg-white rounded-lg p-3 space-y-2">
+                  <div className="text-left space-y-3">
+                    <p className="text-xs text-slate-700 text-center">
+                      ColorKit is a Chrome extension that enhances your Google Calendar with powerful customization
+                      features
+                    </p>
+                    <div className="bg-white rounded-lg p-4 space-y-3">
                       <div className="flex items-start gap-2">
                         <Chrome className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-xs font-semibold text-slate-900 mb-1">Extension Icon</p>
+                          <p className="text-xs font-semibold text-slate-900 mb-1">Browser Extension</p>
                           <p className="text-xs text-slate-600">
-                            Click the ColorKit icon in your toolbar to open settings and customize colors
+                            Runs directly in Chrome while you use Google Calendar - no separate app needed
                           </p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
                         <Calendar className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-xs font-semibold text-slate-900 mb-1">Open Google Calendar</p>
+                          <p className="text-xs font-semibold text-slate-900 mb-1">Works on calendar.google.com</p>
                           <p className="text-xs text-slate-600">
-                            Go to calendar.google.com - the extension only works on Google Calendar pages
+                            Visit Google Calendar in your browser, and the extension automatically enhances it with your
+                            custom colors and features
                           </p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
                         <Sparkles className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                         <div>
-                          <p className="text-xs font-semibold text-slate-900 mb-1">See Your Customizations</p>
+                          <p className="text-xs font-semibold text-slate-900 mb-1">Click the Icon to Customize</p>
                           <p className="text-xs text-slate-600">
-                            Your color-coded days, organized tasks, and time blocks will appear automatically
+                            Click the ColorKit icon in your toolbar to open settings where you can choose colors for
+                            days, set up task coloring, and create time blocks
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-semibold text-slate-900 mb-1">Changes Apply Instantly</p>
+                          <p className="text-xs text-slate-600">
+                            Your calendar updates in real-time as you make changes - no page refresh needed
                           </p>
                         </div>
                       </div>
