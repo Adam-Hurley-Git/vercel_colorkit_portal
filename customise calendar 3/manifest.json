@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ColorKit for Google Calendar",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Transform Google Calendar with custom day colors, task colors, and time blocks.",
   "icons": {
     "16": "images/icon-16.png",

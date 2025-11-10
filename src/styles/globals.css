@@ -228,4 +228,88 @@
       transform: scale(1);
     }
   }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-in-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-pulse-highlight {
+    animation: pulseHighlight 1.5s ease-in-out;
+  }
+
+  @keyframes pulseHighlight {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+    50% {
+      box-shadow:
+        0 0 0 8px rgba(59, 130, 246, 0.4),
+        0 0 20px rgba(59, 130, 246, 0.3);
+    }
+  }
+
+  /* More prominent task highlighting animation */
+  .animate-task-highlight {
+    animation: taskHighlight 1.5s ease-in-out;
+  }
+
+  @keyframes taskHighlight {
+    0%,
+    100% {
+      transform: scale(1);
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      border-color: rgba(226, 232, 240, 1);
+    }
+    25% {
+      transform: scale(1.05);
+      box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.3),
+        0 0 12px rgba(59, 130, 246, 0.4),
+        0 4px 8px rgba(0, 0, 0, 0.15);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+    50% {
+      transform: scale(1.08);
+      box-shadow:
+        0 0 0 6px rgba(59, 130, 246, 0.4),
+        0 0 20px rgba(59, 130, 246, 0.5),
+        0 6px 12px rgba(0, 0, 0, 0.2);
+      border-color: rgba(59, 130, 246, 0.8);
+    }
+    75% {
+      transform: scale(1.05);
+      box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.3),
+        0 0 12px rgba(59, 130, 246, 0.4),
+        0 4px 8px rgba(0, 0, 0, 0.15);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+  }
+
+  /* Color change animation for tasks */
+  .animate-color-change {
+    animation: colorChange 0.6s ease-in-out;
+  }
+
+  @keyframes colorChange {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.1);
+      filter: brightness(1.2);
+    }
+  }
 }

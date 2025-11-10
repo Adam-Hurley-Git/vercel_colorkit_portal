@@ -3140,6 +3140,8 @@ checkAuthAndSubscription();
 			padding: 24px;
 			min-width: 320px;
 			max-width: 400px;
+			max-height: 90vh;
+			overflow-y: auto;
 			transform: translateY(20px);
 			transition: transform 0.2s ease;
 		`;
@@ -5485,7 +5487,11 @@ checkAuthAndSubscription();
       }
 
       // Close color pickers when clicking outside
-      else if (!e.target.closest('.time-block-color-item, .time-block-global-color-item, .task-list-color-picker')) {
+      else if (
+        !e.target.closest(
+          '.time-block-color-item, .time-block-global-color-item, .task-list-color-picker, .day-color-item, .task-color-item',
+        )
+      ) {
         // Close time block color pickers
         document
           .querySelectorAll('.time-block-color-details.expanded, .time-block-global-color-details.expanded')
@@ -5505,6 +5511,25 @@ checkAuthAndSubscription();
         document.querySelectorAll('.task-list-color-details.expanded').forEach((details) => {
           details.classList.remove('expanded');
         });
+
+        // Close day color pickers
+        document.querySelectorAll('.day-color-item.expanded').forEach((item) => {
+          item.classList.remove('expanded');
+        });
+        document.querySelectorAll('.day-details.expanded').forEach((details) => {
+          details.classList.remove('expanded');
+          details.style.zIndex = '';
+        });
+
+        // Close quick pick task color pickers
+        document.querySelectorAll('.task-color-item.expanded').forEach((item) => {
+          item.classList.remove('expanded');
+        });
+        document.querySelectorAll('.task-color-details.expanded').forEach((details) => {
+          details.classList.remove('expanded');
+          details.style.zIndex = '';
+        });
+
         // Hide backdrop
         const backdrop = document.getElementById('task-list-color-backdrop');
         if (backdrop) backdrop.classList.remove('active');

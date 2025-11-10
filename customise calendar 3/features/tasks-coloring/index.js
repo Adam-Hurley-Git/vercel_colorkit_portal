@@ -776,15 +776,17 @@ async function doRepaint(bypassThrottling = false) {
   const now = Date.now();
   repaintCount++;
 
-  // Check if task coloring is enabled
-  let isEnabled = true;
+  // Check if task coloring features are enabled
+  let quickPickColoringEnabled = true;
+  let taskListColoringEnabled = false;
   try {
     const settings = await window.cc3Storage?.getSettings?.();
-    isEnabled = settings?.taskColoring?.enabled !== false; // Default to true if not set
+    quickPickColoringEnabled = settings?.taskColoring?.enabled !== false; // Default to true if not set
+    taskListColoringEnabled = settings?.taskListColoring?.enabled === true;
   } catch (e) {}
 
-  // Early exit if task coloring is disabled
-  if (!isEnabled) {
+  // Early exit if both quick pick coloring and task list coloring are disabled
+  if (!quickPickColoringEnabled && !taskListColoringEnabled) {
     return;
   }
 
@@ -800,13 +802,6 @@ async function doRepaint(bypassThrottling = false) {
 
   cleanupStaleReferences();
   const map = await loadMap();
-
-  // Check if task list coloring is enabled
-  let taskListColoringEnabled = false;
-  try {
-    const settings = await window.cc3Storage?.getSettings?.();
-    taskListColoringEnabled = settings?.taskListColoring?.enabled === true;
-  } catch (e) {}
 
   // Early exit if no colors to apply (neither manual nor list defaults)
   if (Object.keys(map).length === 0 && !taskListColoringEnabled) {
